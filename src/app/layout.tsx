@@ -35,21 +35,22 @@ export default function RootLayout({
             position="top-right"
             toastOptions={{
               duration: 4000,
+              className: '',
               style: {
-                background: '#1E293B',
-                color: '#fff',
-                border: '1px solid #334155',
+                background: 'hsl(var(--card))',
+                color: 'hsl(var(--card-foreground))',
+                border: '1px solid hsl(var(--border))',
               },
               success: {
                 iconTheme: {
                   primary: '#B4F481',
-                  secondary: '#0A1929',
+                  secondary: 'hsl(var(--background))',
                 },
               },
               error: {
                 iconTheme: {
                   primary: '#EF4444',
-                  secondary: '#fff',
+                  secondary: 'hsl(var(--card-foreground))',
                 },
               },
             }}

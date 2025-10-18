@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { assignmentId: string } }
+  { params }: { params: Promise<{ assignmentId: string }> }
 ) {
   try {
     const token = request.cookies.get('auth-token')?.value;
@@ -14,8 +14,9 @@ export async function DELETE(
       );
     }
 
+    const { assignmentId } = await params;
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/assign/${params.assignmentId}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/assign/${assignmentId}`,
       {
         method: 'DELETE',
         headers: {

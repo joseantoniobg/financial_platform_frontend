@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(
+export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -15,10 +15,15 @@ export async function PATCH(
     }
 
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get('date');
+
+    const queryParams = date ? `?date=${date}` : '';
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/${id}/toggle-status`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/${id}/pricing${queryParams}`,
       {
-        method: 'PATCH',
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -33,9 +38,9 @@ export async function PATCH(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Service toggle status error:', error);
+    console.error('Pricing fetch error:', error);
     return NextResponse.json(
-      { message: 'Erro ao alterar status do serviço' },
+      { message: 'Erro ao buscar precificações' },
       { status: 500 }
     );
   }

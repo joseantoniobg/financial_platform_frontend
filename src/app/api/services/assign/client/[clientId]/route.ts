@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(
+export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
     const token = request.cookies.get('auth-token')?.value;
@@ -14,11 +14,12 @@ export async function PATCH(
       );
     }
 
-    const { id } = await params;
+    const { clientId } = await params;
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/${id}/toggle-status`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/client/${clientId}`,
       {
-        method: 'PATCH',
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -31,11 +32,11 @@ export async function PATCH(
       return NextResponse.json(data, { status: response.status });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ data });
   } catch (error) {
-    console.error('Service toggle status error:', error);
+    console.error('Client assignments fetch error:', error);
     return NextResponse.json(
-      { message: 'Erro ao alterar status do serviço' },
+      { message: 'Erro ao buscar atribuições do cliente' },
       { status: 500 }
     );
   }

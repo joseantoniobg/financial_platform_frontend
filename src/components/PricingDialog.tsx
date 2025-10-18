@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { DateInput } from '@/components/ui/date-input';
 import { Loader2, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -181,11 +181,10 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                   <Label htmlFor="initialDate" className="text-slate-700 dark:text-gray-300">
                     Data Inicial <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <DateInput
                     id="initialDate"
-                    type="date"
                     value={formData.initialDate}
-                    onChange={(e) => setFormData({ ...formData, initialDate: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, initialDate: value })}
                     className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                     disabled={submitting}
                   />
@@ -196,11 +195,10 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                     Data Final
                     <span className="text-xs text-gray-500 ml-1">(opcional)</span>
                   </Label>
-                  <Input
+                  <DateInput
                     id="finalDate"
-                    type="date"
                     value={formData.finalDate}
-                    onChange={(e) => setFormData({ ...formData, finalDate: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, finalDate: value })}
                     className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                     disabled={submitting}
                   />

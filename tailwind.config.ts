@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss"
+import tailwindAnimate from 'tailwindcss-animate'
 
 const config = {
-  darkMode: ["class"],
+  darkMode: 'class',
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -52,6 +53,17 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom application colors for universal theming
+        app: {
+          'bg-primary': 'hsl(var(--app-bg-primary))',
+          'bg-secondary': 'hsl(var(--app-bg-secondary))',
+          sidebar: 'hsl(var(--app-sidebar))',
+          'sidebar-hover': 'hsl(var(--app-sidebar-hover))',
+          'sidebar-active': 'hsl(var(--app-sidebar-active))',
+          'text-primary': 'hsl(var(--app-text-primary))',
+          'text-secondary': 'hsl(var(--app-text-secondary))',
+          border: 'hsl(var(--app-border))',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -74,7 +86,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindAnimate],
 } satisfies Config
 
 export default config

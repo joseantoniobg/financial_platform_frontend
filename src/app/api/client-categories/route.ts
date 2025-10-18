@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { serviceId: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value;
 
@@ -14,13 +11,8 @@ export async function GET(
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const date = searchParams.get('date');
-
-    const queryParams = date ? `?date=${date}` : '';
-
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/services/${params.serviceId}/pricing${queryParams}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/categories`,
       {
         method: 'GET',
         headers: {
@@ -37,9 +29,9 @@ export async function GET(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Pricing fetch error:', error);
+    console.error('Client categories fetch error:', error);
     return NextResponse.json(
-      { message: 'Erro ao buscar precificações' },
+      { message: 'Erro ao buscar categorias' },
       { status: 500 }
     );
   }

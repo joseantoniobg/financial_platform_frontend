@@ -9,13 +9,20 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-white/10 dark:bg-white/10 hover:bg-white/20 dark:hover:bg-white/20 transition-colors"
+      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors group"
       aria-label="Toggle theme"
+      title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {theme === 'dark' ? (
-        <Sun className="h-5 w-5 text-yellow-400" />
+        <>
+          <Sun className="h-5 w-5 text-yellow-400" />
+          <span className="text-sm font-medium text-foreground">Light Mode</span>
+        </>
       ) : (
-        <Moon className="h-5 w-5 text-slate-700" />
+        <>
+          <Moon className="h-5 w-5 text-primary" />
+          <span className="text-sm font-medium text-foreground">Dark Mode</span>
+        </>
       )}
     </button>
   );

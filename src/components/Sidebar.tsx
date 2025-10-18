@@ -3,14 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Users, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Users,
   Home,
   LogOut,
   Menu,
-  Briefcase
+  Briefcase,
+  UserCog,
+  MapPin,
+  ListChecks,
+  Tag,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -31,19 +35,22 @@ export function Sidebar({ userName }: SidebarProps) {
     window.location.href = '/login';
   };
 
-  // Check if user has Administrador role
-  const isAdmin = user?.roles?.some(role => role.name === 'Administrador');
+  const userRoleNames = user?.roles?.map(role => role.name) ?? [];
 
   // Define menu items
   const allMenuItems = [
     { icon: Home, label: 'Dashboard', href: '/home', roles: ['all'] },
     { icon: Users, label: 'Usuários', href: '/users', roles: ['Administrador'] },
     { icon: Briefcase, label: 'Serviços', href: '/services', roles: ['Administrador'] },
+    { icon: Tag, label: 'Categorias', href: '/transaction-categories', roles: ['Administrador'] },
+    { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador'] },
+    { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador'] },
+    { icon: ListChecks, label: 'Tipos de Transação', href: '/user-transaction-types', roles: ['Cliente'] },
   ];
 
   // Filter menu items based on user role
   const menuItems = allMenuItems.filter(item => 
-    item.roles.includes('all') || (isAdmin && item.roles.includes('Administrador'))
+    item.roles.includes('all') || item.roles.some(role => userRoleNames.includes(role))
   );
 
   const isActive = (href: string) => pathname === href;

@@ -38,11 +38,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter only clients (users with Cliente role)
-    const clients = data.data.filter((user: any) => 
-      user.roles.some((role: any) => role.name === 'Cliente')
+    // Backend returns { users, total }, not { data }
+    type UserShape = { roles?: Array<{ name?: string }> };
+
+    const users = (data.users ?? []) as UserShape[];
+
+    const clients = users.filter((user) =>
+      Array.isArray(user.roles) && user.roles.some((role) => role?.name === 'Cliente')
     );
 
-    return NextResponse.json({ data: clients });
+    return NextResponse.json({ data: clients, total: clients.length });
   } catch (error) {
     console.error('Clients fetch error:', error);
     return NextResponse.json(

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { DateInput } from '@/components/ui/date-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Search, UserCheck, X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -51,39 +52,28 @@ export function AssignDialog({ open, onOpenChange, service, onSuccess }: AssignD
     scheduledDate: new Date().toISOString().split('T')[0],
   });
 
-  useEffect(() => {
-    if (open && service) {
-      fetchClients();
-      fetchAssignments();
-    }
-  }, [open, service]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (open) {
-        fetchClients();
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchClient]);
-
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       setLoadingClients(true);
       const res = await fetch(`/api/users/clients?search=${searchClient}`);
       if (res.ok) {
         const data = await res.json();
-        setClients(data.data);
+        console.log('Clients loaded:', data);
+        setClients(data.data || []);
+      } else {
+        const errorData = await res.json();
+        console.error('Error loading clients:', errorData);
+        toast.error(errorData.message || 'Erro ao carregar clientes');
       }
-    } catch {
+    } catch (error) {
+      console.error('Error fetching clients:', error);
       toast.error('Erro ao carregar clientes');
     } finally {
       setLoadingClients(false);
     }
-  };
+  }, [searchClient]);
 
-  const fetchAssignments = async () => {
+  const fetchAssignments = useCallback(async () => {
     if (!service) return;
 
     try {
@@ -91,17 +81,51 @@ export function AssignDialog({ open, onOpenChange, service, onSuccess }: AssignD
       // Get all assignments and filter by service
       const res = await fetch(`/api/services/assign?page=1&limit=100`);
       if (res.ok) {
-        const data = await res.json();
-        // Filter assignments for this specific service
-        const serviceAssignments = data.data.filter((a: any) => a.serviceId === service.id);
-        setAssignments(serviceAssignments);
+  const data = await res.json();
+  // Filter assignments for this specific service
+  type AssignmentShape = { serviceId?: string } & Record<string, unknown>;
+  const allAssignments = Array.isArray(data.data) ? (data.data as AssignmentShape[]) : [];
+        const serviceAssignments = allAssignments.filter((a) => a.serviceId === service.id);
+        const normalized: Assignment[] = serviceAssignments.map((a) => {
+          const aa = a as unknown as Record<string, unknown>;
+          const userObj = (aa['user'] as Record<string, unknown> | undefined) ?? {};
+          return {
+            id: String(aa['id'] ?? ''),
+            user: {
+              id: String(userObj['id'] ?? ''),
+              name: String(userObj['name'] ?? ''),
+              email: String(userObj['email'] ?? ''),
+            },
+            scheduledDate: String(aa['scheduledDate'] ?? ''),
+          } as Assignment;
+        });
+        setAssignments(normalized);
       }
     } catch {
       toast.error('Erro ao carregar atribuições');
     } finally {
       setLoadingAssignments(false);
     }
-  };
+  }, [service]);
+
+  // Load clients and assignments when dialog opens
+  useEffect(() => {
+    if (open && service) {
+      fetchClients();
+      fetchAssignments();
+    }
+  }, [open, service, fetchClients, fetchAssignments]);
+
+  // Reload clients when search changes
+  useEffect(() => {
+    if (!open) return;
+    
+    const timer = setTimeout(() => {
+      fetchClients();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchClient, open, fetchClients]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,11 +279,10 @@ export function AssignDialog({ open, onOpenChange, service, onSuccess }: AssignD
                   <Label htmlFor="scheduledDate" className="text-slate-700 dark:text-gray-300">
                     Data Agendada <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <DateInput
                     id="scheduledDate"
-                    type="date"
                     value={formData.scheduledDate}
-                    onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, scheduledDate: value })}
                     className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                     disabled={submitting}
                   />
