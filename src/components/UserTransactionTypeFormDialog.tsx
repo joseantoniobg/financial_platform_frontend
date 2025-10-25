@@ -28,6 +28,8 @@ interface UserTransactionTypeFormDialogProps {
   type?: UserTransactionType;
   categories: Category[];
   onSuccess: () => void;
+  /** Optional category id to pre-select when opening in create mode */
+  initialCategoryId?: string;
 }
 
 const directionOptions = [
@@ -42,6 +44,7 @@ export function UserTransactionTypeFormDialog({
   type,
   categories,
   onSuccess,
+  initialCategoryId,
 }: UserTransactionTypeFormDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -63,13 +66,13 @@ export function UserTransactionTypeFormDialog({
       } else {
         setFormData({
           name: '',
-          categoryId: '',
+          categoryId: initialCategoryId || '',
           direction: 'Entrada',
           isFixed: false,
         });
       }
     }
-  }, [open, mode, type]);
+  }, [open, mode, type, initialCategoryId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,15 +105,15 @@ export function UserTransactionTypeFormDialog({
       });
 
       if (res.ok) {
-        toast.success(`Tipo ${mode === 'create' ? 'criado' : 'atualizado'} com sucesso!`);
+        toast.success(`Sub-categoria ${mode === 'create' ? 'criada' : 'atualizada'} com sucesso!`);
         onSuccess();
         onOpenChange(false);
       } else {
         const error = await res.text();
-        toast.error(error || 'Erro ao salvar tipo de transação');
+        toast.error(error || 'Erro ao salvar sub-categoria');
       }
     } catch {
-      toast.error('Erro ao salvar tipo de transação');
+      toast.error('Erro ao salvar sub-categoria');
     } finally {
       setSubmitting(false);
     }
@@ -121,10 +124,10 @@ export function UserTransactionTypeFormDialog({
       <DialogContent className="sm:max-w-[480px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-slate-800 dark:text-white">
-            {mode === 'create' ? 'Novo Tipo de Transação' : 'Editar Tipo de Transação'}
+            {mode === 'create' ? 'Nova Sub-categoria' : 'Editar Sub-categoria'}
           </DialogTitle>
           <DialogDescription className="text-slate-600 dark:text-gray-400">
-            Informe os detalhes do tipo de transação que deseja controlar.
+            Informe os detalhes da sub-categoria que deseja controlar.
           </DialogDescription>
         </DialogHeader>
 

@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(data);
   } catch (error) {
     console.error('User transaction type update error:', error);
-    return NextResponse.json({ message: 'Erro ao atualizar tipo de transação' }, { status: 500 });
+    return NextResponse.json({ message: 'Erro ao atualizar sub-categoria' }, { status: 500 });
   }
 }
 
@@ -62,6 +62,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     return NextResponse.json(data);
   } catch (error) {
     console.error('User transaction type delete error:', error);
-    return NextResponse.json({ message: 'Erro ao remover tipo de transação' }, { status: 500 });
+    return NextResponse.json({ message: 'Erro ao remover sub-categoria' }, { status: 500 });
   }
 }

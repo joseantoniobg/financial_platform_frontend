@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('User transaction types fetch error:', error);
-    return NextResponse.json({ message: 'Erro ao buscar tipos de transação' }, { status: 500 });
+  return NextResponse.json({ message: 'Erro ao buscar sub-categorias' }, { status: 500 });
   }
 }
 
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('User transaction type create error:', error);
-    return NextResponse.json({ message: 'Erro ao criar tipo de transação' }, { status: 500 });
+  console.error('User transaction type create error:', error);
+  return NextResponse.json({ message: 'Erro ao criar sub-categoria' }, { status: 500 });
   }
 }

@@ -9,19 +9,19 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors group"
+      className="flex items-center gap-2 w-full px-3 py-2 hover:cursor-pointer rounded-lg bg-secondary hover:bg-secondary/80 transition-colors group"
       aria-label="Toggle theme"
-      title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={theme === 'dark' ? 'Trocar para modo claro' : 'Trocar para modo escuro'}
     >
       {theme === 'dark' ? (
         <>
           <Sun className="h-5 w-5 text-yellow-400" />
-          <span className="text-sm font-medium text-foreground">Light Mode</span>
+          <span className="text-sm font-medium text-foreground dark:text-white">Modo Claro</span>
         </>
       ) : (
         <>
-          <Moon className="h-5 w-5 text-primary" />
-          <span className="text-sm font-medium text-foreground">Dark Mode</span>
+          <Moon className="h-5 w-5 text-[gray]" />
+          <span className="text-sm font-medium text-foreground dark:text-white">Modo Escuro</span>
         </>
       )}
     </button>

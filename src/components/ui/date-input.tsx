@@ -180,8 +180,8 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
         onKeyDown={handleKeyDown}
         maxLength={10}
         placeholder="dd/mm/aaaa"
-        className={className}
         disabled={disabled}
+        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
         {...props}
       />
     );

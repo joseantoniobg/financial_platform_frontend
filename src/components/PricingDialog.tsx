@@ -171,7 +171,6 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                     id="price"
                     value={formData.price}
                     onChange={(value) => setFormData({ ...formData, price: value.toString() })}
-                    className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                     placeholder="0,00"
                     disabled={submitting}
                   />
@@ -185,7 +184,6 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                     id="initialDate"
                     value={formData.initialDate}
                     onChange={(value) => setFormData({ ...formData, initialDate: value })}
-                    className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                     disabled={submitting}
                   />
                 </div>

@@ -13,8 +13,8 @@ import {
   Briefcase,
   UserCog,
   MapPin,
-  ListChecks,
   Tag,
+  Receipt,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -42,10 +42,11 @@ export function Sidebar({ userName }: SidebarProps) {
     { icon: Home, label: 'Dashboard', href: '/home', roles: ['all'] },
     { icon: Users, label: 'Usuários', href: '/users', roles: ['Administrador'] },
     { icon: Briefcase, label: 'Serviços', href: '/services', roles: ['Administrador'] },
-    { icon: Tag, label: 'Categorias', href: '/transaction-categories', roles: ['Administrador'] },
+    { icon: Tag, label: 'Categorias', href: '/transaction-categories', roles: ['Cliente'] },
     { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador'] },
     { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador'] },
-    { icon: ListChecks, label: 'Tipos de Transação', href: '/user-transaction-types', roles: ['Cliente'] },
+  // Removed separate 'Tipos de Transação' page — merged into 'Categorias'
+    { icon: Receipt, label: 'Transações', href: '/transactions', roles: ['Cliente'] },
   ];
 
   // Filter menu items based on user role
@@ -76,7 +77,7 @@ export function Sidebar({ userName }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-0 h-full bg-white dark:bg-[#0D2744] border-r border-gray-200 dark:border-gray-700
+          fixed left-0 top-0 h-full bg-[#ffffff] dark:bg-[#0D2744] border-r border-gray-200 dark:border-gray-700
           transition-all duration-300 z-40
           ${isCollapsed ? 'w-20' : 'w-64'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
