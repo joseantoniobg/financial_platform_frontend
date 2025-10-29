@@ -20,6 +20,7 @@ interface UserTransactionType {
   type: string;
   isFixed: boolean;
   isCredit: boolean;
+  direction?: string;
   category?: Category;
 }
 
@@ -187,7 +188,7 @@ export default function TransactionCategoriesPage() {
                         <td className="px-6 py-4 text-sm font-medium text-[#0A1929] dark:text-white">{c.category}</td>
                         <td className="px-6 py-4 text-sm text-right">
                           <div className="flex justify-end gap-2">
-                            <button onClick={() => handleCreateSub(c.id)} className="p-2 text-blue-600 hover:bg-blue-600/10 rounded-lg transition-colors" title="Adicionar Sub-categoria">+</button>
+                            <button onClick={() => handleCreateSub(c.id)} className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors" title="Adicionar Sub-categoria">Adicionar Sub-Categoria</button>
                             <button onClick={() => handleEdit(c)} className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
                             <button onClick={() => handleDelete(c.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Remover"><Trash2 className="h-4 w-4" /></button>
                           </div>
@@ -195,16 +196,16 @@ export default function TransactionCategoriesPage() {
                       </tr>
 
                       <tr key={`types-${c.id}`}>
-                        <td colSpan={2} className="px-6 py-2 bg-gray-50 dark:bg-gray-800/40">
+                        <td colSpan={2} className="px-6 py-2 bg-gray-50 dark:bg-gray-900/60">
                           {typesForCategory.length === 0 ? (
                             <div className="text-sm text-gray-500 dark:text-gray-400">Nenhuma sub-categoria</div>
                           ) : (
-                            <div className="space-y-2">
+                            <div className="space-y-2 border-1 rounded-sm">
                               {typesForCategory.map((t) => (
                                 <div key={t.id} className="flex items-center justify-between p-2 rounded bg-white dark:bg-[#0D2744]">
                                   <div>
                                     <div className="text-sm font-medium text-slate-800 dark:text-white">{t.type}</div>
-                                    <div className="text-xs text-gray-600 dark:text-gray-400">{t.isCredit ? 'Saída' : 'Entrada'} • {t.isFixed ? 'Fixo' : 'Variável'}</div>
+                                    <div className="text-xs text-gray-600 dark:text-gray-400">{t.direction || (t.isCredit ? 'Saída' : 'Entrada')} • {t.isFixed ? 'Fixo' : 'Variável'}</div>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <button onClick={() => handleEditSub(t)} className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>

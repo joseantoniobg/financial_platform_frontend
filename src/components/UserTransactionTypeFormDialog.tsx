@@ -18,6 +18,7 @@ interface UserTransactionType {
   type: string;
   isFixed: boolean;
   isCredit: boolean;
+  direction?: string;
   category?: Category;
 }
 
@@ -35,6 +36,7 @@ interface UserTransactionTypeFormDialogProps {
 const directionOptions = [
   { value: 'Entrada', label: 'Entrada (recebimento)' },
   { value: 'Saída', label: 'Saída (pagamento)' },
+  { value: 'Investimento', label: 'Investimento (alocação)' },
 ];
 
 export function UserTransactionTypeFormDialog({
@@ -60,7 +62,7 @@ export function UserTransactionTypeFormDialog({
         setFormData({
           name: type.type,
           categoryId: type.category?.id || '',
-          direction: type.isCredit ? 'Saída' : 'Entrada',
+          direction: type.direction || (type.isCredit ? 'Saída' : 'Entrada'),
           isFixed: type.isFixed ?? false,
         });
       } else {
@@ -88,7 +90,7 @@ export function UserTransactionTypeFormDialog({
       const payload = {
         name: formData.name.trim(),
         categoryId: formData.categoryId,
-        isCredit: formData.direction === 'Saída',
+        direction: formData.direction,
         isFixed: formData.isFixed,
       };
 
