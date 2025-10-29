@@ -1,14 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { isTokenExpired } from './lib/auth';
 
-export function middleware() {
-  // Since Zustand stores auth state in localStorage (client-side only),
-  // we handle authentication checks on the client side in each protected page
-  // This middleware is here for future enhancements like API route protection
-  
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('auth-token')?.value;
+
+  if (!token || isTokenExpired(token)) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
   return NextResponse.next();
 }
 
-// Configure which paths the middleware runs on
 export const config = {
   matcher: [
     /*
@@ -18,6 +20,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!login|reset-password|forgot-password|api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

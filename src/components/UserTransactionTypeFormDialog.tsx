@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 interface Category {
   id: string;
   category: string;
+  defaultDirection?: string;
 }
 
 interface UserTransactionType {
@@ -66,15 +67,30 @@ export function UserTransactionTypeFormDialog({
           isFixed: type.isFixed ?? false,
         });
       } else {
+        // In create mode, get default direction from selected category
+        const selectedCategory = categories.find(c => c.id === initialCategoryId);
+        const defaultDirection = selectedCategory?.defaultDirection || 'Entrada';
+        
         setFormData({
           name: '',
           categoryId: initialCategoryId || '',
-          direction: 'Entrada',
+          direction: defaultDirection,
           isFixed: false,
         });
       }
     }
-  }, [open, mode, type, initialCategoryId]);
+  }, [open, mode, type, initialCategoryId, categories]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    const selectedCategory = categories.find(c => c.id === categoryId);
+    const defaultDirection = selectedCategory?.defaultDirection || formData.direction;
+    
+    setFormData({ 
+      ...formData, 
+      categoryId,
+      direction: defaultDirection
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +170,7 @@ export function UserTransactionTypeFormDialog({
             </Label>
             <UniversalSelect
               value={formData.categoryId}
-              onChange={(value) => setFormData({ ...formData, categoryId: value })}
+              onChange={handleCategoryChange}
               placeholder="Selecione uma categoria"
               items={categories.map((category) => ({ value: category.id, label: category.category }))}
               searchable

@@ -3,7 +3,7 @@
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TransactionCategoryFormDialog } from '@/components/TransactionCategoryFormDialog';
@@ -183,9 +183,9 @@ export default function TransactionCategoriesPage() {
                 {categories.map((c) => {
                   const typesForCategory = transactionTypes.filter(t => t.category?.id === c.id);
                   return (
-                    <>
-                      <tr key={`cat-${c.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-[#0A1929] dark:text-white">{c.category}</td>
+                    <Fragment key={c.id}>
+                      <tr className="dark:bg-[#191b36] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td className="px-6 py-4 text-2xl font-bold text-[#0A1929] dark:text-white">{c.category}</td>
                         <td className="px-6 py-4 text-sm text-right">
                           <div className="flex justify-end gap-2">
                             <button onClick={() => handleCreateSub(c.id)} className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors" title="Adicionar Sub-categoria">Adicionar Sub-Categoria</button>
@@ -195,7 +195,7 @@ export default function TransactionCategoriesPage() {
                         </td>
                       </tr>
 
-                      <tr key={`types-${c.id}`}>
+                      <tr>
                         <td colSpan={2} className="px-6 py-2 bg-gray-50 dark:bg-gray-900/60">
                           {typesForCategory.length === 0 ? (
                             <div className="text-sm text-gray-500 dark:text-gray-400">Nenhuma sub-categoria</div>
@@ -217,7 +217,7 @@ export default function TransactionCategoriesPage() {
                           )}
                         </td>
                       </tr>
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>

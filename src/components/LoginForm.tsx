@@ -113,7 +113,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#0A1929] relative overflow-hidden">
+    <div className="flex bg-background items-center justify-center min-h-screen relative overflow-hidden">
       {/* Background gradient circles */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>

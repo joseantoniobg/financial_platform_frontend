@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 interface TransactionType {
   id: string;
   type: string;
+  direction: string;
   category: {
     id: string;
     category: string;
@@ -27,6 +28,7 @@ interface Transaction {
   totalInstallments: number;
   installmentNumber: number;
   type: TransactionType;
+  calculation: number;
 }
 
 export default function TransactionsPage() {
@@ -71,7 +73,9 @@ export default function TransactionsPage() {
       const res = await fetch('/api/user-transaction-types');
       if (res.ok) {
         const data = await res.json();
-        setTransactionTypes(data);
+        // Filter out Aporte types (not user-selectable)
+        const visibleTypes = data.filter((type: { direction?: string }) => type.direction !== 'Aporte');
+        setTransactionTypes(visibleTypes);
       }
     } catch {
       toast.error('Erro ao carregar tipos de transação');
@@ -186,7 +190,7 @@ export default function TransactionsPage() {
           <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
             {groupedTransactions.map((group) => {
               const first = group[0];
-              const total = group.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+              const total = group.reduce((sum, t) => sum + (t.calculation !== 3 ? parseFloat(t.amount.toString()) : 0), 0);
               
               return (
                 <div key={first.ticket} className="p-4">
@@ -239,8 +243,11 @@ export default function TransactionsPage() {
                           <span className="text-xs text-gray-600 dark:text-gray-400">
                             {formatDate(transaction.dueDate)}
                           </span>
+                           <span className="text-xs text-gray-600 dark:text-gray-400 font-bold">
+                            {transaction.calculation === 3 ? '(Aporte)' : ''}
+                          </span>
                           <span className="text-sm font-semibold text-[#0A1929] dark:text-white ml-auto">
-                            {formatCurrency(parseFloat(transaction.amount.toString()))}
+                            {formatCurrency(parseFloat((transaction.amount * (transaction.calculation === 3 ? -1 : 1)).toString()))}
                           </span>
                         </div>
                         <button

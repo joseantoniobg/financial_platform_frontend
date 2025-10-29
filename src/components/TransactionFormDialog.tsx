@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 interface TransactionType {
   id: string;
   type: string;
+  direction: string;
   category: {
     id: string;
     category: string;
@@ -37,7 +38,12 @@ export function TransactionFormDialog({
   const [dueDate, setDueDate] = useState('');
   const [installments, setInstallments] = useState('1');
   const [obs, setObs] = useState('');
+  const [isAporte, setIsAporte] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Check if selected type is Investimento
+  const selectedType = transactionTypes.find((t) => t.id === typeId);
+  const showAporteCheckbox = selectedType?.direction === 'Investimento';
 
   useEffect(() => {
     if (!open) {
@@ -48,6 +54,7 @@ export function TransactionFormDialog({
       setDueDate('');
       setInstallments('1');
       setObs('');
+      setIsAporte(false);
     } else {
       // Set today's date as default
       const today = new Date().toISOString().split('T')[0];
@@ -68,6 +75,7 @@ export function TransactionFormDialog({
         dueDate,
         installments: parseInt(installments),
         obs: obs.trim() || undefined,
+        isAporte: showAporteCheckbox ? isAporte : undefined,
       };
 
       const res = await fetch('/api/transactions', {
@@ -172,6 +180,21 @@ export function TransactionFormDialog({
               </p>
             )}
           </div>
+
+          {showAporteCheckbox && (
+            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <input
+                type="checkbox"
+                id="isAporte"
+                checked={isAporte}
+                onChange={(e) => setIsAporte(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+              />
+              <Label htmlFor="isAporte" className="cursor-pointer text-sm font-normal">
+                Dinheiro de disponibilidade? (registra aporte)
+              </Label>
+            </div>
+          )}
 
           <div>
             <Label htmlFor="obs">Observação</Label>
