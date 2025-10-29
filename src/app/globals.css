@@ -9,7 +9,6 @@
 
 @layer base {
   :root {
-    /* Light Theme - Clean and Professional */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -19,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 88 64% 62%; /* #B4F481 - Brand green */
+    --primary: 88 64% 62%;
     --primary-foreground: 222.2 84% 4.9%;
 
     --secondary: 210 40% 96.1%;
@@ -28,7 +27,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 88 64% 62%; /* #B4F481 - Brand green */
+    --accent: 88 64% 62%;
     --accent-foreground: 222.2 84% 4.9%;
 
     --destructive: 0 84.2% 60.2%;
@@ -52,17 +51,16 @@
   }
 
   .dark {
-    /* Dark Theme - Deep Blue Professional */
-    --background: 217, 74%, 20%; /* #0A1929 - Deep navy */
+    --background: 216, 75%, 18%;
     --foreground: 210 40% 98%;
 
-    --card: 215 59% 16%; /* #0D2744 - Dark blue card */
+    --card: 215 59% 16%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 215 59% 16%; /* #0D2744 */
+    --popover: 215 59% 16%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 88 64% 62%; /* #B4F481 - Brand green */
+    --primary: 88 64% 62%;
     --primary-foreground: 217 91% 10%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -71,7 +69,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 88 64% 62%; /* #B4F481 - Brand green */
+    --accent: 88 64% 62%;
     --accent-foreground: 217 91% 10%;
 
     --destructive: 0 62.8% 30.6%;
@@ -79,14 +77,13 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 88 64% 62%; /* #B4F481 */
+    --ring: 88 64% 62%;
 
-    /* Custom Application Colors */
-    --app-bg-primary: 217 91% 10%; /* #0A1929 */
-    --app-bg-secondary: 215 59% 16%; /* #0D2744 */
-    --app-sidebar: 215 59% 16%; /* #0D2744 */
+    --app-bg-primary: 217 91% 10%;
+    --app-bg-secondary: 215 59% 16%;
+    --app-sidebar: 215 59% 16%;
     --app-sidebar-hover: 217.2 32.6% 17.5%;
-    --app-sidebar-active: 88 64% 62%; /* #B4F481 */
+    --app-sidebar-active: 88 64% 62%;
     --app-text-primary: 210 40% 98%;
     --app-text-secondary: 215 20.2% 65.1%;
     --app-border: 217.2 32.6% 17.5%;

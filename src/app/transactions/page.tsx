@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, Circle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { TransactionFormDialog } from '@/components/TransactionFormDialog';
+import { PaymentDateDialog } from '@/components/PaymentDateDialog';
 import toast from 'react-hot-toast';
+import { formatDate } from '@/lib/utils';
 
 interface TransactionType {
   id: string;
@@ -24,11 +26,15 @@ interface Transaction {
   amount: number;
   date: string;
   dueDate: string;
+  paymentDate?: string;
+  isEarnings?: boolean;
   obs?: string;
   totalInstallments: number;
   installmentNumber: number;
   type: TransactionType;
   calculation: number;
+  verb: string;
+  action: string;
 }
 
 export default function TransactionsPage() {
@@ -39,6 +45,8 @@ export default function TransactionsPage() {
   const [transactionTypes, setTransactionTypes] = useState<TransactionType[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const isClient = useMemo(() => {
     return user?.roles?.some((role) => role.name === 'Cliente');
@@ -101,6 +109,11 @@ export default function TransactionsPage() {
     }
   };
 
+  const handleSetPaymentDate = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setPaymentDialogOpen(true);
+  };
+
   const handleDeleteByTicket = async (ticket: number) => {
     const count = transactions.filter(t => t.ticket === ticket).length;
     if (!confirm(`Deseja realmente excluir todas as ${count} parcelas desta transação?`)) return;
@@ -126,10 +139,6 @@ export default function TransactionsPage() {
       style: 'currency',
       currency: 'BRL',
     }).format(value);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   // Group transactions by ticket
@@ -241,22 +250,49 @@ export default function TransactionsPage() {
                             {transaction.installmentNumber}/{transaction.totalInstallments}
                           </span>
                           <span className="text-xs text-gray-600 dark:text-gray-400">
-                            {formatDate(transaction.dueDate)}
+                            Venc: {formatDate(transaction.dueDate)}
                           </span>
-                           <span className="text-xs text-gray-600 dark:text-gray-400 font-bold">
-                            {transaction.calculation === 3 ? '(Aporte)' : ''}
-                          </span>
+                          {transaction.paymentDate && (
+                            <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                              {transaction.verb} em: {formatDate(transaction.paymentDate)}
+                            </span>
+                          )}
+                          {transaction.isEarnings && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium">
+                              💰 Rendimento
+                            </span>
+                          )}
                           <span className="text-sm font-semibold text-[#0A1929] dark:text-white ml-auto">
-                            {formatCurrency(parseFloat((transaction.amount * (transaction.calculation === 3 ? -1 : 1)).toString()))}
+                            {formatCurrency(transaction.amount)}
                           </span>
                         </div>
-                        <button
-                          onClick={() => handleDelete(transaction.id)}
-                          className="p-1.5 text-red-500 hover:bg-red-500/10 rounded transition-colors ml-2"
-                          title="Excluir"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleSetPaymentDate(transaction)}
+                            className={`p-1.5 m-1 ml-4 rounded ${
+                              transaction.paymentDate ? 
+                              'text-green-600 dark:text-green-400 hover:bg-green-500/10' :
+                               'text-orange-400 dark:text-orange-500 hover:bg-orange-200 dark:hover:bg-orange-900'
+                            }`}
+                            title={transaction.paymentDate ? 'Alterar Pagamento' : 'Pagar'}
+                          >
+                            <div className='flex p-1 justify-center gap-2 align-center'>
+                              {transaction.paymentDate ? (
+                                <CheckCircle className="h-4 w-4 mt-1" />
+                              ) : (
+                                <Circle className="h-4 w-4 mt-1" />
+                              )}
+                              {transaction.paymentDate ? transaction.verb + '!' : transaction.action}
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(transaction.id)}
+                            className="p-1.5 text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -270,6 +306,14 @@ export default function TransactionsPage() {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           transactionTypes={transactionTypes}
+          onSuccess={fetchTransactions}
+        />
+
+        <PaymentDateDialog
+          open={paymentDialogOpen}
+          onOpenChange={setPaymentDialogOpen}
+          transactionId={selectedTransaction?.id || ''}
+          currentPaymentDate={selectedTransaction?.paymentDate}
           onSuccess={fetchTransactions}
         />
       </div>

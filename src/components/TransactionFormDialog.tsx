@@ -36,14 +36,16 @@ export function TransactionFormDialog({
   const [amount, setAmount] = useState<number>(0);
   const [transactionDate, setTransactionDate] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [paymentDate, setPaymentDate] = useState('');
   const [installments, setInstallments] = useState('1');
   const [obs, setObs] = useState('');
   const [isAporte, setIsAporte] = useState(false);
+  const [isEarnings, setIsEarnings] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Check if selected type is Investimento
   const selectedType = transactionTypes.find((t) => t.id === typeId);
-  const showAporteCheckbox = selectedType?.direction === 'Investimento';
+  const showInvestimentoOptions = selectedType?.direction === 'Investimento';
 
   useEffect(() => {
     if (!open) {
@@ -52,14 +54,17 @@ export function TransactionFormDialog({
       setAmount(0);
       setTransactionDate('');
       setDueDate('');
+      setPaymentDate('');
       setInstallments('1');
       setObs('');
       setIsAporte(false);
+      setIsEarnings(false);
     } else {
       // Set today's date as default
       const today = new Date().toISOString().split('T')[0];
       setTransactionDate(today);
       setDueDate(today);
+      setPaymentDate(today);
     }
   }, [open]);
 
@@ -73,9 +78,11 @@ export function TransactionFormDialog({
         amount,
         transactionDate,
         dueDate,
+        paymentDate: paymentDate || undefined,
         installments: parseInt(installments),
         obs: obs.trim() || undefined,
-        isAporte: showAporteCheckbox ? isAporte : undefined,
+        isEarnings: showInvestimentoOptions ? isEarnings : undefined,
+        isAporte: showInvestimentoOptions ? isAporte : undefined,
       };
 
       const res = await fetch('/api/transactions', {
@@ -164,35 +171,66 @@ export function TransactionFormDialog({
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="installments">Parcelas*</Label>
-            <Input
-              id="installments"
-              type="number"
-              min="1"
-              value={installments}
-              onChange={(e) => setInstallments(e.target.value)}
-              required
-            />
-            {parseInt(installments) > 1 && amount && (
-              <p className="text-sm text-gray-500 mt-1">
-                {parseInt(installments)} parcelas mensais
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="installments">Parcelas*</Label>
+              <Input
+                id="installments"
+                type="number"
+                min="1"
+                value={installments}
+                onChange={(e) => setInstallments(e.target.value)}
+                required
+              />
+              {parseInt(installments) > 1 && amount && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {parseInt(installments)} parcelas mensais
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="paymentDate">Data de Pagamento</Label>
+              <DateInput
+                id="paymentDate"
+                value={paymentDate}
+                onChange={(value) => setPaymentDate(value)}
+                disabled={loading}
+                placeholder="dd/mm/aaaa"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Opcional - quando foi efetivamente pago
               </p>
-            )}
+            </div>
           </div>
 
-          {showAporteCheckbox && (
-            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <input
-                type="checkbox"
-                id="isAporte"
-                checked={isAporte}
-                onChange={(e) => setIsAporte(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
-              />
-              <Label htmlFor="isAporte" className="cursor-pointer text-sm font-normal">
-                Dinheiro de disponibilidade? (registra aporte)
-              </Label>
+          {showInvestimentoOptions && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <input
+                  type="checkbox"
+                  id="isEarnings"
+                  checked={isEarnings}
+                  onChange={(e) => setIsEarnings(e.target.checked)}
+                  className="w-4 h-4 text-green-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-green-500"
+                />
+                <Label htmlFor="isEarnings" className="cursor-pointer text-sm font-normal">
+                  Rendimento do investimento? (juros/crescimento da carteira)
+                </Label>
+              </div>
+
+              <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <input
+                  type="checkbox"
+                  id="isAporte"
+                  checked={isAporte}
+                  onChange={(e) => setIsAporte(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+                />
+                <Label htmlFor="isAporte" className="cursor-pointer text-sm font-normal">
+                  Dinheiro de disponibilidade? (registra aporte)
+                </Label>
+              </div>
             </div>
           )}
 

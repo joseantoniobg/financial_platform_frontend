@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Search, Plus, Trash2, Calendar, DollarSign } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatDate } from '@/lib/utils';
 
 interface Client {
   id: string;
@@ -217,11 +218,6 @@ export default function ClientAssignmentsPage() {
     } catch {
       toast.error('Erro ao remover atribuição');
     }
-  };
-
-  const formatDate = (date: string) => {
-    const dateStr = new Date(date).toISOString().split('T')[0];
-    return `${dateStr.substring(8,10)}/${dateStr.substring(5,7)}/${dateStr.substring(0,4)}`;
   };
 
   const selectedClientData = clients.find(c => c.id === selectedClient);
