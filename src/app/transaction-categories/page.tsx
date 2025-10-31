@@ -4,7 +4,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { useState, useEffect, Fragment } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TransactionCategoryFormDialog } from '@/components/TransactionCategoryFormDialog';
 import { UserTransactionTypeFormDialog } from '@/components/UserTransactionTypeFormDialog';
@@ -29,6 +29,7 @@ export default function TransactionCategoriesPage() {
   const isAuthenticated = useRequireAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const [transactionTypes, setTransactionTypes] = useState<UserTransactionType[]>([]);
 
@@ -138,6 +139,18 @@ export default function TransactionCategoriesPage() {
     }
   };
 
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
   if (!isAuthenticated) return null;
   if (!isClient) {
     return (
@@ -182,10 +195,29 @@ export default function TransactionCategoriesPage() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {categories.map((c) => {
                   const typesForCategory = transactionTypes.filter(t => t.category?.id === c.id);
+                  const isExpanded = expandedCategories.has(c.id);
                   return (
                     <Fragment key={c.id}>
                       <tr className="dark:bg-[#191b36] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-2xl font-bold text-[#0A1929] dark:text-white">{c.category}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => toggleCategory(c.id)}
+                              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                              title={isExpanded ? 'Recolher' : 'Expandir'}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                              ) : (
+                                <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                              )}
+                            </button>
+                            <span className="text-2xl font-bold text-[#0A1929] dark:text-white">{c.category}</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              ({typesForCategory.length} sub-categoria{typesForCategory.length !== 1 ? 's' : ''})
+                            </span>
+                          </div>
+                        </td>
                         <td className="px-6 py-4 text-sm text-right">
                           <div className="flex justify-end gap-2">
                             <button onClick={() => handleCreateSub(c.id)} className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors" title="Adicionar Sub-categoria">Adicionar Sub-Categoria</button>
@@ -195,28 +227,30 @@ export default function TransactionCategoriesPage() {
                         </td>
                       </tr>
 
-                      <tr>
-                        <td colSpan={2} className="px-6 py-2 bg-gray-50 dark:bg-gray-900/60">
-                          {typesForCategory.length === 0 ? (
-                            <div className="text-sm text-gray-500 dark:text-gray-400">Nenhuma sub-categoria</div>
-                          ) : (
-                            <div className="space-y-2 border-1 rounded-sm">
-                              {typesForCategory.map((t) => (
-                                <div key={t.id} className="flex items-center justify-between p-2 rounded bg-white dark:bg-[#0D2744]">
-                                  <div>
-                                    <div className="text-sm font-medium text-slate-800 dark:text-white">{t.type}</div>
-                                    <div className="text-xs text-gray-600 dark:text-gray-400">{t.direction || (t.isCredit ? 'Saída' : 'Entrada')} • {t.isFixed ? 'Fixo' : 'Variável'}</div>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-2 bg-gray-50 dark:bg-gray-900/60">
+                            {typesForCategory.length === 0 ? (
+                              <div className="text-sm text-gray-500 dark:text-gray-400">Nenhuma sub-categoria</div>
+                            ) : (
+                              <div className="space-y-2 border-1 rounded-sm">
+                                {typesForCategory.map((t) => (
+                                  <div key={t.id} className="flex items-center justify-between p-2 rounded bg-white dark:bg-[#0D2744]">
+                                    <div>
+                                      <div className="text-sm font-medium text-slate-800 dark:text-white">{t.type}</div>
+                                      <div className="text-xs text-gray-600 dark:text-gray-400">{t.direction || (t.isCredit ? 'Saída' : 'Entrada')} • {t.isFixed ? 'Fixo' : 'Variável'}</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <button onClick={() => handleEditSub(t)} className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
+                                      <button onClick={() => handleDeleteSub(t.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Remover"><Trash2 className="h-4 w-4" /></button>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <button onClick={() => handleEditSub(t)} className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
-                                    <button onClick={() => handleDeleteSub(t.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Remover"><Trash2 className="h-4 w-4" /></button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </td>
-                      </tr>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
                     </Fragment>
                   );
                 })}

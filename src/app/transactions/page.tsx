@@ -8,7 +8,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { TransactionFormDialog } from '@/components/TransactionFormDialog';
 import { PaymentDateDialog } from '@/components/PaymentDateDialog';
 import toast from 'react-hot-toast';
-import { formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface TransactionType {
   id: string;
@@ -81,8 +81,10 @@ export default function TransactionsPage() {
       const res = await fetch('/api/user-transaction-types');
       if (res.ok) {
         const data = await res.json();
-        // Filter out Aporte types (not user-selectable)
-        const visibleTypes = data.filter((type: { direction?: string }) => type.direction !== 'Aporte');
+        // Filter out Aporte and Resgate types (not user-selectable, created via checkboxes)
+        const visibleTypes = data.filter((type: { direction?: string }) => 
+          type.direction !== 'Aporte' && type.direction !== 'Resgate'
+        );
         setTransactionTypes(visibleTypes);
       }
     } catch {
@@ -132,13 +134,6 @@ export default function TransactionsPage() {
     } catch {
       toast.error('Erro ao excluir transações');
     }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
   };
 
   // Group transactions by ticket

@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
@@ -5,7 +6,9 @@ export async function DELETE(
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
     if (!token) {
       return NextResponse.json(

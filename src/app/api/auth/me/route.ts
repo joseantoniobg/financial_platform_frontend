@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
+import { getSession } from '@/lib/session';
 
 interface JWTPayload {
   username: string;
@@ -12,7 +13,9 @@ interface JWTPayload {
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
     if (!token) {
       return NextResponse.json(

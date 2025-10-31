@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
 
 export async function POST() {
@@ -6,14 +7,12 @@ export async function POST() {
     { status: 200 }
   );
 
-  // Clear the auth token cookie
-  response.cookies.set('auth-token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 0, // Expire immediately
-    path: '/',
-  });
+  const session = await getSession();
+
+  session.user = {
+    token: ''
+  };
+  await session.save();
 
   return response;
 }

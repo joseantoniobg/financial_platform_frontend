@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isTokenExpired } from './lib/auth';
+import { getSession } from './lib/session';
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value;
+export async function middleware(request: NextRequest) {
+  const session = await getSession();
+  const sessionUser = session.user;
+  const token = sessionUser?.token;
 
   if (!token || isTokenExpired(token)) {
     return NextResponse.redirect(new URL('/login', request.url));

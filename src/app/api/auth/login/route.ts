@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios, { AxiosError } from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { getSession } from '@/lib/session';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
@@ -41,14 +42,12 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
     
-    // Set HTTP-only cookie with JWT token (not accessible from JavaScript)
-    res.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60, // 1 hour (match JWT expiration)
-      path: '/',
-    });
+    const session = await getSession();
+
+    session.user = {
+      token
+    };
+    await session.save();
     
     return res;
   } catch (error) {

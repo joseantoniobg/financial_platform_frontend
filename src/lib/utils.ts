@@ -9,3 +9,11 @@ export const formatDate = (date: string) => {
   const dateStr = new Date(date).toISOString().split('T')[0];
   return `${dateStr.substring(8,10)}/${dateStr.substring(5,7)}/${dateStr.substring(0,4)}`;
 };
+
+export const formatCurrency = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return '';
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+};

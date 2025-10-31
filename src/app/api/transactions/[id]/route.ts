@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
-    if (!authToken) {
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,7 +22,7 @@ export async function PUT(
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(body),
     });
@@ -50,10 +51,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
-    if (!authToken) {
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -63,7 +65,7 @@ export async function DELETE(
     const response = await fetch(`${backendUrl}/transactions/${id}`, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 

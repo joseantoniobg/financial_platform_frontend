@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ ticket: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     const sessionUser = session.user;
@@ -14,11 +11,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { ticket } = await params;
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    const response = await fetch(`${backendUrl}/transactions/ticket/${ticket}`, {
-      method: 'DELETE',
+    const response = await fetch(`${backendUrl}/dashboard`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -27,14 +21,15 @@ export async function DELETE(
     if (!response.ok) {
       const error = await response.text();
       return NextResponse.json(
-        { error: error || 'Failed to delete transactions' },
+        { error: error || 'Failed to fetch dashboard data' },
         { status: response.status }
       );
     }
 
-    return NextResponse.json({ success: true });
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Error deleting transactions by ticket:', error);
+    console.error('Dashboard fetch error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

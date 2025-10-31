@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
-    if (!authToken) {
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/transactions`, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -38,10 +39,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
-    if (!authToken) {
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(body),
     });

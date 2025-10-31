@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
+    const session = await getSession();
+    const sessionUser = session.user;
+    const token = sessionUser?.token;
 
     if (!token) {
       return NextResponse.json({ message: 'Não autenticado' }, { status: 401 });

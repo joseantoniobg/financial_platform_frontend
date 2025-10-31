@@ -41,6 +41,7 @@ export function TransactionFormDialog({
   const [obs, setObs] = useState('');
   const [isAporte, setIsAporte] = useState(false);
   const [isEarnings, setIsEarnings] = useState(false);
+  const [isResgate, setIsResgate] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Check if selected type is Investimento
@@ -59,6 +60,7 @@ export function TransactionFormDialog({
       setObs('');
       setIsAporte(false);
       setIsEarnings(false);
+      setIsResgate(false);
     } else {
       // Set today's date as default
       const today = new Date().toISOString().split('T')[0];
@@ -83,6 +85,7 @@ export function TransactionFormDialog({
         obs: obs.trim() || undefined,
         isEarnings: showInvestimentoOptions ? isEarnings : undefined,
         isAporte: showInvestimentoOptions ? isAporte : undefined,
+        isResgate: showInvestimentoOptions ? isResgate : undefined,
       };
 
       const res = await fetch('/api/transactions', {
@@ -229,6 +232,19 @@ export function TransactionFormDialog({
                 />
                 <Label htmlFor="isAporte" className="cursor-pointer text-sm font-normal">
                   Dinheiro de disponibilidade? (registra aporte)
+                </Label>
+              </div>
+
+              <div className="flex items-center gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                <input
+                  type="checkbox"
+                  id="isResgate"
+                  checked={isResgate}
+                  onChange={(e) => setIsResgate(e.target.checked)}
+                  className="w-4 h-4 text-orange-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-orange-500"
+                />
+                <Label htmlFor="isResgate" className="cursor-pointer text-sm font-normal">
+                  💰 Resgate do ativo? (retira dinheiro do investimento)
                 </Label>
               </div>
             </div>
