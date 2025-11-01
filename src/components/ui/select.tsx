@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
+import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -114,49 +115,51 @@ const SelectContent = React.forwardRef<
 
   return (
     <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
-        ref={ref}
-        className={cn(
-          // enforce a solid, non-transparent panel with consistent light/dark styles
-          'relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md p-1 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]',
-          position === 'popper' &&
-            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-          className
-        )}
-        position={position}
-        {...props}
-      >
-        <SelectScrollUpButton />
-
-        <SelectPrimitive.Viewport
+       <ScrollArea.Root type="auto">
+        <SelectPrimitive.Content
+          ref={ref}
           className={cn(
-            'p-0',
+            'relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md p-1 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]',
             position === 'popper' &&
-              'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
+              'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+            className
           )}
+          position={position}
+          {...props}
         >
-          {searchable && (
-            <div className="px-2 pb-1">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={searchPlaceholder}
-                        // prevent Radix keyboard handlers from stealing focus and ensure theme-safe text color
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onKeyUp={(e) => e.stopPropagation()}
-                        onKeyPress={(e) => e.stopPropagation()}
-                        onInput={(e) => e.stopPropagation()}
-                        className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-popover text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#B4F481]"
-              />
-            </div>
-          )}
+          <SelectScrollUpButton />
+            <ScrollArea.Viewport>
+              <SelectPrimitive.Viewport
+                className={cn(
+                  'p-0',
+                  position === 'popper' &&
+                    'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
+                )}
+                style={{ minHeight: `${(Math.max(Math.min(filteredChildren.length, 8), 2)) * 36}px`, maxHeight: '300px' }}
+              >
+                {searchable && (
+                  <div className="px-2 pb-1">
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder={searchPlaceholder}
+                              // prevent Radix keyboard handlers from stealing focus and ensure theme-safe text color
+                              onKeyDown={(e) => e.stopPropagation()}
+                              onKeyUp={(e) => e.stopPropagation()}
+                              onKeyPress={(e) => e.stopPropagation()}
+                              onInput={(e) => e.stopPropagation()}
+                              className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-popover text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#B4F481]"
+                    />
+                  </div>
+                )}
 
-          {filteredChildren}
-        </SelectPrimitive.Viewport>
-
-        <SelectScrollDownButton />
-      </SelectPrimitive.Content>
+                {filteredChildren}
+              </SelectPrimitive.Viewport>
+            </ScrollArea.Viewport>
+          <SelectScrollDownButton />
+        </SelectPrimitive.Content>
+      </ScrollArea.Root>
     </SelectPrimitive.Portal>
   )
 })

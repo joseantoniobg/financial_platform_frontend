@@ -31,11 +31,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
 
   const validateEmail = (value: string) => {
     if (!value) {
-      setEmailError('E-mail é obrigatório');
-      return false;
-    }
-    if (!/\S+@\S+\.\S+/.test(value)) {
-      setEmailError('E-mail inválido');
+      setEmailError('E-mail / Login é obrigatório');
       return false;
     }
     setEmailError('');
@@ -137,7 +133,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white text-sm font-medium">
-                  E-mail
+                 Login / e-mail
                 </Label>
                 <Input
                   id="email"
