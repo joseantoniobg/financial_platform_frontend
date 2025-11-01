@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { DateInput } from '@/components/ui/date-input';
+import { DatePickerInput } from '@/components/ui/date-picker-input';
 import toast from 'react-hot-toast';
 
 interface PaymentDateDialogProps {
@@ -101,7 +101,7 @@ export function PaymentDateDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="paymentDate">Data do Pagamento*</Label>
-            <DateInput
+            <DatePickerInput
               id="paymentDate"
               value={paymentDate}
               onChange={(value) => setPaymentDate(value)}

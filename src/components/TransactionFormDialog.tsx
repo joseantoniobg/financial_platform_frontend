@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CurrencyInput } from '@/components/ui/currency-input';
-import { DateInput } from '@/components/ui/date-input';
+import { DatePickerInput } from '@/components/ui/date-picker-input';
 import toast from 'react-hot-toast';
 
 interface TransactionType {
@@ -151,7 +151,7 @@ export function TransactionFormDialog({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="transactionDate">Data da Transação*</Label>
-              <DateInput
+              <DatePickerInput
                 id="transactionDate"
                 value={transactionDate}
                 onChange={(value) => setTransactionDate(value)}
@@ -163,7 +163,7 @@ export function TransactionFormDialog({
 
             <div>
               <Label htmlFor="dueDate">Data de Vencimento*</Label>
-              <DateInput
+              <DatePickerInput
                 id="dueDate"
                 value={dueDate}
                 onChange={(value) => setDueDate(value)}
@@ -194,7 +194,7 @@ export function TransactionFormDialog({
 
             <div>
               <Label htmlFor="paymentDate">Data de Pagamento</Label>
-              <DateInput
+              <DatePickerInput
                 id="paymentDate"
                 value={paymentDate}
                 onChange={(value) => setPaymentDate(value)}
