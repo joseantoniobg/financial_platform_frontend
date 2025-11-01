@@ -22,6 +22,7 @@ type DashboardData = {
     currentMonthContributions: number;
     currentMonthWithdrawals: number;
     netBalance: number;
+    currentMonthNetBalance: number;
   },
   expenses: [
         {
@@ -86,14 +87,13 @@ export default function HomePage() {
     currentMonthExpenses,
     currentMonthContributions,
     currentMonthWithdrawals,
-    netBalance 
+    netBalance,
+    currentMonthNetBalance, 
   } = dashboardData?.balances ?? {};
 
   const expenses = expensesPerCategory ? dashboardData?.expensesPerCategory : dashboardData?.expenses;
 
-  const currentMonthBalance = (currentMonthIncomes || 0) - (currentMonthExpenses || 0);
-
-  const textColor = currentMonthBalance > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+  const textColor = currentMonthNetBalance ?? 0 > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
 
   return (
     <DashboardLayout userName={user.name}>
@@ -113,7 +113,7 @@ export default function HomePage() {
                 { label: 'Saídas', value: currentMonthExpenses || 0 },
                 { label: 'Aportes', value: currentMonthContributions || 0 },
               ]} 
-              balance={netBalance} 
+              balance={currentMonthNetBalance || 0} 
               textColor={textColor}
               chart={
                 <MonthlyBalancePieChart 

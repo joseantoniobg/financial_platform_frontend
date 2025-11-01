@@ -6,7 +6,7 @@ export function DashBoardCard({ title, items, balance, textColor, children, tota
                 <p className="text-lg font-medium text-slate-600 dark:text-white">{title}</p>
                 {children}
               </div>
-              {balance && <p className={`text-3xl font-bold mt-1 ${textColor} text-center`}>{formatCurrency(balance)}</p>}
+              {balance !== 0 && <p className={`text-3xl font-bold mt-1 ${textColor} text-center`}>{formatCurrency(balance)}</p>}
               {chart && <div className="mt-[-20px]">{chart}</div>}
               <div className="mt-4 space-y-2">
                 {items.map((item, index) => (
