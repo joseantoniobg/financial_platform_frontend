@@ -93,7 +93,7 @@ export default function HomePage() {
 
   const expenses = expensesPerCategory ? dashboardData?.expensesPerCategory : dashboardData?.expenses;
 
-  const textColor = currentMonthNetBalance ?? 0 > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+  const textColor = (currentMonthNetBalance ?? 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
 
   return (
     <DashboardLayout userName={user.name}>
