@@ -9,6 +9,7 @@ import { DateInput } from '@/components/ui/date-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatDate } from '@/lib/utils';
 
 interface Role {
   id: string;
@@ -267,7 +268,6 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
       return;
     }
 
-    // Only validate password for edit mode (create mode sends temp password via email)
     if (mode === 'edit' && formData.password && formData.password.length < 6) {
       toast.error('A senha deve ter pelo menos 6 caracteres');
       return;
@@ -295,27 +295,22 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
           status: formData.status,
         };
 
-        // Include categoryId if provided
         if (formData.categoryId) {
           payload.categoryId = formData.categoryId;
         }
 
-        // Include contact if provided
         if (formData.contact) {
           payload.contact = formData.contact;
         }
 
-        // Include birthDate if provided
         if (formData.birthDate) {
           payload.birthDate = formData.birthDate;
         }
 
-        // Include cityId if provided
         if (formData.cityId) {
           payload.cityId = formData.cityId;
         }
 
-        // Only include password for edit mode if provided
         if (mode === 'edit' && formData.password) {
           payload.password = formData.password;
         }

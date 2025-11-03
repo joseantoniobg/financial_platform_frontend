@@ -10,12 +10,12 @@ interface MonthlyBalancePieChartProps {
 
 export function MonthlyBalancePieChart({ incomes, expenses }: MonthlyBalancePieChartProps) {
   const data = [
-    { name: 'Entradas', value: incomes || 0 },
+    { name: 'Saldo Restante', value: incomes || 0 },
     { name: 'Saídas', value: expenses || 0 },
   ];
 
   const COLORS = {
-    Entradas: '#10b981', // green-500
+    'Saldo Restante': '#10b981', // green-500
     Saídas: '#ef4444', // red-500
   };
 
@@ -25,7 +25,7 @@ export function MonthlyBalancePieChart({ incomes, expenses }: MonthlyBalancePieC
   };
 
   return (
-    <div className="w-full h-64 mt-4">
+    <div className="w-full h-66 mt-6">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie

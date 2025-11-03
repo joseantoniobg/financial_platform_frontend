@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const formatDate = (date: string) => {
+export const formatDate = (date: string | undefined) => {
+  if (!date) return '';
   const dateStr = new Date(date).toISOString().split('T')[0];
   return `${dateStr.substring(8,10)}/${dateStr.substring(5,7)}/${dateStr.substring(0,4)}`;
 };

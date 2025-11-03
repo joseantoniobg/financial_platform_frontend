@@ -89,7 +89,7 @@ export default function HomePage() {
     currentMonthWithdrawals,
     netBalance,
     currentMonthNetBalance, 
-  } = dashboardData?.balances ?? {};
+  } = dashboardData?.balances ?? { currentMonthIncomes: 0, currentMonthEarnings: 0, currentMonthExpenses: 0, currentMonthContributions: 0, currentMonthWithdrawals: 0, currentMonth: '' };
 
   const expenses = expensesPerCategory ? dashboardData?.expensesPerCategory : dashboardData?.expenses;
 
@@ -117,7 +117,7 @@ export default function HomePage() {
               textColor={textColor}
               chart={
                 <MonthlyBalancePieChart 
-                  incomes={currentMonthIncomes || 0} 
+                  incomes={Math.max(currentMonthIncomes - currentMonthExpenses, 0) || 0} 
                   expenses={currentMonthExpenses || 0} 
                 />
               }
