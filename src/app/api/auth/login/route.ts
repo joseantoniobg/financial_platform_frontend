@@ -25,10 +25,8 @@ export async function POST(req: NextRequest) {
     const token = response.data.access_token;
     const mustChangePassword = response.data.mustChangePassword;
     
-    // Decode JWT to get user data
     const decoded = jwtDecode<JWTPayload>(token);
     
-    // Create response with user data only (no token exposed)
     const userData = {
       username: decoded.username,
       sub: decoded.sub,
@@ -36,7 +34,6 @@ export async function POST(req: NextRequest) {
       roles: decoded.roles,
     };
     
-    // Create response
     const res = NextResponse.json(
       { user: userData, mustChangePassword, success: true },
       { status: 200 }

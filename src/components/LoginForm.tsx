@@ -66,16 +66,13 @@ export function LoginForm({ stocks }: LoginFormProps) {
 
     try {
       const response = await axios.post('/api/auth/login', { login: email, password });
-      
-      // API now returns user data only, token is stored in HTTP-only cookie
+
       if (response.data.success && response.data.user) {
         const user = response.data.user;
         const mustChangePassword = response.data.mustChangePassword;
         
-        // Store user data in Zustand (token is in HTTP-only cookie)
         setAuth(user);
         
-        // Check if user must change password
         if (mustChangePassword) {
           toast.success(`Bem-vindo, ${user.name}! Por favor, altere sua senha.`);
           setTimeout(() => {
@@ -83,11 +80,9 @@ export function LoginForm({ stocks }: LoginFormProps) {
           }, 500);
           return;
         }
-        
-        // Show success message
+      
         toast.success(`Bem-vindo, ${user.name}!`);
         
-        // Redirect to home
         setTimeout(() => {
           router.push('/home');
         }, 500);
