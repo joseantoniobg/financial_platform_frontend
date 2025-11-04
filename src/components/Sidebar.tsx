@@ -15,6 +15,7 @@ import {
   MapPin,
   Tag,
   Receipt,
+  UserCheck,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -41,6 +42,7 @@ export function Sidebar({ userName }: SidebarProps) {
   const allMenuItems = [
     { icon: Home, label: 'Dashboard', href: '/home', roles: ['all'] },
     { icon: Users, label: 'Usuários', href: '/users', roles: ['Administrador'] },
+    { icon: UserCheck, label: 'Clientes', href: '/clientes', roles: ['Administrador'] },
     { icon: Briefcase, label: 'Serviços', href: '/services', roles: ['Administrador'] },
     { icon: Tag, label: 'Categorias', href: '/transaction-categories', roles: ['Cliente'] },
     { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador'] },
