@@ -54,7 +54,6 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
       return isNaN(parsed) ? 0 : parsed;
     };
 
-    // Update display value when prop value changes (only if not focused)
     React.useEffect(() => {
       if (!isFocused) {
         const numValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -65,28 +64,33 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
       
-      // Allow only numbers, comma, and dot
-      const cleaned = inputValue.replace(/[^\d,]/g, '');
+      const cleaned = inputValue.replace(/[^\d]/g, '');
       
-      // Prevent multiple commas
       const parts = cleaned.split(',');
       let formatted = parts[0];
       if (parts.length > 1) {
-        // Keep only first comma and limit decimals to 2
         formatted = parts[0] + ',' + parts[1].slice(0, 2);
       }
-      
-      setDisplayValue(formatted);
-      
-      // Parse and send numeric value to parent
-      const numericValue = parseValue(formatted);
+
+      let finalNumber = String(Number(formatted) / 100).replace('.', ',');
+
+      if (finalNumber.indexOf(',') === -1) {
+        finalNumber += ',00';
+      }
+
+      if (finalNumber.split(',')[1]?.length === 1) {
+        finalNumber += '0';
+      }
+
+      setDisplayValue(finalNumber);
+
+      const numericValue = parseValue(formatted) / 100;
       onChange(numericValue);
     };
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
       
-      // Remove formatting on focus for easier editing
       const numValue = typeof value === 'string' ? parseFloat(value) : value;
       if (numValue > 0) {
         const formatted = formatCurrency(numValue);
@@ -95,7 +99,6 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
         setDisplayValue('');
       }
       
-      // Select all text on focus
       setTimeout(() => e.target.select(), 0);
       
       if (props.onFocus) {
@@ -106,11 +109,9 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(false);
       
-      // Format display value on blur
       const numValue = parseValue(displayValue);
       setDisplayValue(formatCurrency(numValue));
       
-      // Ensure parent has the correct value
       onChange(numValue);
       
       if (props.onBlur) {
