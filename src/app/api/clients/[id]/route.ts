@@ -5,7 +5,7 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -19,8 +19,10 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
+
     const response = await fetch(
-      `${backendUrl}/users/${params.id}`,
+      `${backendUrl}/users/${id}`,
       {
         method: 'GET',
         headers: {
@@ -47,7 +49,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -63,8 +65,10 @@ export async function PUT(
 
     const body = await request.json();
 
+    const { id } = await params;
+
     const response = await fetch(
-      `${backendUrl}/users/${params.id}`,
+      `${backendUrl}/users/${id}`,
       {
         method: 'PUT',
         headers: {
