@@ -26,7 +26,6 @@ export function LoginForm({ stocks }: LoginFormProps) {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   
-  // Redirect if already authenticated
   useRedirectIfAuthenticated();
 
   const validateEmail = (value: string) => {
@@ -116,18 +115,18 @@ export function LoginForm({ stocks }: LoginFormProps) {
         </div>
 
         {/* Login Card */}
-        <div className="bg-[#0D2744] border border-[#1E4976] rounded-2xl p-8 shadow-2xl relative">
+        <div className="bg-[hsl(var(--card))] border border-[hsl(var(--app-border))] rounded-2xl p-8 shadow-2xl relative">
           <div className="space-y-6">
             {/* Title */}
             <div className="text-center space-y-2">
-              <h1 className="text-white text-3xl font-bold">
+              <h1 className="text-[hsl(var(--foreground))] text-3xl font-bold">
                 Plataforma Financeira
               </h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white text-sm font-medium">
+                <Label htmlFor="email" className="text-[hsl(var(--foreground))] text-sm font-medium">
                  Login / e-mail
                 </Label>
                 <Input
@@ -139,7 +138,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                     if (emailError) validateEmail(e.target.value);
                   }}
                   onBlur={(e) => validateEmail(e.target.value)}
-                  className={`h-12 bg-[#0A1929] border-[#1E4976] text-white placeholder:text-gray-500 focus:border-[#2E5C8A] focus:ring-0 ${
+                  className={`h-12 bg-[hsl(var(--accent-foreground))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground))] placeholder:text-gray-500 focus:border-[hsl(var(--border))] focus:ring-0 ${
                     emailError ? 'border-red-500 focus:border-red-500' : ''
                   }`}
                   disabled={isLoading}
@@ -148,10 +147,8 @@ export function LoginForm({ stocks }: LoginFormProps) {
                   <p className="text-red-400 text-xs mt-1">{emailError}</p>
                 )}
               </div>
-
-              {/* Password field */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white text-sm font-medium">
+                <Label htmlFor="password" className="text-[hsl(var(--foreground))] text-sm font-medium">
                   Senha
                 </Label>
                 <div className="relative">
@@ -164,7 +161,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                       if (passwordError) validatePassword(e.target.value);
                     }}
                     onBlur={(e) => validatePassword(e.target.value)}
-                    className={`h-12 bg-[#0A1929] border-[#1E4976] text-white placeholder:text-gray-500 focus:border-[#2E5C8A] focus:ring-0 pr-10 ${
+                    className={`h-12 bg-[hsl(var(--accent-foreground))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground))] placeholder:text-gray-500 focus:border-[hsl(var(--border))] focus:ring-0 ${
                       passwordError ? 'border-red-500 focus:border-red-500' : ''
                     }`}
                     disabled={isLoading}
@@ -194,14 +191,14 @@ export function LoginForm({ stocks }: LoginFormProps) {
               {/* Login button */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-[#B4F481] hover:bg-[#A0E070] text-[#0A1929] font-bold text-sm rounded-lg transition-colors uppercase"
+                className="w-full h-12 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-hover))] text-[#0A1929] font-bold text-sm rounded-lg transition-colors uppercase"
                 disabled={isLoading}
               >
                 {isLoading ? 'ENTRANDO...' : 'ENTRAR'}
               </Button>
             </form>
             <div className="text-center pt-2">
-              <a href="/forgot-password" className="text-white text-sm hover:underline">
+              <a href="/forgot-password" className="text-[hsl(var(--foreground))] text-sm hover:underline">
                 Esqueci minha senha
               </a>
             </div>

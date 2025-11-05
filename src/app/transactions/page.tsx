@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, CheckCircle, Circle } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -47,6 +47,7 @@ export default function TransactionsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [expandedTickets, setExpandedTickets] = useState<Set<number>>(new Set());
 
   const isClient = useMemo(() => {
     return user?.roles?.some((role) => role.name === 'Cliente');
@@ -136,6 +137,18 @@ export default function TransactionsPage() {
     }
   };
 
+  const toggleTicket = (ticket: number) => {
+    setExpandedTickets((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(ticket)) {
+        newSet.delete(ticket);
+      } else {
+        newSet.add(ticket);
+      }
+      return newSet;
+    });
+  };
+
   // Group transactions by ticket
   const groupedTransactions = useMemo(() => {
     const groups: { [key: number]: Transaction[] } = {};
@@ -195,12 +208,24 @@ export default function TransactionsPage() {
             {groupedTransactions.map((group) => {
               const first = group[0];
               const total = group.reduce((sum, t) => sum + (t.calculation !== 3 ? parseFloat(t.amount.toString()) : 0), 0);
+              const isExpanded = expandedTickets.has(first.ticket);
               
               return (
                 <div key={first.ticket} className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 flex-1">
+                      <button
+                        onClick={() => toggleTicket(first.ticket)}
+                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                        title={isExpanded ? 'Recolher' : 'Expandir'}
+                      >
+                        {isExpanded ? (
+                          <ChevronDown className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        )}
+                      </button>
+                      <div className="flex items-center gap-2 flex-1">
                         <span className="font-mono text-xs bg-[#B4F481]/20 text-[#0A1929] dark:text-[#B4F481] px-1.5 py-0.5 rounded font-semibold">
                           #{first.ticket}
                         </span>
@@ -218,9 +243,12 @@ export default function TransactionsPage() {
                             {first.obs}
                           </span>
                         )}
-                      </div>
-                      <div className="text-base font-semibold text-[#0A1929] dark:text-white">
-                        {formatCurrency(total)}
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          ({group.length} parcela{group.length !== 1 ? 's' : ''})
+                        </span>
+                        <span className="text-base font-semibold text-[#0A1929] dark:text-white ml-auto">
+                          {formatCurrency(total)}
+                        </span>
                       </div>
                     </div>
                     {group.length > 1 && (
@@ -234,8 +262,9 @@ export default function TransactionsPage() {
                     )}
                   </div>
 
-                  <div className="space-y-1.5 mt-2">
-                    {group.map((transaction) => (
+                  {isExpanded && (
+                    <div className="space-y-1.5 mt-2">
+                      {group.map((transaction) => (
                       <div
                         key={transaction.id}
                         className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded"
@@ -290,7 +319,8 @@ export default function TransactionsPage() {
                         </div>
                       </div>
                     ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
