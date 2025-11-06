@@ -23,8 +23,7 @@ export async function GET(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/investor-profile/client/${clientId}/latest`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
       }
     );
