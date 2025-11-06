@@ -234,15 +234,6 @@ export default function InvestorProfilePage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <div className="text-center">
-                  <p className="text-sm text-slate-600 dark:text-gray-400">Pontuação Total</p>
-                  <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                    {result.totalWeight}
-                  </p>
-                </div>
-              </div>
-
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
                   <strong>Dica:</strong> Este perfil ajudará seu consultor a recomendar investimentos adequados ao seu perfil de risco.
