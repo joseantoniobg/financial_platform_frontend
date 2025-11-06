@@ -3,7 +3,7 @@ import { getSession } from '@/lib/session';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { clientId: string } }
+  { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
     const session = await getSession();
@@ -17,7 +17,7 @@ export async function GET(
       );
     }
 
-    const { clientId } = params;
+    const { clientId } = await params;
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/investor-profile/client/${clientId}/latest`,
