@@ -15,6 +15,7 @@ interface Client {
   name: string;
   email: string;
   contact?: string;
+  birthDate?: string;
   clientCategory?: {
     id: string;
     name: string;
@@ -31,6 +32,23 @@ interface Client {
   consultancyType?: 'Financeira' | 'Empresarial' | 'Pessoal';
   lastMeeting?: string;
   status: 'active' | 'inactive';
+  // New fields
+  document?: string;
+  plan?: 'Mensal' | 'Trimestral' | 'Semestral' | 'Anual' | 'Personalizado';
+  planValue?: number;
+  contractNumber?: string;
+  contractStatus?: 'Ativo' | 'Inativo' | 'Encerrado' | 'Em negociação';
+  consultant?: {
+    id: string;
+    name: string;
+  };
+  contractStartDate?: string;
+  contractEndDate?: string;
+  address?: string;
+  prospectionOrigin?: 'Indicação' | 'Instagram' | 'Site' | 'Eventos' | 'Outro';
+  profession?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export default function ClientesPage() {

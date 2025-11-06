@@ -16,6 +16,7 @@ import {
   Tag,
   Receipt,
   UserCheck,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -49,6 +50,7 @@ export function Sidebar({ userName }: SidebarProps) {
     { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador'] },
   // Removed separate 'Tipos de Transação' page — merged into 'Categorias'
     { icon: Receipt, label: 'Transações', href: '/transactions', roles: ['Cliente'] },
+    { icon: TrendingUp, label: 'Perfil de Investidor', href: '/perfil-investidor', roles: ['Cliente'] },
   ];
 
   // Filter menu items based on user role

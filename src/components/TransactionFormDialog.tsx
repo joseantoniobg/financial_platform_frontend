@@ -13,6 +13,7 @@ interface TransactionType {
   id: string;
   type: string;
   direction: string;
+  defaultDueDay?: number;
   category: {
     id: string;
     category: string;
@@ -47,6 +48,37 @@ export function TransactionFormDialog({
   // Check if selected type is Investimento
   const selectedType = transactionTypes.find((t) => t.id === typeId);
   const showInvestimentoOptions = selectedType?.direction === 'Investimento';
+
+  // Calculate next future date with specific day
+  const getNextDateWithDay = (day: number): string => {
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    let targetDate = new Date(currentYear, currentMonth, day);
+
+    // If the target day in current month has passed, move to next month
+    if (day < currentDay) {
+      targetDate = new Date(currentYear, currentMonth + 1, day);
+    }
+
+    // Handle invalid dates (e.g., day 31 in February)
+    // JavaScript will roll over to the next valid date
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(targetDate.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${dayStr}`;
+  };
+
+  // Handle type selection change
+  useEffect(() => {
+    if (typeId && selectedType?.defaultDueDay) {
+      const nextDueDate = getNextDateWithDay(selectedType.defaultDueDay);
+      setDueDate(nextDueDate);
+    }
+  }, [typeId, selectedType]);
 
   useEffect(() => {
     if (!open) {

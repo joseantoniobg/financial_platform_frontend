@@ -21,6 +21,7 @@ interface UserTransactionType {
   isCredit: boolean;
   direction?: string;
   category?: Category;
+  defaultDueDay?: number;
 }
 
 interface UserTransactionTypeFormDialogProps {
@@ -54,6 +55,7 @@ export function UserTransactionTypeFormDialog({
     categoryId: '',
     direction: 'Entrada',
     isFixed: false,
+    defaultDueDay: undefined as number | undefined,
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -65,6 +67,7 @@ export function UserTransactionTypeFormDialog({
           categoryId: type.category?.id || '',
           direction: type.direction || (type.isCredit ? 'Saída' : 'Entrada'),
           isFixed: type.isFixed ?? false,
+          defaultDueDay: type.defaultDueDay,
         });
       } else {
         // In create mode, get default direction from selected category
@@ -76,6 +79,7 @@ export function UserTransactionTypeFormDialog({
           categoryId: initialCategoryId || '',
           direction: defaultDirection,
           isFixed: false,
+          defaultDueDay: undefined,
         });
       }
     }
@@ -108,6 +112,7 @@ export function UserTransactionTypeFormDialog({
         categoryId: formData.categoryId,
         direction: formData.direction,
         isFixed: formData.isFixed,
+        defaultDueDay: formData.defaultDueDay || undefined,
       };
 
       const url = mode === 'create'
@@ -212,6 +217,26 @@ export function UserTransactionTypeFormDialog({
             <Label htmlFor="isFixed" className="text-slate-700 dark:text-gray-300 cursor-pointer">
               Lançamento Fixo (recorrente)
             </Label>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="defaultDueDay" className="text-slate-700 dark:text-gray-300">
+              Dia de Vencimento Padrão
+            </Label>
+            <Input
+              id="defaultDueDay"
+              type="number"
+              min="1"
+              max="31"
+              value={formData.defaultDueDay || ''}
+              onChange={(e) => setFormData({ ...formData, defaultDueDay: e.target.value ? parseInt(e.target.value) : undefined })}
+              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
+              placeholder="Ex: 10 (dia 10 de cada mês)"
+              disabled={submitting}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Ao criar transação, o vencimento será preenchido automaticamente com a próxima data com este dia
+            </p>
           </div>
 
           <DialogFooter>
