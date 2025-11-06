@@ -288,7 +288,7 @@ export default function InvestorProfilePage() {
           </p>
         </div>
 
-        {latestProfile && (
+        {latestProfile && latestProfile.riskProfile !== 'Nenhum' && (
           <Card className="border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
