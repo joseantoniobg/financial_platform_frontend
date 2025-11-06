@@ -1201,7 +1201,7 @@ export default function EditClientPage() {
                       </Button>
                     </div>
 
-                    {latestQuestionnaire ? (
+                    {latestQuestionnaire && latestQuestionnaire.riskProfile !== 'Nenhum' ? (
                       <div className="space-y-4">
                         {/* Profile summary */}
                         <div className={`p-6 rounded-lg ${getRiskProfileColor(latestQuestionnaire.riskProfile)}`}>
