@@ -4,7 +4,7 @@ import { Sidebar } from './Sidebar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  userName: string;
+  userName?: string;
 }
 
 export function DashboardLayout({ children, userName }: DashboardLayoutProps) {

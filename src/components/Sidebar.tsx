@@ -23,7 +23,7 @@ import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
 
 interface SidebarProps {
-  userName: string;
+  userName?: string;
 }
 
 export function Sidebar({ userName }: SidebarProps) {
@@ -123,7 +123,7 @@ export function Sidebar({ userName }: SidebarProps) {
             ) : (
               <div className="w-10 h-10 rounded-full bg-[#B4F481] dark:bg-[#B4F481] flex items-center justify-center">
                 <span className="text-[#0A1929] font-bold text-sm">
-                  {userName.charAt(0).toUpperCase()}
+                  {userName && userName.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
