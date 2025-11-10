@@ -136,6 +136,20 @@ export default function EditClientPage() {
     address: '' as string,
     prospectionOrigin: '' as string,
     profession: '' as string,
+    // Conformidade - PLD/CPFT + PEP
+    isPublicPosition: false as boolean,
+    isRelatedToPEP: false as boolean,
+    pepName: '' as string,
+    pepRole: '' as string,
+    pepEntity: '' as string,
+    pepCountry: '' as string,
+    pepStartDate: '' as string,
+    pepEndDate: '' as string,
+    isBeneficialOwner: false as boolean,
+    resourceOrigin: '' as string,
+    internationalTransactions: false as boolean,
+    pldDeclarationAccepted: false as boolean,
+    pldDeclarationDate: '' as string,
   });
 
   const fetchClient = async () => {
@@ -175,6 +189,20 @@ export default function EditClientPage() {
           address: data.address || '',
           prospectionOrigin: data.prospectionOrigin || '',
           profession: data.profession || '',
+          // Conformidade
+          isPublicPosition: data.isPublicPosition || false,
+          isRelatedToPEP: data.isRelatedToPEP || false,
+          pepName: data.pepName || '',
+          pepRole: data.pepRole || '',
+          pepEntity: data.pepEntity || '',
+          pepCountry: data.pepCountry || '',
+          pepStartDate: data.pepStartDate || '',
+          pepEndDate: data.pepEndDate || '',
+          isBeneficialOwner: data.isBeneficialOwner || false,
+          resourceOrigin: data.resourceOrigin || '',
+          internationalTransactions: data.internationalTransactions || false,
+          pldDeclarationAccepted: data.pldDeclarationAccepted || false,
+          pldDeclarationDate: data.pldDeclarationDate || '',
         });
 
         // Load states and cities if client has location data
@@ -394,6 +422,21 @@ export default function EditClientPage() {
         payload.profession = formData.profession;
       }
 
+      // Conformidade fields
+      payload.isPublicPosition = !!formData.isPublicPosition;
+      payload.isRelatedToPEP = !!formData.isRelatedToPEP;
+      if (formData.pepName) payload.pepName = formData.pepName;
+      if (formData.pepRole) payload.pepRole = formData.pepRole;
+      if (formData.pepEntity) payload.pepEntity = formData.pepEntity;
+      if (formData.pepCountry) payload.pepCountry = formData.pepCountry;
+      if (formData.pepStartDate) payload.pepStartDate = formData.pepStartDate;
+      if (formData.pepEndDate) payload.pepEndDate = formData.pepEndDate;
+      payload.isBeneficialOwner = !!formData.isBeneficialOwner;
+      if (formData.resourceOrigin) payload.resourceOrigin = formData.resourceOrigin;
+      payload.internationalTransactions = !!formData.internationalTransactions;
+      payload.pldDeclarationAccepted = !!formData.pldDeclarationAccepted;
+      if (formData.pldDeclarationDate) payload.pldDeclarationDate = formData.pldDeclarationDate;
+
       const res = await fetch(`/api/users/${clientId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -578,9 +621,9 @@ export default function EditClientPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full justify-start mb-6">
                 <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
+                <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
                 <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
                 <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
-                <TabsTrigger value="perfil-investidor">Perfil de Investidor</TabsTrigger>
               </TabsList>
 
               {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
@@ -1090,7 +1133,6 @@ export default function EditClientPage() {
                     <Loader2 className="w-8 h-8 animate-spin text-[#B4F481]" />
                   </div>
                 ) : showNewQuestionnaire ? (
-                  // Admin questionnaire form
                   <div className="space-y-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold text-slate-800 dark:text-white">
@@ -1271,6 +1313,158 @@ export default function EditClientPage() {
                     )}
                   </div>
                 )}
+
+
+                    {/* Conformidade Section */}
+                    <div className="mt-6 p-6 bg-white dark:bg-[#081827] rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="pb-2 border-b border-gray-100 dark:border-gray-800 mb-4">
+                        <h4 className="text-lg font-semibold text-slate-800 dark:text-white">Conformidade (PLD/CPFT + PEP)</h4>
+                        <p className="text-sm text-slate-600 dark:text-gray-400">Informações de conformidade e PEP</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-gray-300">Você ocupa ou foi ocupante de cargo público relevante?</Label>
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="isPublicPosition"
+                                checked={!!formData.isPublicPosition}
+                                onChange={() => setFormData({ ...formData, isPublicPosition: true })}
+                              />
+                              <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="isPublicPosition"
+                                checked={!formData.isPublicPosition}
+                                onChange={() => setFormData({ ...formData, isPublicPosition: false })}
+                              />
+                              <span className="text-slate-700 dark:text-gray-300">Não</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-gray-300">É cônjuge / parente / sócio de PEP?</Label>
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="isRelatedToPEP"
+                                checked={!!formData.isRelatedToPEP}
+                                onChange={() => setFormData({ ...formData, isRelatedToPEP: true })}
+                              />
+                              <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="isRelatedToPEP"
+                                checked={!formData.isRelatedToPEP}
+                                onChange={() => setFormData({ ...formData, isRelatedToPEP: false })}
+                              />
+                              <span className="text-slate-700 dark:text-gray-300">Não</span>
+                            </label>
+                          </div>
+                        </div>
+
+                      {/* PEP details - shown if any of the two above is true */}
+                      {(formData.isPublicPosition || formData.isRelatedToPEP) && (
+                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-slate-700 dark:text-gray-300">Nome da pessoa exposta</Label>
+                            <Input value={formData.pepName} onChange={(e) => setFormData({ ...formData, pepName: e.target.value })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-slate-700 dark:text-gray-300">Cargo/Função</Label>
+                            <Input value={formData.pepRole} onChange={(e) => setFormData({ ...formData, pepRole: e.target.value })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-slate-700 dark:text-gray-300">Órgão/Entidade</Label>
+                            <Input value={formData.pepEntity} onChange={(e) => setFormData({ ...formData, pepEntity: e.target.value })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-slate-700 dark:text-gray-300">País</Label>
+                            <Input value={formData.pepCountry} onChange={(e) => setFormData({ ...formData, pepCountry: e.target.value })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-slate-700 dark:text-gray-300">Data início</Label>
+                            <DateInput value={formData.pepStartDate} onChange={(value) => setFormData({ ...formData, pepStartDate: value })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-slate-700 dark:text-gray-300">Data término (se aplicável)</Label>
+                            <DateInput value={formData.pepEndDate} onChange={(value) => setFormData({ ...formData, pepEndDate: value })} />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-gray-300">Você é o proprietário real dos recursos?</Label>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2">
+                            <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
+                            <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
+                            <span className="text-slate-700 dark:text-gray-300">Não</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label className="text-slate-700 dark:text-gray-300">Origem dos recursos</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                          {['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações', 'Outros'].map(opt => (
+                            <label key={opt} className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="resourceOrigin"
+                                checked={formData.resourceOrigin === opt}
+                                onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
+                              />
+                              <span className="text-slate-700 dark:text-gray-300">{opt}</span>
+                            </label>
+                          ))}
+                        </div>
+                        {!( ['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações'].includes(formData.resourceOrigin)) && (
+                          <div className="mt-2">
+                            <Input placeholder="Descreva a origem dos recursos" value={formData.resourceOrigin} onChange={(e) => setFormData({ ...formData, resourceOrigin: e.target.value })} />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-gray-300">Transações internacionais</Label>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2">
+                            <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
+                            <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
+                            <span className="text-slate-700 dark:text-gray-300">Não</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 mt-2">
+                        <label className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={!!formData.pldDeclarationAccepted}
+                            onChange={(e) => {
+                              const accepted = e.target.checked;
+                              setFormData({ ...formData, pldDeclarationAccepted: accepted, pldDeclarationDate: accepted ? new Date().toISOString() : '' });
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
               </TabsContent>
             </Tabs>
 

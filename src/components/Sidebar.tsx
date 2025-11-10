@@ -17,6 +17,7 @@ import {
   Receipt,
   UserCheck,
   TrendingUp,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -51,6 +52,7 @@ export function Sidebar({ userName }: SidebarProps) {
   // Removed separate 'Tipos de Transação' page — merged into 'Categorias'
     { icon: Receipt, label: 'Transações', href: '/transactions', roles: ['Cliente'] },
     { icon: TrendingUp, label: 'Perfil de Investidor', href: '/perfil-investidor', roles: ['Cliente'] },
+    { icon: ShieldCheck, label: 'Conformidade (PLD/CPFT + PEP)', href: '/conformidade', roles: ['Cliente'] },
   ];
 
   // Filter menu items based on user role
