@@ -49,13 +49,11 @@ export function Sidebar({ userName }: SidebarProps) {
     { icon: Tag, label: 'Categorias', href: '/transaction-categories', roles: ['Cliente'] },
     { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador'] },
     { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador'] },
-  // Removed separate 'Tipos de Transação' page — merged into 'Categorias'
     { icon: Receipt, label: 'Transações', href: '/transactions', roles: ['Cliente'] },
     { icon: TrendingUp, label: 'Perfil de Investidor', href: '/perfil-investidor', roles: ['Cliente'] },
     { icon: ShieldCheck, label: 'Conformidade (PLD/CPFT + PEP)', href: '/conformidade', roles: ['Cliente'] },
   ];
 
-  // Filter menu items based on user role
   const menuItems = allMenuItems.filter(item => 
     item.roles.includes('all') || item.roles.some(role => userRoleNames.includes(role))
   );
@@ -83,7 +81,7 @@ export function Sidebar({ userName }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-0 h-full bg-[#ffffff] dark:bg-[#0D2744] border-r border-gray-200 dark:border-gray-700
+          fixed left-0 top-0 h-full bg-[hsl(var(--card))] border-r border-gray-200 dark:border-gray-700
           transition-all duration-300 z-40
           ${isCollapsed ? 'w-20' : 'w-64'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -91,38 +89,38 @@ export function Sidebar({ userName }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="p-4 border-b border-[hsl(var(--app-border))] flex items-center justify-between">
             {!isCollapsed && (
-              <h1 className="text-xl font-bold text-slate-800 dark:text-white">
+              <h1 className="text-xl font-bold text-[hsl(var(--foreground))]">
                 Plataforma
               </h1>
             )}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors hidden lg:block"
+              className="p-1.5 rounded-lg hover:bg-[hsl(var(--hover))] transition-colors hidden lg:block"
             >
               {isCollapsed ? (
-                <ChevronRight className="h-5 w-5 text-slate-700 dark:text-white" />
+                <ChevronRight className="h-5 w-5 text-[hsl(var(--foreground))]" />
               ) : (
-                <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-white" />
+                <ChevronLeft className="h-5 w-5 text-[hsl(var(--foreground))]" />
               )}
             </button>
           </div>
 
           {/* User info */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-[hsl(var(--app-border))]">
             {!isCollapsed ? (
               <div>
-                <p className="text-sm font-medium text-slate-800 dark:text-white">
+                <p className="text-sm font-medium text-[hsl(var(--foreground))]">
                   Olá, {userName}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-[hsl(var(--foreground))] mt-1">
                   {user?.roles && user.roles.reduce((acc, role) => acc + role.name + ' ', '')}
                 </p>
               </div>
             ) : (
-              <div className="w-10 h-10 rounded-full bg-[#B4F481] dark:bg-[#B4F481] flex items-center justify-center">
-                <span className="text-[#0A1929] font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-[hsl(var(--foreground))] flex items-center justify-center">
+                <span className="text-[hsl(var(--background))] font-bold text-sm">
                   {userName && userName.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -142,8 +140,8 @@ export function Sidebar({ userName }: SidebarProps) {
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
                     ${active 
-                      ? 'bg-[#B4F481] text-[#0A1929] dark:bg-[#B4F481] dark:text-[#0A1929]' 
-                      : 'text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-[hsl(var(--primary))] text-[hsl(var(--foreground))]' 
+                      : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--hover))]'
                     }
                     ${isCollapsed ? 'justify-center' : ''}
                   `}

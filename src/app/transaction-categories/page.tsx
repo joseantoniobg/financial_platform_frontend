@@ -4,10 +4,14 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { useState, useEffect, Fragment } from 'react';
-import { Plus, Edit, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Edit, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TransactionCategoryFormDialog } from '@/components/TransactionCategoryFormDialog';
 import { UserTransactionTypeFormDialog } from '@/components/UserTransactionTypeFormDialog';
+import { PageTitle } from '@/components/ui/page-title';
+import { TopAddButton } from '@/components/ui/top-add-button';
+import { MainLoadableContent } from '@/components/ui/main-loadable-content';
+import { ExpandableButton } from '@/components/ui/expandable-button';
 
 interface Category {
   id: string;
@@ -169,27 +173,17 @@ export default function TransactionCategoriesPage() {
     <DashboardLayout userName={user?.name || ''}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-[#0A1929] dark:text-white">Categorias</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Gerencie as categorias usadas em transações</p>
-          </div>
-          <button onClick={handleCreate} className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors">
-            <Plus className="h-4 w-4" />
-            Adicionar
-          </button>
+          <PageTitle title={"Categorias"} subtitle={"Gerencie as categorias usadas em transações"} />
+          <TopAddButton onClick={handleCreate} label={"Nova Categoria"} />
         </div>
 
-        {loading ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
-        ) : categories.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">Nenhuma categoria cadastrada</div>
-        ) : (
-          <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <MainLoadableContent isLoading={loading} length={categories.length}>
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))] overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-800">
+              <thead className="bg-[hsl(var(--card-accent))]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground-accent))] uppercase tracking-wider">Nome</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-[hsl(var(--foreground-accent))] uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -198,30 +192,20 @@ export default function TransactionCategoriesPage() {
                   const isExpanded = expandedCategories.has(c.id);
                   return (
                     <Fragment key={c.id}>
-                      <tr className="dark:bg-[#191b36] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <tr className="bg-[hsl(var(--card))] hover:bg-[hsl(var(--card-hover))] transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => toggleCategory(c.id)}
-                              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                              title={isExpanded ? 'Recolher' : 'Expandir'}
-                            >
-                              {isExpanded ? (
-                                <ChevronDown className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                              ) : (
-                                <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                              )}
-                            </button>
-                            <span className="text-2xl font-bold text-[#0A1929] dark:text-white">{c.category}</span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                            <ExpandableButton isExpanded={isExpanded} onClick={() => toggleCategory(c.id)} />
+                            <span className="text-2xl font-bold text-[hsl(var(--foreground))]">{c.category}</span>
+                            <span className="text-sm text-[hsl(var(--foreground-clear))]">
                               ({typesForCategory.length} sub-categoria{typesForCategory.length !== 1 ? 's' : ''})
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-right">
                           <div className="flex justify-end gap-2">
-                            <button onClick={() => handleCreateSub(c.id)} className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors" title="Adicionar Sub-categoria">Adicionar Sub-Categoria</button>
-                            <button onClick={() => handleEdit(c)} className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
+                            <button onClick={() => handleCreateSub(c.id)} className="flex items-center gap-2 bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] px-4 py-2 rounded-lg font-medium hover:bg-[hsl(var(--primary-hover))] transition-colors" title="Adicionar Sub-categoria">Adicionar Sub-Categoria</button>
+                            <button onClick={() => handleEdit(c)} className="p-2 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
                             <button onClick={() => handleDelete(c.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Remover"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
@@ -229,19 +213,19 @@ export default function TransactionCategoriesPage() {
 
                       {isExpanded && (
                         <tr>
-                          <td colSpan={2} className="px-6 py-2 bg-gray-50 dark:bg-gray-900/60">
+                          <td colSpan={2} className="px-6 py-2 bg-[hsl(var(--card-accent))]/40">
                             {typesForCategory.length === 0 ? (
-                              <div className="text-sm text-gray-500 dark:text-gray-400">Nenhuma sub-categoria</div>
+                              <div className="text-sm text-[hsl(var(--foreground))]">Nenhuma sub-categoria</div>
                             ) : (
-                              <div className="space-y-2 border-1 rounded-sm">
+                              <div className="space-y-2 rounded-sm">
                                 {typesForCategory.map((t) => (
-                                  <div key={t.id} className="flex items-center justify-between p-2 rounded bg-white dark:bg-[#0D2744]">
+                                  <div key={t.id} className="flex items-center justify-between p-2 rounded bg-[hsl(var(--card-accent))]/40 transition-colors">
                                     <div>
-                                      <div className="text-sm font-medium text-slate-800 dark:text-white">{t.type}</div>
-                                      <div className="text-xs text-gray-600 dark:text-gray-400">{t.direction || (t.isCredit ? 'Saída' : 'Entrada')} • {t.isFixed ? 'Fixo' : 'Variável'}</div>
+                                      <div className="text-sm font-medium text-[hsl(var(--foreground-clear))]">{t.type}</div>
+                                      <div className="text-xs text-[hsl(var(--foreground-clear))]">{t.direction || (t.isCredit ? 'Saída' : 'Entrada')} • {t.isFixed ? 'Fixo' : 'Variável'}</div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      <button onClick={() => handleEditSub(t)} className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
+                                      <button onClick={() => handleEditSub(t)} className="p-2 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 rounded-lg transition-colors" title="Editar"><Edit className="h-4 w-4" /></button>
                                       <button onClick={() => handleDeleteSub(t.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Remover"><Trash2 className="h-4 w-4" /></button>
                                     </div>
                                   </div>
@@ -257,7 +241,7 @@ export default function TransactionCategoriesPage() {
               </tbody>
             </table>
           </div>
-        )}
+        </MainLoadableContent>
 
         <TransactionCategoryFormDialog open={dialogOpen} onOpenChange={setDialogOpen} mode={dialogMode} category={selectedCategory} onSuccess={fetchCategories} />
         <UserTransactionTypeFormDialog

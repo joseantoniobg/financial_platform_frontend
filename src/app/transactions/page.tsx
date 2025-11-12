@@ -9,6 +9,10 @@ import { TransactionFormDialog } from '@/components/TransactionFormDialog';
 import { PaymentDateDialog } from '@/components/PaymentDateDialog';
 import toast from 'react-hot-toast';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { PageTitle } from '@/components/ui/page-title';
+import { TopAddButton } from '@/components/ui/top-add-button';
+import { MainLoadableContent } from '@/components/ui/main-loadable-content';
+import { ExpandableButton } from '@/components/ui/expandable-button';
 
 interface TransactionType {
   id: string;
@@ -182,29 +186,12 @@ export default function TransactionsPage() {
     <DashboardLayout userName={user?.name || ''}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-[#0A1929] dark:text-white">Transações</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Gerencie suas transações financeiras e parcelas
-            </p>
-          </div>
-          <button
-            onClick={() => setDialogOpen(true)}
-            className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Nova Transação
-          </button>
+          <PageTitle title={"Transações"} subtitle={"Gerencie suas transações financeiras e parcelas"} />
+          <TopAddButton onClick={() => setDialogOpen(true)} label={"Nova Transação"} />
         </div>
 
-        {loading ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
-        ) : groupedTransactions.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            Nenhuma transação cadastrada
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+        <MainLoadableContent isLoading={loading} length={groupedTransactions.length}>
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))]/50 divide-y divide-[hsl(var(--app-border))]">
             {groupedTransactions.map((group) => {
               const first = group[0];
               const total = group.reduce((sum, t) => sum + (t.calculation !== 3 ? parseFloat(t.amount.toString()) : 0), 0);
@@ -214,39 +201,29 @@ export default function TransactionsPage() {
                 <div key={first.ticket} className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 flex-1">
-                      <button
-                        onClick={() => toggleTicket(first.ticket)}
-                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                        title={isExpanded ? 'Recolher' : 'Expandir'}
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        ) : (
-                          <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        )}
-                      </button>
+                      <ExpandableButton isExpanded={isExpanded} onClick={() => toggleTicket(first.ticket)} />
                       <div className="flex items-center gap-2 flex-1">
-                        <span className="font-mono text-xs bg-[#B4F481]/20 text-[#0A1929] dark:text-[#B4F481] px-1.5 py-0.5 rounded font-semibold">
+                        <span className="font-mono text-xs bg-[hsl(var(--primary))]/80 text-[hsl(var(--foreground))] px-1.5 py-0.5 rounded font-semibold">
                           #{first.ticket}
                         </span>
-                        <h3 className="font-semibold text-base text-[#0A1929] dark:text-white">
+                        <h3 className="font-semibold text-base text-[hsl(var(--foreground))]">
                           {first.type.type}
                         </h3>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-[hsl(var(--card-accent))] text-[hsl(var(--foreground-clear))] font-medium">
                           {first.type.category.category}
                         </span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">
+                        <span className="text-xs text-[hsl(var(--foreground))] ml-2">
                           {formatDate(first.date)}
                         </span>
                         {first.obs && (
-                          <span className="text-xs text-gray-500 dark:text-gray-500 ml-2 italic">
+                          <span className="text-xs text-[hsl(var(--foreground-clear))] ml-2 italic">
                             {first.obs}
                           </span>
                         )}
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-[hsl(var(--foreground))]">
                           ({group.length} parcela{group.length !== 1 ? 's' : ''})
                         </span>
-                        <span className="text-base font-semibold text-[#0A1929] dark:text-white ml-auto">
+                        <span className="text-base font-semibold text-[hsl(var(--foreground))] ml-auto">
                           {formatCurrency(total)}
                         </span>
                       </div>
@@ -267,26 +244,26 @@ export default function TransactionsPage() {
                       {group.map((transaction) => (
                       <div
                         key={transaction.id}
-                        className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded"
+                        className="flex items-center justify-between pl-4 pr-2 h-[35px] bg-[hsl(var(--card-accent))]/50 rounded"
                       >
                         <div className="flex items-center gap-3 flex-1">
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300 min-w-[60px]">
+                          <span className="text-xs font-medium text-[hsl(var(--foreground-clear))] min-w-[60px]">
                             {transaction.installmentNumber}/{transaction.totalInstallments}
                           </span>
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-[hsl(var(--foreground-clear))]">
                             Venc: {formatDate(transaction.dueDate)}
                           </span>
                           {transaction.paymentDate && (
-                            <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                            <span className="text-xs text-[hsl(var(--primary-hover))] dark:text-[hsl(var(--primary))] font-medium">
                               {transaction.verb} em: {formatDate(transaction.paymentDate)}
                             </span>
                           )}
                           {transaction.isEarnings && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--primary))]/70 text-[hsl(var(--foreground-clear))] font-medium">
                               💰 Rendimento
                             </span>
                           )}
-                          <span className="text-sm font-semibold text-[#0A1929] dark:text-white ml-auto">
+                          <span className="text-sm font-semibold text-[hsl(var(--foreground))] dark:text-white ml-auto">
                             {formatCurrency(transaction.amount)}
                           </span>
                         </div>
@@ -294,9 +271,9 @@ export default function TransactionsPage() {
                           <button
                             onClick={() => handleSetPaymentDate(transaction)}
                             className={`p-1.5 m-1 ml-4 rounded ${
-                              transaction.paymentDate ? 
-                              'text-green-600 dark:text-green-400 hover:bg-green-500/10' :
-                               'text-orange-400 dark:text-orange-500 hover:bg-orange-200 dark:hover:bg-orange-900'
+                              transaction.paymentDate ?
+                              'text-[hsl(var(--primary))] hover:bg-green-500/10' :
+                               'text-orange-400 hover:bg-orange-200'
                             }`}
                             title={transaction.paymentDate ? 'Alterar Pagamento' : 'Pagar'}
                           >
@@ -325,7 +302,7 @@ export default function TransactionsPage() {
               );
             })}
           </div>
-        )}
+        </MainLoadableContent>
 
         <TransactionFormDialog
           open={dialogOpen}

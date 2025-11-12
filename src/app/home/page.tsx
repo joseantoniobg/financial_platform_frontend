@@ -98,8 +98,8 @@ export default function HomePage() {
   return (
     <DashboardLayout userName={user.name}>
       <div className="space-y-6">
-          <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md pl-5 p-3 border border-gray-200 dark:border-gray-700">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md pl-5 p-3 border border-gray-200 dark:border-gray-700">
+            <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
               Bem-vindo(a) à Plataforma Financeira
             </h1>
           </div>

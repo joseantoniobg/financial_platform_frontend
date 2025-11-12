@@ -30,9 +30,9 @@ export function UniversalSelect({
   searchable = false,
   searchPlaceholder = 'Buscar...',
   disabled = false,
-  triggerClassName = 'bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white',
-  contentClassName = 'bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 max-h-60',
-  itemClassName = 'text-slate-800 dark:text-white whitespace-normal break-words',
+  triggerClassName = 'bg-[hsl(var(--card-accent))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground-clear))]',
+  contentClassName = 'bg-[hsl(var(--card-accent))]/90 border-[hsl(var(--app-border))] max-h-60',
+  itemClassName = 'text-[hsl(var(--foreground-clear))] whitespace-normal break-words',
 }: UniversalSelectProps) {
   return (
     <Select value={value} onValueChange={onChange} disabled={disabled}>
@@ -42,7 +42,7 @@ export function UniversalSelect({
 
       <SelectContent searchable={searchable} searchPlaceholder={searchPlaceholder} className={contentClassName}>
         {items.length === 0 ? (
-          <div className="p-2 text-center text-gray-500 dark:text-gray-400 text-sm">Nenhum item</div>
+          <div className="p-2 text-center text-[hsl(var(--foreground-clear))] text-sm">Nenhum item</div>
         ) : (
           items.map((it) => (
             <SelectItem key={it.value} value={it.value} className={itemClassName} disabled={it.disabled}>

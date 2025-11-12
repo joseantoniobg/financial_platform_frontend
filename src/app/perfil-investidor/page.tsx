@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Loader2, CheckCircle2, ArrowRight, ArrowLeft, TrendingUp, HelpCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { PageTitle } from '@/components/ui/page-title';
 
 interface Answer {
   id: string;
@@ -199,7 +200,7 @@ export default function InvestorProfilePage() {
     return (
       <DashboardLayout userName={user.name}>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#B4F481]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
         </div>
       </DashboardLayout>
     );
@@ -210,16 +211,16 @@ export default function InvestorProfilePage() {
       <DashboardLayout userName={user.name}>
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="text-center space-y-2">
-            <CheckCircle2 className="h-16 w-16 text-[#B4F481] mx-auto" />
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
+            <CheckCircle2 className="h-16 w-16 text-[hsl(var(--primary))] mx-auto" />
+            <h1 className="text-3xl font-bold text-[hsl(var(--foreground))]">
               Perfil de Investidor Atualizado!
             </h1>
-            <p className="text-slate-600 dark:text-gray-400">
+            <p className="text-[hsl(var(--foreground-clear))]">
               Obrigado por responder o questionário
             </p>
           </div>
 
-          <Card className="border-gray-200 dark:border-gray-700">
+          <Card className="border-[hsl(var(--app-border))] bg-[hsl(var(--card))] max-w-md mx-auto">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Seu Perfil</CardTitle>
               <CardDescription>Baseado nas suas respostas</CardDescription>
@@ -229,13 +230,13 @@ export default function InvestorProfilePage() {
                 <div className={`text-5xl font-bold ${getRiskProfileColor(result.riskProfile)}`}>
                   {result.riskProfile}
                 </div>
-                <p className="text-slate-600 dark:text-gray-400">
+                <p className="text-[hsl(var(--foreground))]">
                   {getRiskProfileDescription(result.riskProfile)}
                 </p>
               </div>
 
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="p-4 bg-[hsl(var(--card-accent))]/40 border border-blue-200 dark:border-blue-800 rounded-md">
+                <p className="text-sm text-[hsl(var(--foreground-clear))]">
                   <strong>Dica:</strong> Este perfil ajudará seu consultor a recomendar investimentos adequados ao seu perfil de risco.
                 </p>
               </div>
@@ -243,14 +244,14 @@ export default function InvestorProfilePage() {
             <CardFooter className="flex gap-3">
               <Button
                 onClick={() => router.push('/home')}
-                className="flex-1 bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F]"
+                className="flex-1 bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))]"
               >
                 Voltar ao Início
               </Button>
               <Button
                 onClick={() => router.push('/perfil-investidor/historico')}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 hover:bg-[hsl(var(--card-accent))]/20"
               >
                 Ver Histórico
               </Button>
@@ -270,25 +271,17 @@ export default function InvestorProfilePage() {
   return (
     <DashboardLayout userName={user.name}>
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-            Perfil de Investidor
-          </h1>
-          <p className="text-slate-600 dark:text-gray-400">
-            Responda as questões abaixo para identificarmos seu perfil de investidor
-          </p>
-        </div>
-
+        <PageTitle title='Perfil de Investidor' subtitle='Responda as questões abaixo para identificarmos seu perfil de investidor' />
         {latestProfile && latestProfile.riskProfile !== 'Nenhum' && (
-          <Card className="border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20">
+          <Card className="border-yellow-200 bg-yellow-50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <TrendingUp className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                 <div>
-                  <p className="font-medium text-slate-800 dark:text-white">
+                  <p className="font-medium text-[hsl(var(--foreground))]">
                     Perfil Atual: <span className={getRiskProfileColor(latestProfile.riskProfile)}>{latestProfile.riskProfile}</span>
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400">
+                  <p className="text-sm text-[hsl(var(--foreground-clear))]">
                     Última atualização: {new Date(latestProfile.completedAt).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
@@ -298,7 +291,7 @@ export default function InvestorProfilePage() {
         )}
 
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-slate-600 dark:text-gray-400">
+          <div className="flex justify-between text-sm text-[hsl(var(--foreground))]">
             <span>Questão {currentQuestionIndex + 1} de {questions.length}</span>
             <span>{Math.round(progress)}%</span>
           </div>
@@ -306,7 +299,7 @@ export default function InvestorProfilePage() {
         </div>
 
         {currentQuestion && (
-          <Card className="border-gray-200 dark:border-gray-700">
+          <Card className="border-[hsl(var(--app-border))] bg-[hsl(var(--card))]">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle className="text-xl">{currentQuestion.questionText}</CardTitle>
@@ -314,7 +307,7 @@ export default function InvestorProfilePage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <button className="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors">
                           <HelpCircle className="h-5 w-5" />
                         </button>
                       </TooltipTrigger>
@@ -340,15 +333,15 @@ export default function InvestorProfilePage() {
                     key={answer.id}
                     className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
                       currentAnswer === answer.id
-                        ? 'border-[#B4F481] bg-[#B4F481]/10 dark:bg-[#B4F481]/5'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                        ? 'border-[hsl(var(--card-accent))] bg-[hsl(var(--card-accent))]/20'
+                        : 'border-[hsl(var(--app-border))]/40 dark:border-[hsl(var(--app-border))]/40'
                     }`}
                     onClick={() => handleAnswerSelect(answer.id)}
                   >
                     <RadioGroupItem value={answer.id} id={answer.id} />
                     <Label
                       htmlFor={answer.id}
-                      className="flex-1 cursor-pointer text-slate-800 dark:text-white font-medium"
+                      className="flex-1 cursor-pointer text-[hsl(var(--foreground))]"
                     >
                       {answer.answerText}
                     </Label>
@@ -370,7 +363,7 @@ export default function InvestorProfilePage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!canProceed || submitting}
-                  className="bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F]"
+                  className="bg-[hsl(var(--primary))] text-[#0A1929] hover:bg-[hsl(var(--primary-hover))]"
                 >
                   {submitting ? (
                     <>
@@ -388,7 +381,7 @@ export default function InvestorProfilePage() {
                 <Button
                   onClick={handleNext}
                   disabled={!canProceed}
-                  className="bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F]"
+                  className="bg-[hsl(var(--primary))] text-[#0A1929] hover:bg-[hsl(var(--primary-hover))]"
                 >
                   Próxima
                   <ArrowRight className="h-4 w-4 ml-2" />

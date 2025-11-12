@@ -34,7 +34,7 @@ export function StockCarousel({ stocks }: StockCarouselProps) {
   const isPositive = currentStock.change >= 0;
 
   return (
-    <div className="w-full bg-[#0D2744]/50 border border-[#1E4976] rounded-xl p-4 backdrop-blur-sm">
+    <div className="w-full bg-[hsl(var(--card))] border border-[hsl(var(--app-border))] rounded-xl p-4 backdrop-blur-sm shadow-2xl">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-white text-sm font-semibold flex items-center gap-2">
           <svg
@@ -88,7 +88,7 @@ export function StockCarousel({ stocks }: StockCarouselProps) {
               <h4 className="text-white font-bold text-lg">
                 {currentStock.stock}
               </h4>
-              <p className="text-gray-400 text-xs truncate max-w-[200px]">
+              <p className="text-[hsl(var(--foreground))] text-xs truncate max-w-[200px]">
                 {currentStock.name}
               </p>
             </div>
@@ -142,13 +142,13 @@ export function StockCarousel({ stocks }: StockCarouselProps) {
 
         <div className="mt-3 pt-3 border-t border-[#1E4976] grid grid-cols-2 gap-2 text-xs">
           <div>
-            <span className="text-gray-400">Setor:</span>
+            <span className="text-[hsl(var(--foreground))]">Setor:</span>
             <span className="text-white ml-1 font-medium">
               {currentStock.sector}
             </span>
           </div>
           <div className="text-right">
-            <span className="text-gray-400">Volume:</span>
+            <span className="text-[hsl(var(--foreground))]">Volume:</span>
             <span className="text-white ml-1 font-medium">
               {(currentStock.volume / 1000000).toFixed(1)}M
             </span>

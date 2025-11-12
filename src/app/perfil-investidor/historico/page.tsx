@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, ArrowLeft, Calendar, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { PageTitle } from '@/components/ui/page-title';
 
 interface QuestionnaireHistory {
   id: string;
@@ -91,7 +92,7 @@ export default function InvestorProfileHistoryPage() {
     return (
       <DashboardLayout userName={user.name}>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#B4F481]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card-accent))]" />
         </div>
       </DashboardLayout>
     );
@@ -103,22 +104,15 @@ export default function InvestorProfileHistoryPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/perfil-investidor')}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-[hsl(var(--card-accent))]/30 rounded-lg transition-colors"
           >
-            <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-white" />
+            <ArrowLeft className="h-5 w-5 text-[hsl(var(--foreground))]" />
           </button>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-              Histórico de Perfil de Investidor
-            </h1>
-            <p className="text-slate-600 dark:text-gray-400">
-              Visualize todos os questionários respondidos
-            </p>
-          </div>
+          <PageTitle title='Histórico de Perfil de Investidor' subtitle='Visualize todos os questionários respondidos' />
         </div>
 
         {questionnaires.length === 0 ? (
-          <Card className="border-gray-200 dark:border-gray-700">
+          <Card className="border-[hsl(var(--app-border))] max-w-md mx-auto">
             <CardContent className="pt-6 text-center py-12">
               <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-slate-600 dark:text-gray-400 mb-4">
@@ -126,7 +120,7 @@ export default function InvestorProfileHistoryPage() {
               </p>
               <Button
                 onClick={() => router.push('/perfil-investidor')}
-                className="bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F]"
+                className="bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))]"
               >
                 Responder Questionário
               </Button>
@@ -135,12 +129,12 @@ export default function InvestorProfileHistoryPage() {
         ) : (
           <div className="space-y-4">
             {questionnaires.map((questionnaire) => (
-              <Card key={questionnaire.id} className="border-gray-200 dark:border-gray-700">
+              <Card key={questionnaire.id} className="border-[hsl(var(--app-border))] bg-[hsl(var(--card))]">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-slate-600 dark:text-gray-400" />
+                        <Calendar className="h-4 w-4 text-[hsl(var(--foreground))]" />
                         <CardTitle className="text-lg">
                           {new Date(questionnaire.completedAt).toLocaleDateString('pt-BR', {
                             day: '2-digit',
@@ -161,31 +155,31 @@ export default function InvestorProfileHistoryPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-[hsl(var(--card-accent))]/30 rounded-lg border border-[hsl(var(--app-border))]">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-gray-400">Pontuação Total</p>
-                      <p className="text-xl font-bold text-slate-800 dark:text-white">
+                      <p className="text-sm text-[hsl(var(--foreground))] text-center">Pontuação Total</p>
+                      <p className="text-[3rem] font-bold text-[hsl(var(--foreground-clear))] text-center">
                         {questionnaire.totalWeight}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-gray-400">Média</p>
-                      <p className="text-xl font-bold text-slate-800 dark:text-white">
+                      <p className="text-sm text-[hsl(var(--foreground))] text-center">Média</p>
+                      <p className="text-[3rem] font-bold text-[hsl(var(--foreground-clear))] text-center">
                         {questionnaire.averageWeight.toFixed(2)}
                       </p>
                     </div>
                   </div>
 
                   {expandedId === questionnaire.id && (
-                    <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <h4 className="font-semibold text-slate-800 dark:text-white">Respostas:</h4>
+                    <div className="space-y-3 pt-4 border-t border-[hsl(var(--app-border))]">
+                      <h4 className="font-semibold text-[hsl(var(--foreground))]">Respostas:</h4>
                       {questionnaire.responses.map((response, index) => (
-                        <div key={index} className="p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                          <p className="font-medium text-slate-800 dark:text-white mb-1">
+                        <div key={index} className="p-3 bg-[hsl(var(--card-accent))]/30 rounded-lg border border-[hsl(var(--app-border))]">
+                          <p className="font-medium text-[hsl(var(--foreground))] mb-1">
                             {response.question}
                           </p>
                           <div className="flex items-center justify-between">
-                            <p className="text-slate-600 dark:text-gray-400">
+                            <p className="text-[hsl(var(--foreground-clear))]">
                               {response.answer}
                             </p>
                             
@@ -198,7 +192,7 @@ export default function InvestorProfileHistoryPage() {
                   <Button
                     onClick={() => setExpandedId(expandedId === questionnaire.id ? null : questionnaire.id)}
                     variant="outline"
-                    className="w-full"
+                    className="w-full hover:bg-[hsl(var(--card-accent))]/20"
                   >
                     {expandedId === questionnaire.id ? 'Ocultar' : 'Ver'} Detalhes
                   </Button>
@@ -211,7 +205,7 @@ export default function InvestorProfileHistoryPage() {
         <div className="flex justify-center gap-3">
           <Button
             onClick={() => router.push('/perfil-investidor')}
-            className="bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F]"
+            className="bg-[hsl(var(--primary))] text-[#0A1929] hover:bg-[#9FD96F]"
           >
             Responder Novo Questionário
           </Button>

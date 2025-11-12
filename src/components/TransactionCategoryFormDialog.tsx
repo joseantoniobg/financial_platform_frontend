@@ -81,37 +81,35 @@ export function TransactionCategoryFormDialog({ open, onOpenChange, mode, catego
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700">
+      <DialogContent className="sm:max-w-[425px] bg-[hsl(var(--card))] border-gray-200 dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-slate-800 dark:text-white">{mode === 'create' ? 'Nova Categoria' : 'Editar Categoria'}</DialogTitle>
-          <DialogDescription className="text-slate-600 dark:text-gray-400">{mode === 'create' ? 'Crie uma nova categoria' : 'Atualize a categoria'}</DialogDescription>
+          <DialogTitle className="text-[hsl(var(--foreground))]">{mode === 'create' ? 'Nova Categoria' : 'Editar Categoria'}</DialogTitle>
+          <DialogDescription className="text-[hsl(var(--foreground-clear))]">{mode === 'create' ? 'Crie uma nova categoria' : 'Atualize a categoria'}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-slate-700 dark:text-gray-300">Nome <span className="text-red-500">*</span></Label>
-            <Input id="category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white" />
+            <Label htmlFor="category" className="text-[hsl(var(--foreground))]">Nome <span className="text-red-500">*</span></Label>
+            <Input id="category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="defaultDirection" className="text-slate-700 dark:text-gray-300">Direção Padrão</Label>
+            <Label htmlFor="defaultDirection" className="text-[hsl(var(--foreground))]">Direção Padrão</Label>
             <UniversalSelect
               value={formData.defaultDirection}
               onChange={(value) => setFormData({ ...formData, defaultDirection: value })}
               placeholder="Selecione uma direção padrão"
               items={directionOptions}
               disabled={submitting}
-              triggerClassName="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              contentClassName="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600"
             />
-            <p className="text-xs text-slate-500 dark:text-gray-400">
+            <p className="text-xs text-[hsl(var(--foreground-clear))]">
               Quando definida, sub-categorias criadas nesta categoria terão esta direção selecionada por padrão
             </p>
           </div>
 
           <DialogFooter>
-            <button type="button" onClick={() => onOpenChange(false)} className="px-4 py-2 text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" disabled={submitting}>Cancelar</button>
-            <button type="submit" className="px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg font-medium hover:bg-[#9FD96F] transition-colors disabled:opacity-50 flex items-center gap-2" disabled={submitting}>
+            <button type="button" onClick={() => onOpenChange(false)} className="px-4 py-2 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--background))] rounded-lg transition-colors" disabled={submitting}>Cancelar</button>
+            <button type="submit" className="px-4 py-2 bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] rounded-lg font-medium hover:bg-[hsl(var(--primary-hover))] transition-colors disabled:opacity-50 flex items-center gap-2" disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? 'Salvando...' : 'Salvar'}
             </button>

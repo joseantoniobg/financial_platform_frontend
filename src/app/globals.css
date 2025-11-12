@@ -11,9 +11,14 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    --card-hover: 209, 68%, 53%;
 
     --card: 215.4 16.3% 90%;
     --card-foreground: 222.2 84% 4.9%;
+
+    --card-accent: 215.4 16.3% 80%;
+    --foreground-accent: 222.2 84% 4.9%;
+    --foreground-clear: 224, 53%, 0%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -48,34 +53,39 @@
     --app-sidebar-active: 88 64% 62%; /* #B4F481 */
     --app-text-primary: 222.2 84% 4.9%;
     --app-text-secondary: 215.4 16.3% 46.9%;
-    --app-border: 214.3 31.8% 91.4%;
+    --app-border: 217.2 32.6% 17.5%;
   }
 
   .dark {
-    --background: 216, 75%, 18%;
-    --foreground: 210 40% 98%;
+    --background: 209, 91%, 75%;
+    --foreground: 224, 53%, 26%;
 
-    --card: 215 59% 16%;
-    --card-foreground: 210 40% 98%;
+    --card: 209, 68%, 63%;
+    --card-foreground: 223, 82%, 89%;
+    --card-hover: 209, 68%, 53%;
 
-    --popover: 215 59% 16%;
-    --popover-foreground: 210 40% 98%;
+    --card-accent: 217, 75%, 36%;
+    --foreground-accent: 223, 82%, 89%;
+    --foreground-clear: 224, 53%, 100%;
+
+    --popover: 209, 91%, 75%;
+    --popover-foreground: 224, 53%, 26%;
 
     --primary: 88 64% 62%;
     --primary-hover: 88 64% 42%;
-    --primary-foreground: 217 91% 10%;
+    --primary-foreground: 209, 91%, 75%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 223, 82%, 89%;
+    --secondary-foreground: 224, 53%, 26%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217, 33%, 73%;
+    --muted-foreground: 217, 37%, 58%;
 
     --accent: 88 64% 62%;
-    --accent-foreground: 217 91% 10%;
+    --accent-foreground: 224, 53%, 26%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 224, 53%, 26%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
