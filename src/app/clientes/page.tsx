@@ -8,6 +8,9 @@ import { Search, Plus, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { formatDate } from '@/lib/utils';
+import { PageTitle } from '@/components/ui/page-title';
+import { TopAddButton } from '@/components/ui/top-add-button';
+import { Button } from '@/components/ui/button';
 
 interface Client {
   id: string;
@@ -102,8 +105,8 @@ export default function ClientesPage() {
 
   if (!isAuthenticated || !user) return null;
 
-  // Check if user is Administrador
-  const isAdmin = user.roles?.some(role => role.name === 'Administrador');
+  // Check if user is Administrador or Consultor
+  const isAdmin = user.roles?.some(role => ['Administrador', 'Consultor'].includes(role.name));
   
   if (!isAdmin) {
     return (
@@ -113,7 +116,7 @@ export default function ClientesPage() {
             Acesso Negado
           </h1>
           <p className="text-slate-600 dark:text-gray-400">
-            Apenas administradores podem acessar esta página.
+            Apenas administradores e consultores podem acessar esta página.
           </p>
         </div>
       </DashboardLayout>
@@ -124,20 +127,12 @@ export default function ClientesPage() {
     <DashboardLayout userName={user.name}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-            Gerenciar Clientes
-          </h1>
-          <button 
-            onClick={handleCreateClient}
-            className="flex items-center gap-2 px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg font-medium hover:bg-[#9FD96F] transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            Novo Cliente
-          </button>
+          <PageTitle title='Gerenciar Clientes' />
+          <TopAddButton onClick={handleCreateClient} label='Novo Cliente' />
         </div>
 
-        <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-[hsl(var(--card-accent))] rounded-lg shadow-md border border-[hsl(var(--app-border))]">
+          <div className="p-4 border-b border-[hsl(var(--border))]">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
@@ -146,58 +141,58 @@ export default function ClientesPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyUp={handleSearch}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#0A1929] text-slate-800 dark:text-white focus:ring-2 focus:ring-[#B4F481] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent"
               />
             </div>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-8 text-center text-[hsl(var(--foreground))]">
               Carregando...
             </div>
           ) : clients.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-8 text-center text-[hsl(var(--foreground))]">
               Nenhum cliente encontrado
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
+                  <thead className="bg-[hsl(var(--background))]/40 border-b border-[hsl(var(--border))]">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contato</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoria</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo de Consultoria</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Último Atendimento</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Localidade</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Nome</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Contato</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Categoria</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Tipo de Consultoria</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Último Atendimento</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Localidade</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {clients.map((client) => (
                       <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-slate-800 dark:text-white">{client.name}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{client.email}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{client.contact || '-'}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">
+                        <td className="px-6 py-4 text-sm font-medium text-[hsl(var(--foreground))]">{client.name}</td>
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">{client.email}</td>
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">{client.contact || '-'}</td>
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">
                           {client.clientCategory?.name || '-'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">
                           {client.consultancyType || '-'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">
                           {client.lastMeeting ? formatDate(client.lastMeeting) : '-'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">
                           {client.city ? `${client.city.name}, ${client.city.state?.code || ''}` : '-'}
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             client.status === 'active' 
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                              ? 'bg-[hsl(var(--green))]/40 text-[hsl(var(--green))]'
                               : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                           }`}>
                             {client.status === 'active' ? 'Ativo' : 'Inativo'}
@@ -220,25 +215,23 @@ export default function ClientesPage() {
                 </table>
               </div>
 
-              <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <p className="text-sm text-slate-600 dark:text-gray-400">
+              <div className="p-4 border-t border-[hsl(var(--app-border))] flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
                   Mostrando {clients.length} de {total} clientes
                 </p>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-800 dark:text-white"
                   >
                     Anterior
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setPage(p => p + 1)}
                     disabled={page * 10 >= total}
-                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-800 dark:text-white"
                   >
                     Próxima
-                  </button>
+                  </Button>
                 </div>
               </div>
             </>

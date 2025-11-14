@@ -69,12 +69,12 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A1929] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-[#0D2744] rounded-lg shadow-lg p-8">
+        <div className="bg-[hsl(var(--card))] rounded-lg shadow-lg p-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-[#B4F481]/10 p-3 rounded-full">
-              <Lock className="h-8 w-8 text-[#B4F481]" />
+            <div className="bg-[hsl(var(--primary))]/10 p-3 rounded-full">
+              <Lock className="h-8 w-8 text-[hsl(var(--primary))]" />
             </div>
           </div>
 
@@ -95,7 +95,7 @@ export default function ChangePasswordPage() {
                 type="password"
                 value={formData.currentPassword}
                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                className="bg-[#0A1929] border-gray-600 text-white focus:border-[#B4F481]"
+                className="border-gray-600"
                 placeholder="Digite sua senha temporária"
                 disabled={loading}
               />
@@ -110,7 +110,7 @@ export default function ChangePasswordPage() {
                 type="password"
                 value={formData.newPassword}
                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                className="bg-[#0A1929] border-gray-600 text-white focus:border-[#B4F481]"
+                className="border-gray-600"
                 placeholder="Mínimo 6 caracteres"
                 disabled={loading}
               />
@@ -125,14 +125,14 @@ export default function ChangePasswordPage() {
                 type="password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="bg-[#0A1929] border-gray-600 text-white focus:border-[#B4F481]"
+                className="border-gray-600"
                 placeholder="Digite novamente a nova senha"
                 disabled={loading}
               />
             </div>
 
-            <div className="bg-blue-900/20 border border-blue-700/50 rounded p-3">
-              <p className="text-sm text-blue-200">
+            <div className="bg-[hsl(var(--foreground-clear))]/20 border border-[hsl(var(--primary))]/50 rounded p-3">
+              <p className="text-sm text-[hsl(var(--primary))]">
                 <strong>Requisitos da senha:</strong>
                 <br />
                 • Mínimo de 6 caracteres
@@ -143,7 +143,7 @@ export default function ChangePasswordPage() {
 
             <button
               type="submit"
-              className="w-full bg-[#B4F481] text-[#0A1929] font-bold py-3 rounded-lg hover:bg-[#9FD96F] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] font-bold py-3 rounded-lg hover:bg-[hsl(var(--primary-hover))] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               disabled={loading}
             >
               {loading && <Loader2 className="h-5 w-5 animate-spin" />}

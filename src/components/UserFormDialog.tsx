@@ -9,7 +9,8 @@ import { DateInput } from '@/components/ui/date-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { formatDate } from '@/lib/utils';
+import { Button } from './ui/button';
+import { StSelect } from './st-select';
 
 interface Role {
   id: string;
@@ -360,12 +361,12 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700">
+      <DialogContent className="sm:max-w-[500px] bg-[hsl(var(--card))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
         <DialogHeader>
-          <DialogTitle className="text-slate-800 dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))] dark:text-white">
             {mode === 'create' ? 'Novo Usuário' : 'Editar Usuário'}
           </DialogTitle>
-          <DialogDescription className="text-slate-600 dark:text-gray-400">
+          <DialogDescription className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
             {mode === 'create' 
               ? 'Preencha os dados do novo usuário'
               : 'Atualize os dados do usuário'
@@ -383,27 +384,25 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
                 id="login"
                 value={formData.login}
                 onChange={(e) => setFormData({ ...formData, login: e.target.value })}
-                className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                 disabled={loading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-slate-700 dark:text-gray-300">
+              <Label htmlFor="name" className="text-[hsl(var(--foreground))]">
                 Nome <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                 disabled={loading}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-slate-700 dark:text-gray-300">
+            <Label htmlFor="email" className="text-[hsl(var(--foreground))]">
               Email <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -411,102 +410,66 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
               disabled={loading}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="contact" className="text-slate-700 dark:text-gray-300">
+              <Label htmlFor="contact" className="text-[hsl(var(--foreground))]">
                 Contato
               </Label>
               <PhoneInput
                 id="contact"
                 value={formData.contact}
                 onChange={(value) => setFormData({ ...formData, contact: value })}
-                className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                 disabled={loading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="birthDate" className="text-slate-700 dark:text-gray-300">
+              <Label htmlFor="birthDate" className="text-[hsl(var(--foreground))]">
                 Data de Nascimento
               </Label>
               <DateInput
                 id="birthDate"
                 value={formData.birthDate}
                 onChange={(value) => setFormData({ ...formData, birthDate: value })}
-                className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                 disabled={loading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="country" className="text-slate-700 dark:text-gray-300">
-                País
-              </Label>
-              <Select
+              <StSelect 
+                htmlFor='country'
+                label='País'
+                items={countries.map((country) => ({ id: country.id, description: country.name }))}
                 value={formData.countryId}
-                onValueChange={handleCountryChange}
-                disabled={loading || loadingCountries}
-              >
-                <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                  <SelectValue placeholder={loadingCountries ? "Carregando..." : "Selecione um país"} />
-                </SelectTrigger>
-                <SelectContent searchable className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600" searchPlaceholder="Buscar país...">
-                  {countries.map((country) => (
-                    <SelectItem key={country.id} value={country.id} className="text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      {country.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={handleCountryChange}
+                loading={loading || loadingCountries}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="state" className="text-slate-700 dark:text-gray-300">
-                Estado
-              </Label>
-              <Select
+              <StSelect 
+                htmlFor='state'
+                label='Estado'
+                items={states.map((state) => ({ id: state.id, description: state.name }))}
                 value={formData.stateId}
-                onValueChange={handleStateChange}
-                disabled={loading || loadingStates || !formData.countryId}
-              >
-                <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                  <SelectValue placeholder={loadingStates ? "Carregando..." : !formData.countryId ? "Selecione um país primeiro" : "Selecione um estado"} />
-                </SelectTrigger>
-                <SelectContent searchable className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600" searchPlaceholder="Buscar estado...">
-                  {states.map((state) => (
-                    <SelectItem key={state.id} value={state.id} className="text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      {state.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={handleStateChange}
+                loading={loading || loadingStates || !formData.countryId}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city" className="text-slate-700 dark:text-gray-300">
-                Cidade
-              </Label>
-              <Select
+              <StSelect 
+                htmlFor='city'
+                label='Cidade'
+                items={cities.map((city) => ({ id: city.id, description: city.name }))}
                 value={formData.cityId}
-                onValueChange={(value) => setFormData({ ...formData, cityId: value })}
-                disabled={loading || loadingCities || !formData.stateId}
-              >
-                <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                  <SelectValue placeholder={loadingCities ? "Carregando..." : !formData.stateId ? "Selecione um estado primeiro" : "Selecione uma cidade"} />
-                </SelectTrigger>
-                <SelectContent searchable className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600" searchPlaceholder="Buscar cidade...">
-                  {cities.map((city) => (
-                    <SelectItem key={city.id} value={city.id} className="text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      {city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(value) => setFormData({ ...formData, cityId: value })}
+                loading={loading || loadingCities || !formData.stateId}
+              />
             </div>
           </div>
 
@@ -543,16 +506,16 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
               {roles.map((role) => (
                 <label
                   key={role.id}
-                  className="flex items-center space-x-2 p-2 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  className="flex items-center space-x-2 p-2 rounded border border-[hsl(var(--app-border))] bg-[hsl(var(--card-accent))]/40 cursor-pointer"
                 >
                   <input
                     type="checkbox"
                     checked={formData.roleIds.includes(role.id)}
                     onChange={() => toggleRole(role.id)}
-                    className="rounded border-gray-300 text-[#B4F481] focus:ring-[#B4F481]"
+                    className="rounded border-[hsl(var(--app-border))] text-[hsl(var(--foreground))] focus:ring-[hsl(var(--primary))]"
                     disabled={loading}
                   />
-                  <span className="text-sm text-slate-700 dark:text-gray-300">{role.name}</span>
+                  <span className="text-sm text-[hsl(var(--foreground))]">{role.name}</span>
                 </label>
               ))}
             </div>
@@ -560,45 +523,33 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-slate-700 dark:text-gray-300">
-                Status
-              </Label>
-              <Select
+              <StSelect 
+                htmlFor='status'
+                label='Status'
+                items={[
+                  { id: 'active', description: 'Ativo' },
+                  { id: 'inactive', description: 'Inativo' },
+                ]}
                 value={formData.status}
-                onValueChange={(value: 'active' | 'inactive') => setFormData({ ...formData, status: value })}
-                disabled={loading}
-              >
-                <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                  <SelectItem value="active" className="text-slate-800 dark:text-white">Ativo</SelectItem>
-                  <SelectItem value="inactive" className="text-slate-800 dark:text-white">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
+                onChange={(value) => setFormData({ ...formData, status: value as 'active' | 'inactive' })}
+                loading={loading}
+                searchable={false}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-slate-700 dark:text-gray-300">
-                Categoria
-              </Label>
-              <Select
+              <StSelect
+                htmlFor='category'
+                label='Categoria'
+                items={[
+                  { id: 'none', description: 'Nenhuma' },
+                  ...categories.map((category) => ({ id: category.id, description: `${category.name} - ${category.description}` })),
+                ]}
                 value={formData.categoryId || 'none'}
-                onValueChange={(value: string) => setFormData({ ...formData, categoryId: value === 'none' ? '' : value })}
-                disabled={loading}
-              >
-                <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                  <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhuma</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id} className="text-slate-800 dark:text-white">
-                      {category.name} - {category.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(value: string) => setFormData({ ...formData, categoryId: value === 'none' ? '' : value })}
+                loading={loading}
+                searchable={false}
+              />
             </div>
           </div>
 
@@ -611,14 +562,14 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
             >
               Cancelar
             </button>
-            <button
+            <Button
               type="submit"
-              className="px-4 py-2 text-sm font-medium bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
               disabled={loading}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {mode === 'create' ? 'Criar Usuário' : 'Salvar Alterações'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

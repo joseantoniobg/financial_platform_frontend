@@ -7,6 +7,9 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Power } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { UserFormDialog } from '@/components/UserFormDialog';
+import { PageTitle } from '@/components/ui/page-title';
+import { TopAddButton } from '@/components/ui/top-add-button';
+import { Button } from '@/components/ui/button';
 
 interface User {
   id: string;
@@ -95,16 +98,8 @@ export default function UsersPage() {
     <DashboardLayout userName={user.name}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-            Gerenciar Usuários
-          </h1>
-          <button 
-            onClick={handleCreateUser}
-            className="flex items-center gap-2 px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg font-medium hover:bg-[#9FD96F] transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            Novo Usuário
-          </button>
+          <PageTitle title='Gerenciar Usuários' />
+          <TopAddButton onClick={handleCreateUser} label='Novo Usuário' />
         </div>
 
         <UserFormDialog
@@ -115,8 +110,8 @@ export default function UsersPage() {
           onSuccess={handleDialogSuccess}
         />
 
-        <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[hsl(var(--card-accent))] rounded-lg shadow-md border border-[hsl(var(--app-border))]">
+          <div className="p-4 border-b border-[hsl(var(--app-border))]">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
@@ -125,13 +120,13 @@ export default function UsersPage() {
                 value={search}
                 onKeyDown={handleSearch}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#0A1929] text-slate-800 dark:text-white focus:ring-2 focus:ring-[#B4F481] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-[hsl(var(--app-border))] rounded-lg bg-white dark:bg-[hsl(var(--card))] text-slate-800 dark:text-white focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent"
               />
             </div>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-8 text-center text-[hsl(var(--foreground))]">
               Carregando...
             </div>
           ) : users.length === 0 ? (
@@ -142,29 +137,29 @@ export default function UsersPage() {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
+                  <thead className="bg-[hsl(var(--card))]/20">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Login</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Perfil</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Nome</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Login</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Perfil</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {users.map((u) => (
                       <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-slate-800 dark:text-white">{u.name}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{u.login}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{u.email}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">
+                        <td className="px-6 py-4 text-sm font-medium text-[hsl(var(--foreground))]">{u.name}</td>
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">{u.login}</td>
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">{u.email}</td>
+                        <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))]">
                           {u.roles && u.roles[0] ? u.roles[0].name : 'N/A'}
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             u.status === 'active' 
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                              ? 'bg-[hsl(var(--green))]/40 text-[hsl(var(--green))]'
                               : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                           }`}>
                             {u.status === 'active' ? 'Ativo' : 'Inativo'}
@@ -198,28 +193,26 @@ export default function UsersPage() {
                 </table>
               </div>
 
-              <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <p className="text-sm text-slate-600 dark:text-gray-400">
+              <div className="p-4 border-t border-[hsl(var(--border))] flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
                   Mostrando {users.length} de {total} usuários
                 </p>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#0A1929] text-slate-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  >
+                   >
                     Anterior
-                  </button>
-                  <span className="px-3 py-1.5 text-sm text-slate-700 dark:text-white">
+                  </Button>
+                  <span className="px-3 py-1.5 text-sm text-[hsl(var(--foreground))]">
                     Página {page}
                   </span>
-                  <button
+                  <Button
                     onClick={() => setPage(p => p + 1)}
                     disabled={page * 10 >= total}
-                    className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#0A1929] text-slate-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     Próximo
-                  </button>
+                  </Button>
                 </div>
               </div>
             </>

@@ -110,6 +110,7 @@ export default function EditClientPage() {
   const [loadingCountries, setLoadingCountries] = useState(false);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [isConsultant, setIsConsultant] = useState(false);
 
   const [formData, setFormData] = useState({
     login: '',
@@ -238,14 +239,10 @@ export default function EditClientPage() {
 
   const fetchConsultants = async () => {
     try {
-      const res = await fetch('/api/users?limit=1000');
+      const res = await fetch('/api/users?limit=1000&isConsultant=true');
       if (res.ok) {
         const data = await res.json();
-        // Filter only users who are not clients (consultants/admins)
-        const nonClients = data.users.filter((u: any) => 
-          !u.roles.some((r: any) => r.name === 'Cliente')
-        );
-        setConsultants(nonClients.map((u: any) => ({ id: u.id, name: u.name })));
+        setConsultants(data.users.map((u: any) => ({ id: u.id, name: u.name })));
       }
     } catch {
       console.error('Error fetching consultants');
@@ -307,6 +304,16 @@ export default function EditClientPage() {
       fetchConsultants();
     }
   }, [isAuthenticated, clientId]);
+
+  useEffect(() => {
+    if (user && user.roles.some(r => r.name === 'Consultor')) {
+      setFormData(prev => ({
+        ...prev,
+        consultantId: user.sub,
+      }));
+      setIsConsultant(true);
+    }
+  }, [user, consultants]);
 
   const handleCountryChange = (countryId: string) => {
     setFormData(prev => ({
@@ -574,7 +581,7 @@ export default function EditClientPage() {
 
   if (!isAuthenticated || !user) return null;
 
-  const isAdmin = user.roles?.some(role => role.name === 'Administrador');
+  const isAdmin = user.roles?.some(role => ['Administrador', 'Consultor'].includes(role.name));
   
   if (!isAdmin) {
     return (
@@ -834,7 +841,7 @@ export default function EditClientPage() {
                     <Select
                       value={formData.consultantId || 'none'}
                       onValueChange={(value: string) => setFormData({ ...formData, consultantId: value === 'none' ? '' : value })}
-                      disabled={saving}
+                      disabled={saving || isConsultant}
                     >
                       <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
                         <SelectValue placeholder="Selecione..." />

@@ -146,7 +146,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
 
     return (
       <div className="relative">
-        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 text-sm pointer-events-none">
+        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted))] text-sm pointer-events-none">
           R$
         </span>
         <Input
@@ -158,7 +158,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`pl-10 ${className || 'bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white'}`}
+          className={`pl-10 ${className || 'bg-[hsl(var(--card-accent))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground))]'}`}
           disabled={disabled}
           {...props}
         />

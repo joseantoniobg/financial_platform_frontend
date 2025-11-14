@@ -149,7 +149,7 @@ const SelectContent = React.forwardRef<
                               onKeyUp={(e) => e.stopPropagation()}
                               onKeyPress={(e) => e.stopPropagation()}
                               onInput={(e) => e.stopPropagation()}
-                              className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-popover text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#B4F481]"
+                              className="w-full px-3 py-2 rounded-md border border-[hsl(var(--foreground))] bg-popover text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary-accent))]"
                     />
                   </div>
                 )}

@@ -12,11 +12,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { DateInput } from '@/components/ui/date-input';
-import { DatePickerInput } from '@/components/ui/date-picker-input';
 import { DocumentInput } from '@/components/ui/document-input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { TopAddButton } from '@/components/ui/top-add-button';
+import { PageTitle } from '@/components/ui/page-title';
+import { StSelect } from '@/components/st-select';
 
 interface Role {
   id: string;
@@ -66,6 +69,7 @@ export default function NewClientPage() {
   const [loadingCountries, setLoadingCountries] = useState(false);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [isConsultant, setIsConsultant] = useState(false);
 
   const [formData, setFormData] = useState({
     login: '',
@@ -122,14 +126,10 @@ export default function NewClientPage() {
 
   const fetchConsultants = async () => {
     try {
-      const res = await fetch('/api/users?limit=1000');
+      const res = await fetch('/api/users?limit=1000&isConsultant=true');
       if (res.ok) {
         const data = await res.json();
-        // Filter only users who are not clients (consultants/admins)
-        const nonClients = data.users.filter((u: any) => 
-          !u.roles.some((r: any) => r.name === 'Cliente')
-        );
-        setConsultants(nonClients.map((u: any) => ({ id: u.id, name: u.name })));
+        setConsultants(data.users.map((u: any) => ({ id: u.id, name: u.name })));
       }
     } catch {
       console.error('Error fetching consultants');
@@ -196,6 +196,16 @@ export default function NewClientPage() {
       fetchConsultants();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+      if (user && user.roles.some(r => r.name === 'Consultor')) {
+        setFormData(prev => ({
+          ...prev,
+          consultantId: user.sub,
+        }));
+        setIsConsultant(true);
+      }
+    }, [user, consultants]);
 
   const handleCountryChange = (countryId: string) => {
     setFormData(prev => ({
@@ -339,7 +349,7 @@ export default function NewClientPage() {
 
   if (!isAuthenticated || !user) return null;
 
-  const isAdmin = user.roles?.some(role => role.name === 'Administrador');
+  const isAdmin = user.roles?.some(role => ['Administrador', 'Consultor'].includes(role.name));
   
   if (!isAdmin) {
     return (
@@ -349,7 +359,7 @@ export default function NewClientPage() {
             Acesso Negado
           </h1>
           <p className="text-slate-600 dark:text-gray-400">
-            Apenas administradores podem acessar esta página.
+            Apenas administradores e consultores podem acessar esta página.
           </p>
         </div>
       </DashboardLayout>
@@ -359,20 +369,21 @@ export default function NewClientPage() {
   return (
     <DashboardLayout userName={user.name}>
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push('/clientes')}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-white" />
-          </button>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-            Novo Cliente
-          </h1>
+        <div className="flex justify-between items-center gap-4">
+          <div className='flex gap-4 items-center'>
+            <Button
+              onClick={() => router.push('/clientes')}
+              className="p-2 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="h-8 w-8 text-[hsl(var(--foreground))]" />
+            </Button>
+            <PageTitle title="Novo Cliente" />
+          </div>
+          <TopAddButton onClick={() => router.push('/clientes/novo')} label="Novo Cliente" />
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))]">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full justify-start mb-6">
                 <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
@@ -380,14 +391,11 @@ export default function NewClientPage() {
                 <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
               </TabsList>
 
-              {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
-              <TabsContent value="dados-cadastrais" className="space-y-8">
-                
-                {/* Sector 1: Dados Principais */}
-                <div className="space-y-4">
-                  <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Dados Principais</h3>
-                    <p className="text-sm text-slate-600 dark:text-gray-400">Informações básicas do cliente</p>
+              <TabsContent value="dados-cadastrais" className="p-4 mt-0 pt-0">
+                <div>
+                  <div className="pb-2 border-b border-[hsl(var(--app-border))]">
+                    <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Dados Principais</h3>
+                    <p className="text-sm text-[hsl(var(--foreground-muted))]">Informações básicas do cliente</p>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -399,37 +407,26 @@ export default function NewClientPage() {
                         id="name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                         disabled={saving}
                         placeholder="Digite o nome completo ou razão social"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="category" className="text-slate-700 dark:text-gray-300">
-                        Categoria <span className="text-red-500">*</span>
-                      </Label>
-                      <Select
+                      <StSelect 
+                        htmlFor='category'
                         value={formData.categoryId || 'none'}
-                        onValueChange={(value: string) => setFormData({ ...formData, categoryId: value === 'none' ? '' : value })}
-                        disabled={saving}
-                      >
-                        <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                          <SelectItem value="none" className="text-slate-800 dark:text-white">Selecione</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id} className="text-slate-800 dark:text-white">
-                               {category.name} - {category.description}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={(value: string) => setFormData({ ...formData, categoryId: value === 'none' ? '' : value })}
+                        loading={saving}
+                        items={categories.map((c) => ({ id: c.id, description: `${c.name} - ${c.description}` }))}
+                        label='Categoria'
+                        required
+                        searchable={false}
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="document" className="text-slate-700 dark:text-gray-300">
+                      <Label htmlFor="document" className="text-[hsl(var(--foreground))]">
                         Documento (CPF/CNPJ)
                       </Label>
                       <DocumentInput
@@ -437,7 +434,6 @@ export default function NewClientPage() {
                         enabled={(categories.find(c => c.id === formData.categoryId)?.name ?? '') !== ''}
                         onChange={(value) => setFormData({ ...formData, document: value })}
                         category={categories.find(c => c.id === formData.categoryId)?.name === 'PF' ? 'PF' : 'PJ'}
-                        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       />
                       <p className="text-xs text-slate-500 dark:text-gray-400">
                         {categories.find(c => c.id === formData.categoryId)?.name === 'PF' ? 'CPF: 000.000.000-00' : 'CNPJ: 00.000.000/0000-00'}
@@ -445,20 +441,19 @@ export default function NewClientPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="birthDate" className="text-slate-700 dark:text-gray-300">
+                      <Label htmlFor="birthDate" className="text-[hsl(var(--foreground))]">
                         Data de Nascimento / Fundação
                       </Label>
                       <DateInput
                         id="birthDate"
                         value={formData.birthDate}
                         onChange={(value) => setFormData({ ...formData, birthDate: value })}
-                        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                         disabled={saving}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="age" className="text-slate-700 dark:text-gray-300">
+                      <Label htmlFor="age" className="text-[hsl(var(--foreground))]">
                         Idade
                       </Label>
                       <Input
@@ -473,7 +468,6 @@ export default function NewClientPage() {
                           }
                           return age >= 0 ? `${age} anos` : '';
                         })() : ''}
-                        className="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                         disabled
                         placeholder="Calculado automaticamente"
                       />
@@ -483,125 +477,90 @@ export default function NewClientPage() {
 
                 {/* Sector 2: Informações da Consultoria */}
                 <div className="space-y-4">
-                  <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Informações da Consultoria</h3>
-                    <p className="text-sm text-slate-600 dark:text-gray-400">Detalhes do contrato e plano</p>
+                  <div className="mt-4 pb-2 border-b border-[hsl(var(--app-border))]">
+                    <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">Informações da Consultoria</h3>
+                    <p className="text-sm text-[hsl(var(--muted))]">Detalhes do contrato e plano</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="consultancyType" className="text-slate-700 dark:text-gray-300">
-                      Tipo de Consultoria
-                    </Label>
-                    <Select
+                    <StSelect 
+                      htmlFor='consultancyType'
                       value={formData.consultancyType || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, consultancyType: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Financeira" className="text-slate-800 dark:text-white">Financeira</SelectItem>
-                        <SelectItem value="Empresarial" className="text-slate-800 dark:text-white">Empresarial</SelectItem>
-                        <SelectItem value="Pessoal" className="text-slate-800 dark:text-white">Pessoal</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      onChange={(value: string) => setFormData({ ...formData, consultancyType: value === 'none' ? '' : value })}
+                      loading={saving}
+                      items={[{ id: 'none', description: 'Nenhum' }, { id: 'Financeira', description: 'Financeira' }, { id: 'Empresarial', description: 'Empresarial' }, { id: 'Pessoal', description: 'Pessoal' }]}
+                      label='Tipo de Consultoria'
+                      searchable={false}
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="plan" className="text-slate-700 dark:text-gray-300">
-                      Plano
-                    </Label>
-                    <Select
+                    <StSelect 
+                      htmlFor='plan'
                       value={formData.plan || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, plan: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Mensal" className="text-slate-800 dark:text-white">Mensal</SelectItem>
-                        <SelectItem value="Trimestral" className="text-slate-800 dark:text-white">Trimestral</SelectItem>
-                        <SelectItem value="Semestral" className="text-slate-800 dark:text-white">Semestral</SelectItem>
-                        <SelectItem value="Anual" className="text-slate-800 dark:text-white">Anual</SelectItem>
-                        <SelectItem value="Personalizado" className="text-slate-800 dark:text-white">Personalizado</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      onChange={(value: string) => setFormData({ ...formData, plan: value === 'none' ? '' : value })}
+                      loading={saving}
+                      items={[{ id: 'none', description: 'Nenhum' }, 
+                              { id: 'Mensal', description: 'Mensal' }, 
+                              { id: 'Trimestral', description: 'Trimestral' }, 
+                              { id: 'Semestral', description: 'Semestral' }, 
+                              { id: 'Anual', description: 'Anual' }, 
+                              { id: 'Personalizado', description: 'Personalizado' }]}
+                      label='Plano'
+                      searchable={false}
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="planValue" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="planValue" className="text-[hsl(var(--foreground))]">
                       Valor do Plano (R$)
                     </Label>
                     <CurrencyInput
                       value={formData.planValue}
                       onChange={(value) => setFormData({ ...formData, planValue: value.toString() })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="contractNumber" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="contractNumber" className="text-[hsl(var(--foreground))]">
                       Contrato nº
                     </Label>
                     <Input
                       id="contractNumber"
                       value={formData.contractNumber}
                       onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                       placeholder="Ex: 028/2025"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="contractStatus" className="text-slate-700 dark:text-gray-300">
-                      Situação / Status
-                    </Label>
-                    <Select
+                    <StSelect 
+                      htmlFor='contractStatus'
                       value={formData.contractStatus || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, contractStatus: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Ativo" className="text-slate-800 dark:text-white">Ativo</SelectItem>
-                        <SelectItem value="Inativo" className="text-slate-800 dark:text-white">Inativo</SelectItem>
-                        <SelectItem value="Encerrado" className="text-slate-800 dark:text-white">Encerrado</SelectItem>
-                        <SelectItem value="Em negociação" className="text-slate-800 dark:text-white">Em negociação</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      onChange={(value: string) => setFormData({ ...formData, contractStatus: value === 'none' ? '' : value })}
+                      loading={saving}
+                      items={[{ id: 'none', description: 'Nenhum' }, 
+                              { id: 'Ativo', description: 'Ativo' }, 
+                              { id: 'Inativo', description: 'Inativo' }, 
+                              { id: 'Encerrado', description: 'Encerrado' }, 
+                              { id: 'Em negociação', description: 'Em negociação' }]}
+                      label='Situação / Status'
+                      searchable={false}
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="consultant" className="text-slate-700 dark:text-gray-300">
-                      Consultor Responsável
-                    </Label>
-                    <Select
+                    <StSelect 
+                      htmlFor= 'consultant'
                       value={formData.consultantId || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, consultantId: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        {consultants.map((consultant) => (
-                          <SelectItem key={consultant.id} value={consultant.id} className="text-slate-800 dark:text-white">
-                            {consultant.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(value: string) => setFormData({ ...formData, consultantId: value === 'none' ? '' : value })}
+                      loading={saving || isConsultant}
+                      items={consultants.map((consultant) => ({ id: consultant.id, description: consultant.name }))}
+                      label='Consultor Responsável'
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -612,7 +571,6 @@ export default function NewClientPage() {
                       id="contractStartDate"
                       value={formData.contractStartDate}
                       onChange={(value) => setFormData({ ...formData, contractStartDate: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                     />
                   </div>
@@ -625,7 +583,6 @@ export default function NewClientPage() {
                       id="contractEndDate"
                       value={formData.contractEndDate}
                       onChange={(value) => setFormData({ ...formData, contractEndDate: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                     />
                   </div>
@@ -638,7 +595,6 @@ export default function NewClientPage() {
                       id="lastMeeting"
                       value={formData.lastMeeting}
                       onChange={(value) => setFormData({ ...formData, lastMeeting: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                     />
                   </div>
@@ -654,7 +610,7 @@ export default function NewClientPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="login" className="text-[hsl(var(--foreground))]">
                       Login <span className="text-red-500">*</span>
                     </Label>
                     <Input
@@ -668,7 +624,7 @@ export default function NewClientPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="email" className="text-[hsl(var(--foreground))]">
                       E-mail <span className="text-red-500">*</span>
                     </Label>
                     <Input
@@ -676,34 +632,31 @@ export default function NewClientPage() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                       placeholder="email@exemplo.com"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="contact" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="contact" className="text-[hsl(var(--foreground))]">
                       Telefone / WhatsApp
                     </Label>
                     <PhoneInput
                       id="contact"
                       value={formData.contact}
                       onChange={(value) => setFormData({ ...formData, contact: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                     />
                   </div>
 
                   <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="address" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="address" className="text-[hsl(var(--foreground))]">
                       Endereço Completo
                     </Label>
                     <Textarea
                       id="address"
                       value={formData.address}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, address: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
                       disabled={saving}
                       placeholder="Rua, número, complemento, bairro"
                       rows={3}
@@ -711,7 +664,7 @@ export default function NewClientPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="country" className="text-slate-700 dark:text-gray-300">
+                    <Label htmlFor="country" className="text-[hsl(var(--foreground))]">
                       País
                     </Label>
                     <Select
@@ -883,23 +836,21 @@ export default function NewClientPage() {
             </Tabs>
 
             <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
+              <Button
                 type="button"
                 onClick={() => router.push('/clientes')}
-                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 disabled={saving}
               >
                 Cancelar
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                 disabled={saving}
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 <Plus className="h-4 w-4" />
                 Criar Cliente
-              </button>
+              </Button>
             </div>
           </div>
         </form>

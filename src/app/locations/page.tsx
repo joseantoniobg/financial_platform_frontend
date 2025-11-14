@@ -53,8 +53,8 @@ export default function LocationsPage() {
   const [selectedState, setSelectedState] = useState<State | undefined>();
   const [selectedCity, setSelectedCity] = useState<City | undefined>();
 
-  // Check if user is admin
-  const isAdmin = user?.roles?.some(role => role.name === 'Administrador');
+  // Check if user is admin or consultant
+  const isAdmin = user?.roles?.some(role => ['Administrador', 'Consultor'].includes(role.name));
 
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
@@ -218,7 +218,7 @@ export default function LocationsPage() {
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-foreground mb-2">Acesso Negado</h2>
-            <p className="text-muted-foreground">Apenas administradores podem acessar esta página.</p>
+            <p className="text-muted-foreground">Apenas administradores e consultores podem acessar esta página.</p>
           </div>
         </div>
       </DashboardLayout>
