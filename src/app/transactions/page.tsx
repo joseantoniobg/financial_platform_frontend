@@ -254,12 +254,12 @@ export default function TransactionsPage() {
                             Venc: {formatDate(transaction.dueDate)}
                           </span>
                           {transaction.paymentDate && (
-                            <span className="text-xs text-[hsl(var(--primary-hover))] dark:text-[hsl(var(--primary))] font-medium">
+                            <span className="text-xs text-[hsl(var(--green))] font-medium">
                               {transaction.verb} em: {formatDate(transaction.paymentDate)}
                             </span>
                           )}
                           {transaction.isEarnings && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--primary))]/70 text-[hsl(var(--foreground-clear))] font-medium">
+                            <span className="text-xs rounded bg-[hsl(var(--green))]/70 text-[hsl(var(--foreground-clear))] font-medium">
                               💰 Rendimento
                             </span>
                           )}
@@ -272,7 +272,7 @@ export default function TransactionsPage() {
                             onClick={() => handleSetPaymentDate(transaction)}
                             className={`p-1.5 m-1 ml-4 rounded ${
                               transaction.paymentDate ?
-                              'text-[hsl(var(--primary))] hover:bg-green-500/10' :
+                              'text-[hsl(var(--green))] hover:bg-green-500/10' :
                                'text-orange-400 hover:bg-orange-200'
                             }`}
                             title={transaction.paymentDate ? 'Alterar Pagamento' : 'Pagar'}

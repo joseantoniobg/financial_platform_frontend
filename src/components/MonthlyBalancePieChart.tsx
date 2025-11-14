@@ -45,16 +45,17 @@ export function MonthlyBalancePieChart({ incomes, expenses }: MonthlyBalancePieC
           <Tooltip
             formatter={(value: number) => formatCurrency(value)}
             contentStyle={{
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              border: '1px solid #ccc',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--app-border))',
               borderRadius: '8px',
+              color: 'hsl(var(--foreground))',
             }}
           />
           <Legend
             verticalAlign="bottom"
             height={36}
             formatter={(value: string, entry: any) => (
-              <span className="text-sm text-slate-700 dark:text-gray-300">
+              <span className="text-sm text-[hsl(var(--foreground-clear))]">
                 {value}: {formatCurrency(entry.payload.value)}
               </span>
             )}

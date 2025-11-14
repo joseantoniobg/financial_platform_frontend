@@ -138,21 +138,21 @@ export default function ConformidadePage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#B4F481]" />
+            <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-[#0D2744] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-[hsl(var(--card))] p-6 rounded-lg border border-[hsl(var(--app-border))]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Você ocupa ou foi ocupante de cargo público relevante?</Label>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2">
                     <input type="radio" name="isPublicPosition" checked={!!formData.isPublicPosition} onChange={() => setFormData({ ...formData, isPublicPosition: true })} />
-                    <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                    <span className="text-[hsl(var(--foreground))]">Sim</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="radio" name="isPublicPosition" checked={!formData.isPublicPosition} onChange={() => setFormData({ ...formData, isPublicPosition: false })} />
-                    <span className="text-slate-700 dark:text-gray-300">Não</span>
+                    <span className="text-[hsl(var(--foreground))]">Não</span>
                   </label>
                 </div>
               </div>
@@ -162,11 +162,11 @@ export default function ConformidadePage() {
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2">
                     <input type="radio" name="isRelatedToPEP" checked={!!formData.isRelatedToPEP} onChange={() => setFormData({ ...formData, isRelatedToPEP: true })} />
-                    <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                    <span className="text-[hsl(var(--foreground))]">Sim</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="radio" name="isRelatedToPEP" checked={!formData.isRelatedToPEP} onChange={() => setFormData({ ...formData, isRelatedToPEP: false })} />
-                    <span className="text-slate-700 dark:text-gray-300">Não</span>
+                    <span className="text-[hsl(var(--foreground))]">Não</span>
                   </label>
                 </div>
               </div>
@@ -210,11 +210,11 @@ export default function ConformidadePage() {
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2">
                     <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
-                    <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                    <span className="text-[hsl(var(--foreground))]">Sim</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
-                    <span className="text-slate-700 dark:text-gray-300">Não</span>
+                    <span className="text-[hsl(var(--foreground))]">Não</span>
                   </label>
                 </div>
               </div>
@@ -230,7 +230,7 @@ export default function ConformidadePage() {
                         checked={formData.resourceOrigin === opt}
                         onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
                       />
-                      <span className="text-slate-700 dark:text-gray-300">{opt}</span>
+                      <span className="text-[hsl(var(--foreground))]">{opt}</span>
                     </label>
                   ))}
                 </div>
@@ -246,11 +246,11 @@ export default function ConformidadePage() {
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2">
                     <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
-                    <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                    <span className="text-[hsl(var(--foreground))]">Sim</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
-                    <span className="text-slate-700 dark:text-gray-300">Não</span>
+                    <span className="text-[hsl(var(--foreground))]">Não</span>
                   </label>
                 </div>
               </div>
@@ -266,10 +266,10 @@ export default function ConformidadePage() {
                     }}
                   />
                   <div className="text-sm">
-                    <div className="font-medium text-slate-800 dark:text-white">Declaração</div>
-                    <div className="text-slate-600 dark:text-gray-400">Declaro que as informações prestadas são verdadeiras e estou ciente das políticas de PLD/FT.</div>
+                    <div className="font-medium text-[hsl(var(--foreground))]">Declaração</div>
+                    <div className="text-[hsl(var(--foreground-clear))]/90">Declaro que as informações prestadas são verdadeiras e estou ciente das políticas de PLD/FT.</div>
                     {formData.pldDeclarationDate && (
-                      <div className="text-xs text-slate-500 dark:text-gray-500 mt-1">Data: {new Date(formData.pldDeclarationDate).toLocaleString('pt-BR')}</div>
+                      <div className="text-xs text-[hsl(var(--foreground-clear))] mt-1">Data: {new Date(formData.pldDeclarationDate).toLocaleString('pt-BR')}</div>
                     )}
                   </div>
                 </label>
@@ -277,7 +277,7 @@ export default function ConformidadePage() {
             </div>
 
             <div className="flex justify-end gap-3 mt-2">
-              <Button type="submit" disabled={saving} className="bg-[#B4F481] text-[#0A1929]">
+              <Button type="submit" disabled={saving} className="bg-[hsl(var(--background))]/90 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))]">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Salvar
               </Button>

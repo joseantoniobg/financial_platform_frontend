@@ -278,10 +278,10 @@ export default function InvestorProfilePage() {
               <div className="flex items-center gap-3">
                 <TrendingUp className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                 <div>
-                  <p className="font-medium text-[hsl(var(--foreground))]">
+                  <p className="font-medium text-[hsl(var(--foreground-dark))]">
                     Perfil Atual: <span className={getRiskProfileColor(latestProfile.riskProfile)}>{latestProfile.riskProfile}</span>
                   </p>
-                  <p className="text-sm text-[hsl(var(--foreground-clear))]">
+                  <p className="text-sm text-[hsl(var(--foreground-dark))]">
                     Última atualização: {new Date(latestProfile.completedAt).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
@@ -333,8 +333,8 @@ export default function InvestorProfilePage() {
                     key={answer.id}
                     className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
                       currentAnswer === answer.id
-                        ? 'border-[hsl(var(--card-accent))] bg-[hsl(var(--card-accent))]/20'
-                        : 'border-[hsl(var(--app-border))]/40 dark:border-[hsl(var(--app-border))]/40'
+                        ? 'border-[hsl(var(--card-accent))] bg-[hsl(var(--card-accent))]/40'
+                        : 'border-[hsl(var(--app-border))]/40 bg-[hsl(var(--primary))]/10'
                     }`}
                     onClick={() => handleAnswerSelect(answer.id)}
                   >
@@ -363,7 +363,7 @@ export default function InvestorProfilePage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!canProceed || submitting}
-                  className="bg-[hsl(var(--primary))] text-[#0A1929] hover:bg-[hsl(var(--primary-hover))]"
+                  className="bg-[hsl(var(--primary))] text-[hsl(var(--foreground-clear))] hover:bg-[hsl(var(--primary-hover))]"
                 >
                   {submitting ? (
                     <>
@@ -381,7 +381,7 @@ export default function InvestorProfilePage() {
                 <Button
                   onClick={handleNext}
                   disabled={!canProceed}
-                  className="bg-[hsl(var(--primary))] text-[#0A1929] hover:bg-[hsl(var(--primary-hover))]"
+                  className="bg-[hsl(var(--primary))] text-[hsl(var(--foreground-clear))] hover:bg-[hsl(var(--primary-hover))]"
                 >
                   Próxima
                   <ArrowRight className="h-4 w-4 ml-2" />

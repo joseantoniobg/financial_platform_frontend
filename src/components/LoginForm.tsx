@@ -125,14 +125,14 @@ export function LoginForm({ stocks }: LoginFormProps) {
             <div className="space-y-6">
               {/* Title */}
               <div className="text-center space-y-2">
-                <h1 className="text-[hsl(var(--foreground))] text-3xl font-bold">
+                <h1 className="text-[hsl(var(--foreground-dark))] text-3xl font-bold">
                   Plataforma Financeira
                 </h1>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[hsl(var(--foreground))] text-sm font-medium">
+                  <Label htmlFor="email" className="text-[hsl(var(--foreground-dark))] text-sm font-medium">
                   Login / e-mail
                   </Label>
                   <Input
@@ -153,7 +153,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                   <ErrorText>{emailError}</ErrorText>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-[hsl(var(--foreground))] text-sm font-medium">
+                  <Label htmlFor="password" className="text-[hsl(var(--foreground-dark))] text-sm font-medium">
                     Senha
                   </Label>
                   <div className="relative">
@@ -202,7 +202,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                 </Button>
               </form>
               <div className="text-center pt-2">
-                <a href="/forgot-password" className="text-[hsl(var(--foreground))] text-sm hover:underline">
+                <a href="/forgot-password" className="text-[hsl(var(--foreground-dark))] text-sm hover:underline">
                   Esqueci minha senha
                 </a>
               </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { Input } from '@/components/ui/input';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -52,26 +53,25 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0A1929] px-4">
-      <div className="bg-[#0D2744] p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-2 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--background))] px-4">
+      <div className="bg-[hsl(var(--card))] p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] mb-2 text-center">
           Esqueceu sua senha?
         </h1>
-        <p className="text-gray-400 mb-8 text-center">
+        <p className="text-[hsl(var(--foreground-muted))] mb-8 text-center">
           Insira seu email e enviaremos um link para redefinir sua senha
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
               Email
             </label>
-            <input
+            <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-[#0A1929] text-white border border-gray-600 focus:border-[#B4F481] focus:ring-2 focus:ring-[#B4F481] focus:outline-none transition-colors"
               placeholder="seu@email.com"
               disabled={isLoading}
             />
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-[#B4F481] hover:bg-[#9FD96F] text-[#0A1929] font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))] font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Enviando...' : 'Enviar link de redefinição'}
           </button>
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
           <button
             type="button"
             onClick={() => router.push('/login')}
-            className="w-full py-3 px-4 bg-transparent hover:bg-[#0A1929] text-white font-medium rounded-lg transition-colors border border-gray-600"
+            className="w-full py-3 px-4 bg-transparent hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))] font-medium rounded-lg transition-colors border border-gray-600"
           >
             Voltar ao login
           </button>

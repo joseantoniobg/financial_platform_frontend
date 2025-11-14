@@ -12,6 +12,7 @@
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card-hover: 209, 68%, 53%;
+    --foreground-dark: 222.2 84% 4.9%;
 
     --card: 215.4 16.3% 90%;
     --card-foreground: 222.2 84% 4.9%;
@@ -23,9 +24,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 88 64% 62%;
-    --primary-hover: 88 64% 42%;
+    --primary: 221, 75%, 70%;
+    --primary-hover: 217, 75%, 50%;
     --primary-foreground: 222.2 84% 4.9%;
+
+    --green: 88 64% 35%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -57,23 +60,26 @@
   }
 
   .dark {
-    --background: 209, 91%, 75%;
-    --foreground: 224, 53%, 26%;
+    --background: 220, 65%, 11%;
+    --foreground: 209, 91%, 95%;
+    --foreground-dark: 209, 91%, 25%;
 
-    --card: 209, 68%, 63%;
+    --card: 208, 96%, 30%;
     --card-foreground: 223, 82%, 89%;
-    --card-hover: 209, 68%, 53%;
+    --card-hover: 213, 43%, 56%;
 
-    --card-accent: 217, 75%, 36%;
+    --card-accent: 217, 75%, 20%;
     --foreground-accent: 223, 82%, 89%;
     --foreground-clear: 224, 53%, 100%;
 
     --popover: 209, 91%, 75%;
     --popover-foreground: 224, 53%, 26%;
 
-    --primary: 88 64% 62%;
-    --primary-hover: 88 64% 42%;
+    --primary: 221, 75%, 20%;
+    --primary-hover: 217, 75%, 10%;
     --primary-foreground: 209, 91%, 75%;
+
+    --green: 88 64% 50%;
 
     --secondary: 223, 82%, 89%;
     --secondary-foreground: 224, 53%, 26%;
@@ -81,7 +87,7 @@
     --muted: 217, 33%, 73%;
     --muted-foreground: 217, 37%, 58%;
 
-    --accent: 88 64% 62%;
+    --accent: 221, 75%, 20%;
     --accent-foreground: 224, 53%, 26%;
 
     --destructive: 0 62.8% 30.6%;
@@ -89,7 +95,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 88 64% 62%;
+    --ring: 221, 75%, 20%;
 
     --app-bg-primary: 217 91% 10%;
     --app-bg-secondary: 215 59% 16%;
@@ -109,4 +115,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+button {
+  cursor: pointer;
 }
