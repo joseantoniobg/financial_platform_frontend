@@ -145,7 +145,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                       if (emailError) validateEmail(e.target.value);
                     }}
                     onBlur={(e) => validateEmail(e.target.value)}
-                    className={`h-12 bg-white border-[hsl(var(--app-border))] text-[hsl(var(--foreground))] focus:border-[hsl(var(--border))] focus:ring-0 ${
+                    className={`h-12 bg-white border-[hsl(var(--app-border))] text-[hsl(var(--foreground-dark))] focus:border-[hsl(var(--border))] focus:ring-0 ${
                       emailError ? 'border-red-500 focus:border-red-500' : ''
                     }`}
                     disabled={isLoading}
@@ -167,7 +167,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                         if (passwordError) validatePassword(e.target.value);
                       }}
                       onBlur={(e) => validatePassword(e.target.value)}
-                      className={`h-12 bg-white border-[hsl(var(--app-border))] text-[hsl(var(--foreground))] focus:border-[hsl(var(--border))] focus:ring-0 ${
+                      className={`h-12 bg-white border-[hsl(var(--app-border))] text-[hsl(var(--foreground-dark))] focus:border-[hsl(var(--border))] focus:ring-0 ${
                         passwordError ? 'border-red-500 focus:border-red-500' : ''
                       }`}
                       disabled={isLoading}
