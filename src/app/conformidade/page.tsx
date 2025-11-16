@@ -34,6 +34,8 @@ export default function ConformidadePage() {
     internationalTransactions: false as boolean,
     pldDeclarationAccepted: false as boolean,
     pldDeclarationDate: '' as string,
+    pldRiskScore: 0 as number,
+    pldRiskClassification: '' as string,
   });
 
   useEffect(() => {
@@ -78,6 +80,8 @@ export default function ConformidadePage() {
         internationalTransactions: !!userData.internationalTransactions,
         pldDeclarationAccepted: !!userData.pldDeclarationAccepted,
         pldDeclarationDate: userData.pldDeclarationDate || '',
+        pldRiskScore: userData.pldRiskScore || 0,
+        pldRiskClassification: userData.pldRiskClassification || '',
       });
     } catch (error) {
       console.error('Error fetching current user:', error);
@@ -118,6 +122,8 @@ export default function ConformidadePage() {
       const data = await res.json();
       if (res.ok) {
         toast.success('Conformidade salva com sucesso');
+        // Refetch to get updated risk score
+        await fetchCurrentUser();
       } else {
         toast.error(data.message || 'Erro ao salvar conformidade');
       }
@@ -141,7 +147,42 @@ export default function ConformidadePage() {
             <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-[hsl(var(--card))] p-6 rounded-lg border border-[hsl(var(--app-border))]">
+          <>
+            {/* Risk Classification Display */}
+            {formData.pldRiskClassification && (
+              <div className={`mb-6 p-4 rounded-lg border-2 ${
+                formData.pldRiskClassification === 'Alto' 
+                  ? 'bg-red-50 dark:bg-red-900/20 border-red-500' 
+                  : formData.pldRiskClassification === 'Médio'
+                  ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
+                  : 'bg-green-50 dark:bg-green-900/20 border-green-500'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold text-[hsl(var(--foreground))]">
+                      Classificação de Risco PLD
+                    </h2>
+                    <p className={`text-2xl font-bold mt-1 ${
+                      formData.pldRiskClassification === 'Alto' 
+                        ? 'text-red-700 dark:text-red-400' 
+                        : formData.pldRiskClassification === 'Médio'
+                        ? 'text-yellow-700 dark:text-yellow-400'
+                        : 'text-green-700 dark:text-green-400'
+                    }`}>
+                      {formData.pldRiskClassification}
+                    </p>
+                  </div>
+                  {/* <div className="text-right">
+                    <p className="text-sm text-[hsl(var(--foreground-clear))]">Pontuação</p>
+                    <p className="text-3xl font-bold text-[hsl(var(--foreground))]">
+                      {formData.pldRiskScore}
+                    </p>
+                  </div> */}
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-[hsl(var(--card))] p-6 rounded-lg border border-[hsl(var(--app-border))]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Você ocupa ou foi ocupante de cargo público relevante?</Label>
@@ -283,6 +324,7 @@ export default function ConformidadePage() {
               </Button>
             </div>
           </form>
+          </>
         )}
       </div>
     </DashboardLayout>

@@ -19,6 +19,11 @@ import { DocumentInput } from '@/components/ui/document-input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { PageTitle } from '@/components/ui/page-title';
+import { SessionTitle } from '@/components/ui/session-title';
+import { FormField } from '@/components/ui/form-field';
+import { StSelect } from '@/components/st-select';
+import { ClientBasicData } from '@/components/ClientBasicData';
 
 interface Role {
   id: string;
@@ -80,6 +85,9 @@ interface Client {
   profession?: string;
   createdAt?: string;
   updatedAt?: string;
+  // PLD Risk fields
+  pldRiskScore?: number;
+  pldRiskClassification?: string;
 }
 
 export default function EditClientPage() {
@@ -602,7 +610,7 @@ export default function EditClientPage() {
     return (
       <DashboardLayout userName={user.name}>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#B4F481]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card))]" />
         </div>
       </DashboardLayout>
     );
@@ -612,19 +620,19 @@ export default function EditClientPage() {
     <DashboardLayout userName={user.name}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <button
+          <Button
             onClick={() => router.push('/clientes')}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            variant="outline"
+            size="icon"
+            className="p-2 rounded-lg transition-colors"
           >
-            <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-white" />
-          </button>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-            Editar Cliente
-          </h1>
+            <ArrowLeft className="h-8 w-8 text-[hsl(var(--foreground))]" />
+          </Button>
+          <PageTitle title="Editar Cliente" />
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))] p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full justify-start mb-6">
                 <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
@@ -634,486 +642,13 @@ export default function EditClientPage() {
               </TabsList>
 
               {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
-              <TabsContent value="dados-cadastrais" className="space-y-8">
-                
-                {/* Sector 1: Dados Principais */}
-                <div className="space-y-4">
-                  <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Dados Principais</h3>
-                    <p className="text-sm text-slate-600 dark:text-gray-400">Informações básicas do cliente</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2 space-y-2">
-                      <Label htmlFor="name" className="text-slate-700 dark:text-gray-300">
-                        Nome Completo / Razão Social <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                        disabled={saving}
-                        placeholder="Digite o nome completo ou razão social"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="category" className="text-slate-700 dark:text-gray-300">
-                        Categoria <span className="text-red-500">*</span>
-                      </Label>
-                      <Select
-                        value={formData.categoryId || 'none'}
-                        onValueChange={(value: string) => setFormData({ ...formData, categoryId: value === 'none' ? '' : value })}
-                        disabled={saving}
-                      >
-                        <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                          <SelectItem value="none" className="text-slate-800 dark:text-white">Selecione</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id} className="text-slate-800 dark:text-white">
-                              {category.name} - {category.description}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="document" className="text-slate-700 dark:text-gray-300">
-                        Documento (CPF/CNPJ)
-                      </Label>
-                      <DocumentInput
-                        value={formData.document}
-                        enabled={(categories.find(c => c.id === formData.categoryId)?.name ?? '') !== ''}
-                        onChange={(value) => setFormData({ ...formData, document: value })}
-                        category={categories.find(c => c.id === formData.categoryId)?.name === 'PF' ? 'PF' : 'PJ'}
-                        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      />
-                      <p className="text-xs text-slate-500 dark:text-gray-400">
-                        {categories.find(c => c.id === formData.categoryId)?.name === 'PF' ? 'CPF: 000.000.000-00' : 'CNPJ: 00.000.000/0000-00'}
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="birthDate" className="text-slate-700 dark:text-gray-300">
-                        Data de Nascimento / Fundação
-                      </Label>
-                      <DateInput
-                        id="birthDate"
-                        value={formData.birthDate}
-                        onChange={(value) => setFormData({ ...formData, birthDate: value })}
-                        className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                        disabled={saving}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="age" className="text-slate-700 dark:text-gray-300">
-                        Idade
-                      </Label>
-                      <Input
-                        id="age"
-                        value={formData.birthDate ? (() => {
-                          const birth = new Date(formData.birthDate);
-                          const today = new Date();
-                          let age = today.getFullYear() - birth.getFullYear();
-                          const monthDiff = today.getMonth() - birth.getMonth();
-                          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                            age--;
-                          }
-                          return age >= 0 ? `${age} anos` : '';
-                        })() : ''}
-                        className="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                        disabled
-                        placeholder="Calculado automaticamente"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sector 2: Informações da Consultoria */}
-                <div className="space-y-4">
-                  <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Informações da Consultoria</h3>
-                    <p className="text-sm text-slate-600 dark:text-gray-400">Detalhes do contrato e plano</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="consultancyType" className="text-slate-700 dark:text-gray-300">
-                      Tipo de Consultoria
-                    </Label>
-                    <Select
-                      value={formData.consultancyType || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, consultancyType: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Financeira" className="text-slate-800 dark:text-white">Financeira</SelectItem>
-                        <SelectItem value="Empresarial" className="text-slate-800 dark:text-white">Empresarial</SelectItem>
-                        <SelectItem value="Pessoal" className="text-slate-800 dark:text-white">Pessoal</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="plan" className="text-slate-700 dark:text-gray-300">
-                      Plano
-                    </Label>
-                    <Select
-                      value={formData.plan || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, plan: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Mensal" className="text-slate-800 dark:text-white">Mensal</SelectItem>
-                        <SelectItem value="Trimestral" className="text-slate-800 dark:text-white">Trimestral</SelectItem>
-                        <SelectItem value="Semestral" className="text-slate-800 dark:text-white">Semestral</SelectItem>
-                        <SelectItem value="Anual" className="text-slate-800 dark:text-white">Anual</SelectItem>
-                        <SelectItem value="Personalizado" className="text-slate-800 dark:text-white">Personalizado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="planValue" className="text-slate-700 dark:text-gray-300">
-                      Valor do Plano (R$)
-                    </Label>
-                    <CurrencyInput
-                      value={formData.planValue}
-                      onChange={(value) => setFormData({ ...formData, planValue: value.toString() })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contractNumber" className="text-slate-700 dark:text-gray-300">
-                      Contrato nº
-                    </Label>
-                    <Input
-                      id="contractNumber"
-                      value={formData.contractNumber}
-                      onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                      placeholder="Ex: 028/2025"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contractStatus" className="text-slate-700 dark:text-gray-300">
-                      Situação / Status
-                    </Label>
-                    <Select
-                      value={formData.contractStatus || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, contractStatus: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Ativo" className="text-slate-800 dark:text-white">Ativo</SelectItem>
-                        <SelectItem value="Inativo" className="text-slate-800 dark:text-white">Inativo</SelectItem>
-                        <SelectItem value="Encerrado" className="text-slate-800 dark:text-white">Encerrado</SelectItem>
-                        <SelectItem value="Em negociação" className="text-slate-800 dark:text-white">Em negociação</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="consultant" className="text-slate-700 dark:text-gray-300">
-                      Consultor Responsável
-                    </Label>
-                    <Select
-                      value={formData.consultantId || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, consultantId: value === 'none' ? '' : value })}
-                      disabled={saving || isConsultant}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        {consultants.map((consultant) => (
-                          <SelectItem key={consultant.id} value={consultant.id} className="text-slate-800 dark:text-white">
-                            {consultant.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contractStartDate" className="text-slate-700 dark:text-gray-300">
-                      Data de Início
-                    </Label>
-                    <DateInput
-                      id="contractStartDate"
-                      value={formData.contractStartDate}
-                      onChange={(value) => setFormData({ ...formData, contractStartDate: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contractEndDate" className="text-slate-700 dark:text-gray-300">
-                      Data de Fim
-                    </Label>
-                    <DateInput
-                      id="contractEndDate"
-                      value={formData.contractEndDate}
-                      onChange={(value) => setFormData({ ...formData, contractEndDate: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="lastMeeting" className="text-slate-700 dark:text-gray-300">
-                      Último Atendimento
-                    </Label>
-                    <DateInput
-                      id="lastMeeting"
-                      value={formData.lastMeeting}
-                      onChange={(value) => setFormData({ ...formData, lastMeeting: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                    />
-                  </div>
-                  </div>
-                </div>
-
-                {/* Sector 3: Contato */}
-                <div className="space-y-4">
-                  <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Contato</h3>
-                    <p className="text-sm text-slate-600 dark:text-gray-400">Informações de contato e localização</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login" className="text-slate-700 dark:text-gray-300">
-                      Login <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="login"
-                      value={formData.login}
-                      onChange={(e) => setFormData({ ...formData, login: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                      placeholder="Nome de usuário"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-slate-700 dark:text-gray-300">
-                      E-mail <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                      placeholder="email@exemplo.com"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contact" className="text-slate-700 dark:text-gray-300">
-                      Telefone / WhatsApp
-                    </Label>
-                    <PhoneInput
-                      id="contact"
-                      value={formData.contact}
-                      onChange={(value) => setFormData({ ...formData, contact: value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="address" className="text-slate-700 dark:text-gray-300">
-                      Endereço Completo
-                    </Label>
-                    <Textarea
-                      id="address"
-                      value={formData.address}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, address: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                      placeholder="Rua, número, complemento, bairro"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="country" className="text-slate-700 dark:text-gray-300">
-                      País
-                    </Label>
-                    <Select
-                      value={formData.countryId}
-                      onValueChange={handleCountryChange}
-                      disabled={saving || loadingCountries}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder={loadingCountries ? "Carregando..." : "Selecione um país"} />
-                      </SelectTrigger>
-                      <SelectContent searchable className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600" searchPlaceholder="Buscar país...">
-                        {countries.map((country) => (
-                          <SelectItem key={country.id} value={country.id} className="text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                            {country.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="state" className="text-slate-700 dark:text-gray-300">
-                      Estado (UF)
-                    </Label>
-                    <Select
-                      value={formData.stateId}
-                      onValueChange={handleStateChange}
-                      disabled={saving || loadingStates || !formData.countryId}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder={loadingStates ? "Carregando..." : !formData.countryId ? "Selecione um país primeiro" : "Selecione um estado"} />
-                      </SelectTrigger>
-                      <SelectContent searchable className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600" searchPlaceholder="Buscar estado...">
-                        {states.map((state) => (
-                          <SelectItem key={state.id} value={state.id} className="text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                            {state.name} ({state.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="text-slate-700 dark:text-gray-300">
-                      Cidade
-                    </Label>
-                    <Select
-                      value={formData.cityId}
-                      onValueChange={(value) => setFormData({ ...formData, cityId: value })}
-                      disabled={saving || loadingCities || !formData.stateId}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder={loadingCities ? "Carregando..." : !formData.stateId ? "Selecione um estado primeiro" : "Selecione uma cidade"} />
-                      </SelectTrigger>
-                      <SelectContent searchable className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600" searchPlaceholder="Buscar cidade...">
-                        {cities.map((city) => (
-                          <SelectItem key={city.id} value={city.id} className="text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                            {city.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="status" className="text-slate-700 dark:text-gray-300">
-                      Status de Acesso
-                    </Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value: 'active' | 'inactive') => setFormData({ ...formData, status: value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="active" className="text-slate-800 dark:text-white">Ativo</SelectItem>
-                        <SelectItem value="inactive" className="text-slate-800 dark:text-white">Inativo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  </div>
-                </div>
-
-                {/* Sector 4: Prospecção e Origem */}
-                <div className="space-y-4">
-                  <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Prospecção e Origem</h3>
-                    <p className="text-sm text-slate-600 dark:text-gray-400">Origem e informações profissionais</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="prospectionOrigin" className="text-slate-700 dark:text-gray-300">
-                      Origem da Prospecção
-                    </Label>
-                    <Select
-                      value={formData.prospectionOrigin || 'none'}
-                      onValueChange={(value: string) => setFormData({ ...formData, prospectionOrigin: value === 'none' ? '' : value })}
-                      disabled={saving}
-                    >
-                      <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                        <SelectItem value="none" className="text-slate-800 dark:text-white">Nenhum</SelectItem>
-                        <SelectItem value="Indicação" className="text-slate-800 dark:text-white">Indicação</SelectItem>
-                        <SelectItem value="Instagram" className="text-slate-800 dark:text-white">Instagram</SelectItem>
-                        <SelectItem value="Site" className="text-slate-800 dark:text-white">Site</SelectItem>
-                        <SelectItem value="Eventos" className="text-slate-800 dark:text-white">Eventos</SelectItem>
-                        <SelectItem value="Outro" className="text-slate-800 dark:text-white">Outro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="profession" className="text-slate-700 dark:text-gray-300">
-                      Profissão / Atividade
-                    </Label>
-                    <Input
-                      id="profession"
-                      value={formData.profession}
-                      onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                      className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-                      disabled={saving}
-                      placeholder="Ex: Médico, Empresário, Autônomo"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2">
-                      Informações Automáticas
-                    </h3>
-                    <div className="space-y-1 text-sm text-slate-600 dark:text-gray-400">
-                      <p><strong>Data de Cadastro:</strong> {client?.createdAt ? new Date(client.createdAt).toLocaleDateString('pt-BR') : 'N/A'}</p>
-                      <p><strong>Última Atualização:</strong> {client?.updatedAt ? new Date(client.updatedAt).toLocaleDateString('pt-BR') : 'N/A'}</p>
-                    </div>
-                  </div>
-                  </div>
-                </div>
-
-                {/* Password Change Info Box */}
-                <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    Para alterar a senha do cliente, ele deve usar a opção &quot;Esqueci minha senha&quot; na tela de login.
-                  </p>
-                </div>
-              </TabsContent>
+              <ClientBasicData formData={formData} setFormData={setFormData} saving={saving}
+                countries={countries} states={states} cities={cities}
+                loadingCountries={loadingCountries} loadingStates={loadingStates} loadingCities={loadingCities}
+                handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
+                categories={categories} consultants={consultants}
+                isConsultant={isConsultant}
+              />
 
               {/* Tab: Patrimônio */}
               <TabsContent value="patrimonio" className="space-y-4">
@@ -1137,7 +672,7 @@ export default function EditClientPage() {
               <TabsContent value="perfil-investidor" className="space-y-4">
                 {loadingQuestionnaire ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#B4F481]" />
+                    <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
                   </div>
                 ) : showNewQuestionnaire ? (
                   <div className="space-y-6">
@@ -1171,7 +706,7 @@ export default function EditClientPage() {
                         </div>
 
                         {/* Question */}
-                        <div className="bg-slate-50 dark:bg-[#0A1E33] p-6 rounded-lg">
+                        <div className="bg-[hsl(var(--card))] p-6 rounded-lg">
                           <h4 className="text-lg font-medium text-slate-800 dark:text-white mb-4">
                             {questions[currentQuestionIndex]?.questionText}
                           </h4>
@@ -1215,7 +750,7 @@ export default function EditClientPage() {
                               type="button"
                               onClick={handleSubmitQuestionnaire}
                               disabled={responses.size !== questions.length}
-                              className="bg-[#B4F481] hover:bg-[#a3e070] text-slate-900"
+                              className="bg-[hsl(var(--primary)] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))]"
                             >
                               Finalizar Questionário
                             </Button>
@@ -1244,7 +779,7 @@ export default function EditClientPage() {
                       <Button
                         type="button"
                         onClick={handleStartNewQuestionnaire}
-                        className="bg-[#B4F481] hover:bg-[#a3e070] text-slate-900"
+                        className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--foreground))]"
                       >
                         Realizar Novo Questionário
                       </Button>
@@ -1323,11 +858,44 @@ export default function EditClientPage() {
 
 
                     {/* Conformidade Section */}
-                    <div className="mt-6 p-6 bg-white dark:bg-[#081827] rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="mt-6 p-6 bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]">
                       <div className="pb-2 border-b border-gray-100 dark:border-gray-800 mb-4">
                         <h4 className="text-lg font-semibold text-slate-800 dark:text-white">Conformidade (PLD/CPFT + PEP)</h4>
                         <p className="text-sm text-slate-600 dark:text-gray-400">Informações de conformidade e PEP</p>
                       </div>
+
+                      {client?.pldRiskClassification && (
+                        <div className={`mb-4 p-4 rounded-lg border-2 ${
+                          client.pldRiskClassification === 'Alto' 
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-500' 
+                            : client.pldRiskClassification === 'Médio'
+                            ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
+                            : 'bg-green-50 dark:bg-green-900/20 border-green-500'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h5 className="text-sm font-medium text-slate-600 dark:text-gray-400">
+                                Classificação de Risco PLD
+                              </h5>
+                              <p className={`text-xl font-bold mt-1 ${
+                                client.pldRiskClassification === 'Alto' 
+                                  ? 'text-red-700 dark:text-red-400' 
+                                  : client.pldRiskClassification === 'Médio'
+                                  ? 'text-yellow-700 dark:text-yellow-400'
+                                  : 'text-green-700 dark:text-green-400'
+                              }`}>
+                                {client.pldRiskClassification}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-[hsl(var(--foreground-muted))]">Pontuação</p>
+                              <p className="text-2xl font-bold text-[hsl(var(--foreground))]">
+                                {client.pldRiskScore || 0}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -1476,23 +1044,22 @@ export default function EditClientPage() {
             </Tabs>
 
             <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => router.push('/clientes')}
-                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 disabled={saving}
               >
                 Cancelar
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                 disabled={saving}
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 <Save className="h-4 w-4" />
                 Salvar Alterações
-              </button>
+              </Button>
             </div>
           </div>
         </form>

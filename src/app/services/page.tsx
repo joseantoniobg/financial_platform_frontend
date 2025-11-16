@@ -11,6 +11,9 @@ import { Loader2, Search, Plus, Edit, Power, DollarSign, UserPlus } from 'lucide
 import toast from 'react-hot-toast';
 import { PricingDialog } from '@/components/PricingDialog';
 import { AssignDialog } from '@/components/AssignDialog';
+import { Button } from '@/components/ui/button';
+import { PageTitle } from '@/components/ui/page-title';
+import { TopAddButton } from '@/components/ui/top-add-button';
 
 interface Service {
   id: string;
@@ -135,24 +138,13 @@ export default function ServicesPage() {
     <DashboardLayout userName={user.name}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Serviços</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Gerencie os serviços, precificação e atribuições
-            </p>
-          </div>
-          <button
-            onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg hover:bg-[#9FD96F] transition-colors font-medium"
-          >
-            <Plus className="h-5 w-5" />
-            Novo Serviço
-          </button>
+          <PageTitle title='Serviços' subtitle='Gerencie os serviços, precificação e atribuições' />
+          <TopAddButton label='Novo Serviço' onClick={handleCreate} />
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[hsl(var(--foreground))]" />
           <Input
             placeholder="Buscar serviços..."
             value={search}
@@ -160,7 +152,7 @@ export default function ServicesPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="pl-10 bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600"
+            className="pl-10"
           />
         </div>
 
@@ -168,7 +160,7 @@ export default function ServicesPage() {
         <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow overflow-hidden">
           {loading ? (
             <div className="flex justify-center items-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#B4F481]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[]" />
             </div>
           ) : services.length === 0 ? (
             <div className="text-center p-8 text-gray-500 dark:text-gray-400">
@@ -177,26 +169,26 @@ export default function ServicesPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <thead className="bg-[hsl(var(--background))]/40 border-b border-[hsl(var(--border))]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">
                       Serviço
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">
                       Criado em
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-right text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">
                       Ações
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="divide-y divide-[hsl(var(--border))]">
                   {services.map((service) => (
-                    <tr key={service.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800 dark:text-white">
+                    <tr key={service.id} className="hover:bg-[hsl(var(--background))]">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground-dark))]">
                         {service.service}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

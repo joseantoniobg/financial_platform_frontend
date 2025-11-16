@@ -81,8 +81,8 @@
 
     --green: 88 64% 50%;
 
-    --secondary: 223, 82%, 89%;
-    --secondary-foreground: 224, 53%, 26%;
+    --secondary: 224, 53%, 26%;
+    --secondary-foreground: 224, 53%, 100%;
 
     --muted: 217, 33%, 73%;
     --muted-foreground: 217, 37%, 58%;

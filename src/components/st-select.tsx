@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 
 export function StSelect({ items, value, onChange, loading, htmlFor, label, searchable = true, required }: { label: string; htmlFor: string; items: { id: string; description: string }[]; value: string; onChange: (value: string) => void; loading: boolean; searchable?: boolean; required?: boolean }) {
     return (<>
-              <Label htmlFor={htmlFor} className="text-[hsl(var(--foreground))] mb-[0] block">
+              <Label htmlFor={htmlFor} className="text-[hsl(var(--foreground))] mb-1 block">
                 {label} {required && <span className="text-red-500">*</span>}
               </Label>
               <Select
