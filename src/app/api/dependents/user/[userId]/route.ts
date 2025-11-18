@@ -43,7 +43,7 @@ export async function GET(
 // POST /api/dependents/user/[userId] - Create dependent for a user (Admin/Consultor)
 export async function POST(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: RouteContext<{ userId: string }>
 ) {
     const session = await getSession();
     const sessionUser = session.user;
@@ -51,8 +51,9 @@ export async function POST(
 
   try {
     const body = await request.json();
+    const { userId } = await params;
 
-    const res = await fetch(`${BACKEND_URL}/dependents/user/${params.userId}`, {
+    const res = await fetch(`${BACKEND_URL}/dependents/user/${userId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
