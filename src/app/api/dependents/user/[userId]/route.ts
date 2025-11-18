@@ -6,13 +6,13 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 // GET /api/dependents/user/[userId] - Get all dependents for a user (Admin/Consultor)
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string; }>; }
 ) {
     const session = await getSession();
     const sessionUser = session.user;
     const token = sessionUser?.token;
     
-    const userId = params.userId;
+    const userId = (await params).userId;
 
   try {
     const res = await fetch(`${BACKEND_URL}/dependents/user/${userId}`, {
