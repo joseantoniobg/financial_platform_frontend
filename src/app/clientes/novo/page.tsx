@@ -73,6 +73,8 @@ export default function NewClientPage() {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
   const [isConsultant, setIsConsultant] = useState(false);
+  const [maritalStatuses, setMaritalStatuses] = useState<{ id: string; name: string }[]>([]);
+  const [loadingMaritalStatuses, setLoadingMaritalStatuses] = useState(false);
 
   const [formData, setFormData] = useState({
     login: '',
@@ -99,6 +101,10 @@ export default function NewClientPage() {
     address: '' as string,
     prospectionOrigin: '' as string,
     profession: '' as string,
+    maritalStatusId: '' as string,
+    spouseName: '' as string,
+    hasLifeInsurance: false as boolean,
+    hasPrivatePension: false as boolean,
   });
 
   const fetchRoles = async () => {
@@ -191,12 +197,28 @@ export default function NewClientPage() {
     }
   }, []);
 
+  const fetchMaritalStatuses = useCallback(async () => {
+    setLoadingMaritalStatuses(true);
+    try {
+      const res = await fetch('/api/marital-status');
+      if (res.ok) {
+        const data = await res.json();
+        setMaritalStatuses(data);
+      }
+    } catch (error) {
+      console.error('Error fetching marital statuses:', error);
+    } finally {
+      setLoadingMaritalStatuses(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchRoles();
       fetchCategories();
       fetchCountries();
       fetchConsultants();
+      fetchMaritalStatuses();
     }
   }, [isAuthenticated]);
 
@@ -329,6 +351,17 @@ export default function NewClientPage() {
         payload.profession = formData.profession;
       }
 
+      if (formData.maritalStatusId) {
+        payload.maritalStatusId = formData.maritalStatusId;
+      }
+
+      if (formData.spouseName) {
+        payload.spouseName = formData.spouseName;
+      }
+
+      payload.hasLifeInsurance = !!formData.hasLifeInsurance;
+      payload.hasPrivatePension = !!formData.hasPrivatePension;
+
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -401,6 +434,13 @@ export default function NewClientPage() {
                 loadingCountries={loadingCountries} loadingStates={loadingStates} loadingCities={loadingCities}
                 handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
                 categories={categories} consultants={consultants} isConsultant={isConsultant}
+                maritalStatuses={maritalStatuses}
+                loadingMaritalStatuses={loadingMaritalStatuses}
+                dependents={[]}
+                onAddDependent={async () => {}}
+                onUpdateDependent={async () => {}}
+                onDeleteDependent={async () => {}}
+                newClient
               />
 
               {/* Tab: Patrimônio */}

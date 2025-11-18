@@ -125,8 +125,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(false);
-      
-      // Validate and reformat on blur
+    
       if (displayValue) {
         const isoDate = toISOFormat(displayValue);
         if (isoDate) {

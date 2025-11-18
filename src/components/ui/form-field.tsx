@@ -29,7 +29,7 @@ type FormFieldProps = {
 
 export function FormField({ label, required, disabled, htmlFor, id, value, onChange, onChangeValue, onChangeTextArea, placeholder, document, date, currency, category, type, phone, textArea, rows }: FormFieldProps) {
     return (
-        <>
+        <div>
             <Label htmlFor={htmlFor} className="text-[hsl(var(--foreground))] mb-1 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </Label>
@@ -79,6 +79,6 @@ export function FormField({ label, required, disabled, htmlFor, id, value, onCha
                             rows={rows}
                          />}
 
-        </>
+        </div>
     );
 }

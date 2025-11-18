@@ -58,6 +58,7 @@ interface City {
 interface Client {
   id: string;
   login: string;
+  userNumber: number;
   name: string;
   email: string;
   roles: Role[];
@@ -102,6 +103,15 @@ export default function EditClientPage() {
   const [client, setClient] = useState<Client | null>(null);
   const [activeTab, setActiveTab] = useState('dados-cadastrais');
   const [consultants, setConsultants] = useState<{ id: string; name: string }[]>([]);
+  const [maritalStatuses, setMaritalStatuses] = useState<{ id: string; name: string }[]>([]);
+  const [loadingMaritalStatuses, setLoadingMaritalStatuses] = useState(false);
+  const [dependents, setDependents] = useState<Array<{
+    id?: string;
+    name: string;
+    sex: 'Masculino' | 'Feminino';
+    birthDate: string;
+    relation: string;
+  }>>([]);
   
   // Investor Profile state
   const [latestQuestionnaire, setLatestQuestionnaire] = useState<any>(null);
@@ -145,6 +155,12 @@ export default function EditClientPage() {
     address: '' as string,
     prospectionOrigin: '' as string,
     profession: '' as string,
+    // Marital Status
+    maritalStatusId: '' as string,
+    spouseName: '' as string,
+    // Additional Client Information
+    hasLifeInsurance: false as boolean,
+    hasPrivatePension: false as boolean,
     // Conformidade - PLD/CPFT + PEP
     isPublicPosition: false as boolean,
     isRelatedToPEP: false as boolean,
@@ -198,6 +214,12 @@ export default function EditClientPage() {
           address: data.address || '',
           prospectionOrigin: data.prospectionOrigin || '',
           profession: data.profession || '',
+          // Marital Status
+          maritalStatusId: data.maritalStatus?.id || '',
+          spouseName: data.spouseName || '',
+          // Additional Client Information
+          hasLifeInsurance: data.hasLifeInsurance || false,
+          hasPrivatePension: data.hasPrivatePension || false,
           // Conformidade
           isPublicPosition: data.isPublicPosition || false,
           isRelatedToPEP: data.isRelatedToPEP || false,
@@ -230,6 +252,80 @@ export default function EditClientPage() {
       router.push('/clientes');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDependents = async () => {
+    try {
+      const res = await fetch(`/api/dependents/user/${clientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setDependents(data);
+      }
+    } catch (error) {
+      console.error('Error fetching dependents:', error);
+    }
+  };
+
+  const handleAddDependent = async (dependent: typeof dependents[0]) => {
+    try {
+      const res = await fetch(`/api/dependents/user/${clientId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dependent),
+      });
+
+      if (res.ok) {
+        toast.success('Dependente adicionado com sucesso!');
+        await fetchDependents();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao adicionar dependente');
+      }
+    } catch (error) {
+      toast.error('Erro ao adicionar dependente');
+    }
+  };
+
+  const handleUpdateDependent = async (id: string, dependent: typeof dependents[0]) => {
+    try {
+      const res = await fetch(`/api/dependents/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dependent),
+      });
+
+      if (res.ok) {
+        toast.success('Dependente atualizado com sucesso!');
+        await fetchDependents();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao atualizar dependente');
+      }
+    } catch (error) {
+      toast.error('Erro ao atualizar dependente');
+    }
+  };
+
+  const handleDeleteDependent = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover este dependente?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/dependents/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Dependente removido com sucesso!');
+        await fetchDependents();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao remover dependente');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover dependente');
     }
   };
 
@@ -304,12 +400,29 @@ export default function EditClientPage() {
     }
   }, []);
 
+  const fetchMaritalStatuses = useCallback(async () => {
+    setLoadingMaritalStatuses(true);
+    try {
+      const res = await fetch('/api/marital-status');
+      if (res.ok) {
+        const data = await res.json();
+        setMaritalStatuses(data);
+      }
+    } catch (error) {
+      console.error('Error fetching marital statuses:', error);
+    } finally {
+      setLoadingMaritalStatuses(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchClient();
       fetchCategories();
       fetchCountries();
       fetchConsultants();
+      fetchMaritalStatuses();
+      fetchDependents();
     }
   }, [isAuthenticated, clientId]);
 
@@ -436,6 +549,19 @@ export default function EditClientPage() {
       if (formData.profession) {
         payload.profession = formData.profession;
       }
+
+      // Marital Status fields
+      if (formData.maritalStatusId) {
+        payload.maritalStatusId = formData.maritalStatusId;
+      }
+
+      if (formData.spouseName) {
+        payload.spouseName = formData.spouseName;
+      }
+
+      // Additional Client Information
+      payload.hasLifeInsurance = !!formData.hasLifeInsurance;
+      payload.hasPrivatePension = !!formData.hasPrivatePension;
 
       // Conformidade fields
       payload.isPublicPosition = !!formData.isPublicPosition;
@@ -648,6 +774,13 @@ export default function EditClientPage() {
                 handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
                 categories={categories} consultants={consultants}
                 isConsultant={isConsultant}
+                client={client}
+                maritalStatuses={maritalStatuses}
+                loadingMaritalStatuses={loadingMaritalStatuses}
+                dependents={dependents}
+                onAddDependent={handleAddDependent}
+                onUpdateDependent={handleUpdateDependent}
+                onDeleteDependent={handleDeleteDependent}
               />
 
               {/* Tab: Patrimônio */}

@@ -1,9 +1,23 @@
+import { DateDisplay } from "./DateDisplay";
 import { StSelect } from "./st-select";
 import { FormField } from "./ui/form-field";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { SessionTitle } from "./ui/session-title";
 import { TabsContent } from "./ui/tabs";
+import { Button } from "./ui/button";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { YesNoField } from "./yes-no-field";
+
+type Dependent = {
+    id?: string;
+    name: string;
+    sex: 'Masculino' | 'Feminino';
+    birthDate: string;
+    relation: string;
+};
 
 type ClientBasicDataProps = {
     formData: any;
@@ -21,18 +35,85 @@ type ClientBasicDataProps = {
     handleCountryChange: (value: string) => void;
     handleStateChange: (value: string) => void;
     newClient?: boolean;
+    client?: { createdAt?: string; updatedAt?: string, userNumber?: number } | null;
+    maritalStatuses: Array<{ id: string; name: string }>;
+    loadingMaritalStatuses: boolean;
+    dependents: Dependent[];
+    onAddDependent: (dependent: Dependent) => Promise<void>;
+    onUpdateDependent: (id: string, dependent: Dependent) => Promise<void>;
+    onDeleteDependent: (id: string) => Promise<void>;
 };
 
 export function ClientBasicData({ formData, setFormData, saving, categories, consultants, isConsultant, 
                                 countries, states, cities, 
                                 loadingCountries, loadingStates, loadingCities,
-                                handleCountryChange, handleStateChange, newClient }: ClientBasicDataProps) {
+                                handleCountryChange, handleStateChange, newClient, client, maritalStatuses, loadingMaritalStatuses,
+                                dependents, onAddDependent, onUpdateDependent, onDeleteDependent }: ClientBasicDataProps) {
+    
+    // Get selected marital status name
+    const selectedMaritalStatus = maritalStatuses.find(ms => ms.id === formData.maritalStatusId);
+    const isMarried = selectedMaritalStatus?.name === 'Casado(a)';
+    
+    // Dependent form state
+    const [showDependentForm, setShowDependentForm] = useState(false);
+    const [editingDependent, setEditingDependent] = useState<Dependent | null>(null);
+    const [dependentForm, setDependentForm] = useState<Dependent>({
+        name: '',
+        sex: 'Masculino',
+        birthDate: '',
+        relation: '',
+    });
+
+    const handleAddDependent = () => {
+        setEditingDependent(null);
+        setDependentForm({
+            name: '',
+            sex: 'Masculino',
+            birthDate: '',
+            relation: '',
+        });
+        setShowDependentForm(true);
+    };
+
+    const handleEditDependent = (dependent: Dependent) => {
+        setEditingDependent(dependent);
+        setDependentForm(dependent);
+        setShowDependentForm(true);
+    };
+
+    const handleSaveDependent = async () => {
+        if (editingDependent?.id) {
+            await onUpdateDependent(editingDependent.id, dependentForm);
+        } else {
+            await onAddDependent(dependentForm);
+        }
+        setShowDependentForm(false);
+        setEditingDependent(null);
+    };
+
+    const handleCancelDependent = () => {
+        setShowDependentForm(false);
+        setEditingDependent(null);
+    };
+    
     return (
         <TabsContent value="dados-cadastrais">
+                {/* Date Information Banner - Only show when editing (not new client) */}
+                {!newClient && client && (
+                  <div className="flex gap-4">
+                    <div className="p-3 bg-[hsl(var(--green))]/30 text-lg font-bold text-[hsl(var(--dark-green))] rounded-lg border border-[hsl(var(--border))]">ID: #{client.userNumber?.toString().padStart(9, '0')}</div>
+                    <div className="inline-block p-4 bg-[hsl(var(--card-accent))]/50 rounded-lg border border-[hsl(var(--border))]">
+                      <div className="flex items-center justify-center gap-4">
+                        <DateDisplay label="Data de Cadastro:" date={client.createdAt} />
+                        <DateDisplay label="Última Atualização:" date={client.updatedAt} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <SessionTitle title="Dados Principais" subTitle="Informações básicas do cliente" />                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2 space-y-2">
                       <FormField 
                         label="Nome Completo / Razão Social"
                         required
@@ -43,9 +124,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                         disabled={saving}
                         placeholder="Digite o nome completo ou razão social"
                       />
-                    </div>
 
-                    <div className="space-y-2">
                       <StSelect 
                         htmlFor='category'
                         value={formData.categoryId || 'none'}
@@ -56,9 +135,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                         required
                         searchable={false}
                       />
-                    </div>
 
-                    <div className="space-y-2">
                       <FormField
                         label='Documento (CPF/CNPJ)'
                         value={formData.document}
@@ -68,37 +145,37 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                         document
                         htmlFor='document'
                       />
-                    </div>
 
-                    <div className="space-y-2">
-                      <FormField
-                        label='Data de Nascimento / Fundação'
-                        date
-                        id='birthdate'
-                        value={formData.birthDate}
-                        onChangeValue={(value) => setFormData({ ...formData, birthDate: value })}
-                        disabled={saving}
-                        htmlFor='birthDate'
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <FormField
-                        label='Idade'
-                        id="age"
-                        value={formData.birthDate ? (() => {
-                          const birth = new Date(formData.birthDate);
-                          const today = new Date();
-                          let age = today.getFullYear() - birth.getFullYear();
-                          const monthDiff = today.getMonth() - birth.getMonth();
-                          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                            age--;
-                          }
-                          return age >= 0 ? `${age} anos` : '';
-                        })() : ''}
-                        disabled
-                        placeholder="Calculado automaticamente"
-                      />
+                      <div className="flex gap-4 flex-wrap">
+                        <div className="flex-1">
+                          <FormField
+                            label='Data de Nascimento / Fundação'
+                            date
+                            id='birthdate'
+                            value={formData.birthDate}
+                            onChangeValue={(value) => setFormData({ ...formData, birthDate: value })}
+                            disabled={saving}
+                            htmlFor='birthDate'
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <FormField
+                            label='Idade'
+                            id="age"
+                            value={formData.birthDate ? (() => {
+                              const birth = new Date(formData.birthDate);
+                              const today = new Date();
+                              let age = today.getFullYear() - birth.getFullYear();
+                              const monthDiff = today.getMonth() - birth.getMonth();
+                              if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                                age--;
+                              }
+                              return age >= 0 ? `${age} anos` : '';
+                            })() : ''}
+                            disabled
+                            placeholder="Calculado automaticamente"
+                          />
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -108,7 +185,6 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                   <SessionTitle title="Informações da Consultoria" subTitle="Detalhes do contrato e plano" />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
                     <StSelect 
                       htmlFor='consultancyType'
                       value={formData.consultancyType || 'none'}
@@ -118,9 +194,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       label='Tipo de Consultoria'
                       searchable={false}
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <StSelect 
                       htmlFor='plan'
                       value={formData.plan || 'none'}
@@ -135,9 +209,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       label='Plano'
                       searchable={false}
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <FormField
                       label="Valor do Plano (R$)"
                       currency
@@ -147,22 +219,17 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       placeholder="Digite o valor do plano"
                     />
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="contractNumber" className="text-[hsl(var(--foreground))]">
-                      Contrato nº
-                    </Label>
-                    <Input
+                    <FormField
+                      label="Contrato nº"
                       id="contractNumber"
+                      htmlFor="contractNumber"
                       value={formData.contractNumber}
                       onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
                       disabled={saving}
                       placeholder="Ex: 028/2025"
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <StSelect 
                       htmlFor='contractStatus'
                       value={formData.contractStatus || 'none'}
@@ -176,9 +243,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       label='Situação / Status'
                       searchable={false}
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <StSelect 
                       htmlFor= 'consultant'
                       value={formData.consultantId || 'none'}
@@ -187,9 +252,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       items={consultants.map((consultant) => ({ id: consultant.id, description: consultant.name }))}
                       label='Consultor Responsável'
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <FormField
                       label='Data de Início'
                       date
@@ -199,9 +262,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       htmlFor='contractStartDate'
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <FormField
                       label='Data de Fim'
                       date
@@ -211,19 +272,16 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       htmlFor='contractEndDate'
                     />
-                  </div>
 
-                    <div className="space-y-2">
-                      <FormField
-                        label='Último Atendimento'
-                        date
-                        id='lastMeeting'
-                        value={formData.lastMeeting}
-                        onChangeValue={(value) => setFormData({ ...formData, lastMeeting: `${value}` })}
-                        disabled={saving}
-                        htmlFor='lastMeeting'
-                      />
-                    </div>
+                    <FormField
+                      label='Último Atendimento'
+                      date
+                      id='lastMeeting'
+                      value={formData.lastMeeting}
+                      onChangeValue={(value) => setFormData({ ...formData, lastMeeting: `${value}` })}
+                      disabled={saving}
+                      htmlFor='lastMeeting'
+                    />
                   </div>
                 </div>
 
@@ -231,7 +289,6 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                 <div className="space-y-4">
                   <SessionTitle title="Contato" subTitle="Informações de contato e localização" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
                     <FormField
                       label="Login"
                       required
@@ -242,9 +299,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       placeholder="Nome de usuário"
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <FormField
                       label="E-mail"
                       required
@@ -256,9 +311,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       placeholder="email@exemplo.com"
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <FormField
                       label="Telefone / WhatsApp"
                       htmlFor="contact"
@@ -268,7 +321,44 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       phone
                     />
-                  </div>
+
+                    <StSelect 
+                      htmlFor='maritalStatus'
+                      value={formData.maritalStatusId || 'none'}
+                      onChange={(value: string) => setFormData({ ...formData, maritalStatusId: value === 'none' ? '' : value, spouseName: value === 'none' ? '' : formData.spouseName })}
+                      loading={saving || loadingMaritalStatuses}
+                      items={[{ id: 'none', description: 'Selecione...' }, ...maritalStatuses.map((ms) => ({ id: ms.id, description: ms.name }))]}
+                      label='Estado Civil'
+                      searchable={false}
+                    />
+
+                  {isMarried && (
+                      <FormField
+                        label="Nome do Cônjuge"
+                        htmlFor="spouseName"
+                        id="spouseName"
+                        value={formData.spouseName || ''}
+                        onChange={(e) => setFormData({ ...formData, spouseName: e.target.value })}
+                        disabled={saving}
+                        placeholder="Digite o nome do cônjuge"
+                      />
+                  )}
+                  
+                  <YesNoField
+                    label="Seguro de Vida"
+                    id="hasLifeInsurance"
+                    value={formData.hasLifeInsurance ? 'true' : 'false'}
+                    onValueChange={(value) => setFormData({ ...formData, hasLifeInsurance: value })}
+                    disabled={saving}
+                  />
+
+                  <YesNoField
+                    label="Previdência Privada"
+                    id="hasPrivatePension"
+                    value={formData.hasPrivatePension ? 'true' : 'false'}
+                    onValueChange={(value) => setFormData({ ...formData, hasPrivatePension: value })}
+                    disabled={saving}
+                  />
 
                   <div className="md:col-span-2 space-y-2">
                     <FormField
@@ -284,18 +374,15 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <StSelect
-                      htmlFor='country'
-                      label='País'
-                      value={formData.countryId}
-                      onChange={handleCountryChange}
-                      loading={saving || loadingCountries}
-                      items={countries.map((c) => ({ id: c.id, description: c.name }))}
-                    />
-                  </div>
+                  <StSelect
+                    htmlFor='country'
+                    label='País'
+                    value={formData.countryId}
+                    onChange={handleCountryChange}
+                    loading={saving || loadingCountries}
+                    items={countries.map((c) => ({ id: c.id, description: c.name }))}
+                  />
 
-                  <div className="space-y-2">
                     <StSelect
                       htmlFor='state'
                       label='Estado (UF)'
@@ -304,9 +391,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       loading={saving || loadingStates || !formData.countryId}
                       items={states.map((s) => ({ id: s.id, description: `${s.name} (${s.code})` }))}
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <StSelect
                       htmlFor='city'
                       label='Cidade'
@@ -315,9 +400,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       loading={saving || loadingCities || !formData.stateId}
                       items={cities.map((c) => ({ id: c.id, description: c.name }))}
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <StSelect
                       htmlFor='status'
                       label='Status de Acesso'
@@ -328,7 +411,6 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       searchable={false}
                     />
                   </div>
-                  </div>
                 </div>
 
                 {/* Sector 4: Prospecção e Origem */}
@@ -336,7 +418,6 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                   <SessionTitle title="Prospecção e Origem" subTitle="Origem e informações profissionais" />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
                     <StSelect
                       htmlFor='prospectionOrigin'
                       label='Origem da Prospecção'
@@ -351,9 +432,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                               { id: 'Outro', description: 'Outro' }]}
                       searchable={false}
                     />
-                  </div>
 
-                  <div className="space-y-2">
                     <FormField
                       label="Profissão / Atividade"
                       htmlFor="profession"
@@ -363,7 +442,6 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       disabled={saving}
                       placeholder="Ex: Médico, Empresário, Autônomo"
                     />
-                  </div>
 
                   {newClient && 
                     <div className="md:col-span-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -377,6 +455,146 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                     </div>}
                   </div>
                 </div>
+
+                {/* Dependents Section - Only show when not creating new client */}
+                {!newClient && (
+                  <div className="space-y-4 mt-6">
+                    <div className="flex items-center justify-between">
+                      <SessionTitle title="Dependentes" subTitle="Familiares e dependentes do cliente" />
+                      <Button
+                        type="button"
+                        onClick={handleAddDependent}
+                        disabled={saving}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Adicionar Dependente
+                      </Button>
+                    </div>
+
+                    {showDependentForm && (
+                      <div className="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card-accent))]/30">
+                        <h3 className="text-lg font-semibold mb-4 text-[hsl(var(--foreground))]">
+                          {editingDependent ? 'Editar Dependente' : 'Novo Dependente'}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                              label="Nome Completo"
+                              required
+                              htmlFor="depName"
+                              id="depName"
+                              value={dependentForm.name}
+                              onChange={(e) => setDependentForm({ ...dependentForm, name: e.target.value })}
+                              disabled={saving}
+                              placeholder="Nome do dependente"
+                            />
+
+                          <div className="space-y-2">
+                            <Label className="text-[hsl(var(--foreground))]">Sexo <span className="text-red-500">*</span></Label>
+                            <RadioGroup
+                              value={dependentForm.sex}
+                              onValueChange={(value) => setDependentForm({ ...dependentForm, sex: value as 'Masculino' | 'Feminino' })}
+                              disabled={saving}
+                              className="flex gap-4"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="Masculino" id="dep-masculino" />
+                                <Label htmlFor="dep-masculino" className="font-normal cursor-pointer">Masculino</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="Feminino" id="dep-feminino" />
+                                <Label htmlFor="dep-feminino" className="font-normal cursor-pointer">Feminino</Label>
+                              </div>
+                            </RadioGroup>
+                          </div>
+
+                          <FormField
+                            label="Data de Nascimento"
+                            required
+                            htmlFor="depBirthDate"
+                            id="depBirthDate"
+                            date
+                            value={dependentForm.birthDate}
+                            onChangeValue={(value) => setDependentForm({ ...dependentForm, birthDate: `${value}` })}
+                            disabled={saving}
+                          />
+
+                          <FormField
+                            label="Relação"
+                            required
+                            htmlFor="depRelation"
+                            id="depRelation"
+                            value={dependentForm.relation}
+                            onChange={(e) => setDependentForm({ ...dependentForm, relation: e.target.value })}
+                            disabled={saving}
+                            placeholder="Ex: Filho(a), Cônjuge, Pai/Mãe"
+                          />
+                        </div>
+
+                        <div className="flex gap-2 mt-4">
+                          <Button
+                            type="button"
+                            onClick={handleSaveDependent}
+                            disabled={saving || !dependentForm.name || !dependentForm.birthDate || !dependentForm.relation}
+                          >
+                            {editingDependent ? 'Atualizar' : 'Adicionar'}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleCancelDependent}
+                            disabled={saving}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dependents List */}
+                    {dependents.length > 0 ? (
+                      <div className="space-y-2">
+                        {dependents.map((dependent) => (
+                          <div
+                            key={dependent.id}
+                            className="flex items-center justify-between p-3 border border-[hsl(var(--border))] rounded-lg"
+                          >
+                            <div className="flex-1">
+                              <h4 className="font-medium text-[hsl(var(--foreground))]">{dependent.name}</h4>
+                              <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                                {dependent.sex} • {new Date(dependent.birthDate).toLocaleDateString('pt-BR')} • {dependent.relation}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditDependent(dependent)}
+                                disabled={saving}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => dependent.id && onDeleteDependent(dependent.id)}
+                                disabled={saving}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[hsl(var(--muted-foreground))] text-center py-4">
+                        Nenhum dependente cadastrado
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Info Box */}
                 {newClient && <div className="p-3 bg-[hsl(var(--card-accent))] border border-blue-200 dark:border-blue-800 rounded-md mt-2">

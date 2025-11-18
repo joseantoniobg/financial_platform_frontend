@@ -29,6 +29,7 @@
     --primary-foreground: 222.2 84% 4.9%;
 
     --green: 88 64% 35%;
+    --dark-green: 108 64% 25%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -80,6 +81,7 @@
     --primary-foreground: 209, 91%, 75%;
 
     --green: 88 64% 50%;
+    --dark-green: 108 64% 45%;
 
     --secondary: 224, 53%, 26%;
     --secondary-foreground: 224, 53%, 100%;
