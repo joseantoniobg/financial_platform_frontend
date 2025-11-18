@@ -14,7 +14,7 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const id = await params.id;
+    const { id } = await params;
 
     const res = await fetch(`${BACKEND_URL}/dependents/${id}`, {
       method: 'PUT',
@@ -49,7 +49,7 @@ export async function DELETE(
     const sessionUser = session.user;
     const token = sessionUser?.token;
 
-    const id = await params.id;
+    const { id } = await params;
 
   try {
     const res = await fetch(`${BACKEND_URL}/dependents/${id}`, {
