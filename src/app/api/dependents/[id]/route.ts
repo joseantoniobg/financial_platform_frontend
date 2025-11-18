@@ -1,7 +1,7 @@
 import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // PUT /api/dependents/[id] - Update dependent (Admin/Consultor)
 export async function PUT(

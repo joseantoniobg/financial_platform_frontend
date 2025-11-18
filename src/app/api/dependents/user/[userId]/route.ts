@@ -1,19 +1,18 @@
 import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // GET /api/dependents/user/[userId] - Get all dependents for a user (Admin/Consultor)
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: { userId: string } }
 ) {
     const session = await getSession();
     const sessionUser = session.user;
     const token = sessionUser?.token;
     
-    const awaitedParams = await params;
-    const userId = awaitedParams.userId;
+    const userId = params.userId;
 
   try {
     const res = await fetch(`${BACKEND_URL}/dependents/user/${userId}`, {
