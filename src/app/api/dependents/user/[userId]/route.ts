@@ -3,16 +3,20 @@ import { NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+type RouteContext<T> = {
+  params: Promise<T>;
+};
+
 // GET /api/dependents/user/[userId] - Get all dependents for a user (Admin/Consultor)
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ userId: string; }>; }
+  { params }: RouteContext<{ userId: string }>
 ) {
     const session = await getSession();
     const sessionUser = session.user;
     const token = sessionUser?.token;
     
-    const userId = (await params).userId;
+    const { userId } = await params;
 
   try {
     const res = await fetch(`${BACKEND_URL}/dependents/user/${userId}`, {
