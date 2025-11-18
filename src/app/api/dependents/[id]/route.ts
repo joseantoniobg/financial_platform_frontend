@@ -6,7 +6,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:300
 // PUT /api/dependents/[id] - Update dependent (Admin/Consultor)
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getSession();
     const sessionUser = session.user;
@@ -14,8 +14,9 @@ export async function PUT(
 
   try {
     const body = await request.json();
+    const id = await params.id;
 
-    const res = await fetch(`${BACKEND_URL}/dependents/${params.id}`, {
+    const res = await fetch(`${BACKEND_URL}/dependents/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -42,14 +43,16 @@ export async function PUT(
 // DELETE /api/dependents/[id] - Delete dependent (Admin/Consultor)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getSession();
     const sessionUser = session.user;
     const token = sessionUser?.token;
 
+    const id = await params.id;
+
   try {
-    const res = await fetch(`${BACKEND_URL}/dependents/${params.id}`, {
+    const res = await fetch(`${BACKEND_URL}/dependents/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
