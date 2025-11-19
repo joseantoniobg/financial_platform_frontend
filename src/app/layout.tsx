@@ -15,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Financial Platform",
-  description: "Plataforma Financeira",
+  title: "Plataforma Consultoria João Melo",
+  description: "Uma plataforma financeira completa para gerenciar suas finanças pessoais e investimentos.",
+  icons: {
+    icon: '/logo.ico',
+  },
 };
 
 export default function RootLayout({

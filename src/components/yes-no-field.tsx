@@ -1,7 +1,7 @@
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
-export function YesNoField({ label, onValueChange, disable, id, disabled, value }: { label: string; onValueChange: (value: boolean) => void; disable?: boolean; id: string, disabled?: boolean, value: string }) {
+export function YesNoField({ label, onValueChange, id, disabled, value }: { label: string; onValueChange: (value: boolean) => void; id: string, disabled?: boolean, value: string }) {
     return (<div className="space-y-2">
                 <Label className="text-[hsl(var(--foreground))]">{label}</Label>
                 <RadioGroup

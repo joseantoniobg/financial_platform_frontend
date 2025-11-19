@@ -42,6 +42,11 @@
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+    --destructive-hover: 0 84.2% 40.2%;
+
+    --edit: 231, 50%, 81%;
+    --edit-foreground: 232, 20%, 30%;
+    --edit-hover: 231, 50%, 61%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
@@ -93,7 +98,12 @@
     --accent-foreground: 224, 53%, 26%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 224, 53%, 26%;
+    --destructive-foreground: 5, 100%, 86%;
+    --destructive-hover: 0 84.2% 40.2%;
+
+    --edit: 231, 50%, 41%;
+    --edit-foreground: 232, 20%, 90%;
+    --edit-hover: 231, 50%, 31%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

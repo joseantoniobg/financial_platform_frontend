@@ -24,6 +24,7 @@ import { SessionTitle } from '@/components/ui/session-title';
 import { FormField } from '@/components/ui/form-field';
 import { StSelect } from '@/components/st-select';
 import { ClientBasicData } from '@/components/ClientBasicData';
+import { PatrimonySection } from '@/components/PatrimonySection';
 
 interface Role {
   id: string;
@@ -91,6 +92,33 @@ interface Client {
   pldRiskClassification?: string;
 }
 
+interface Property {
+  id: string;
+  propertyType: string;
+  address: string;
+  marketValue: number;
+  lastAppraisalDate?: string;
+  isFinanced: boolean;
+  notes?: string;
+}
+
+interface Vehicle {
+  id: string;
+  vehicleType: string;
+  model: string;
+  year?: number;
+  estimatedValue: number;
+  notes?: string;
+}
+
+interface ValuableAsset {
+  id: string;
+  description: string;
+  category: string;
+  estimatedValue: number;
+  notes?: string;
+}
+
 export default function EditClientPage() {
   const { user } = useAuthStore();
   const isAuthenticated = useRequireAuth();
@@ -112,6 +140,43 @@ export default function EditClientPage() {
     birthDate: string;
     relation: string;
   }>>([]);
+  
+  // Patrimony state
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [valuableAssets, setValuableAssets] = useState<ValuableAsset[]>([]);
+  const [loadingPatrimony, setLoadingPatrimony] = useState(false);
+  
+  // Patrimony form states
+  const [showPropertyForm, setShowPropertyForm] = useState(false);
+  const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
+  const [propertyForm, setPropertyForm] = useState({
+    propertyType: '',
+    address: '',
+    marketValue: '',
+    lastAppraisalDate: '',
+    isFinanced: false,
+    notes: ''
+  });
+  
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+  const [vehicleForm, setVehicleForm] = useState({
+    vehicleType: '',
+    model: '',
+    year: '',
+    estimatedValue: '',
+    notes: ''
+  });
+  
+  const [showValuableAssetForm, setShowValuableAssetForm] = useState(false);
+  const [editingValuableAssetId, setEditingValuableAssetId] = useState<string | null>(null);
+  const [valuableAssetForm, setValuableAssetForm] = useState({
+    description: '',
+    category: '',
+    estimatedValue: '',
+    notes: ''
+  });
   
   // Investor Profile state
   const [latestQuestionnaire, setLatestQuestionnaire] = useState<any>(null);
@@ -329,6 +394,285 @@ export default function EditClientPage() {
     }
   };
 
+  // Patrimony Handlers - Properties
+  const handleAddProperty = () => {
+    setEditingPropertyId(null);
+    setPropertyForm({
+      propertyType: '',
+      address: '',
+      marketValue: '',
+      lastAppraisalDate: '',
+      isFinanced: false,
+      notes: ''
+    });
+    setShowPropertyForm(true);
+  };
+
+  const handleEditProperty = (property: Property) => {
+    setEditingPropertyId(property.id);
+    setPropertyForm({
+      propertyType: property.propertyType,
+      address: property.address,
+      marketValue: property.marketValue.toString(),
+      lastAppraisalDate: property.lastAppraisalDate || '',
+      isFinanced: property.isFinanced,
+      notes: property.notes || ''
+    });
+    setShowPropertyForm(true);
+  };
+
+  const handleSaveProperty = async () => {
+    if (!propertyForm.propertyType || !propertyForm.address || !propertyForm.marketValue) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const payload = {
+        propertyType: propertyForm.propertyType,
+        address: propertyForm.address,
+        marketValue: parseFloat(propertyForm.marketValue),
+        lastAppraisalDate: propertyForm.lastAppraisalDate || undefined,
+        isFinanced: propertyForm.isFinanced,
+        notes: propertyForm.notes || undefined
+      };
+
+      const url = editingPropertyId 
+        ? `/api/patrimony/properties/${editingPropertyId}`
+        : `/api/patrimony/properties/user/${clientId}`;
+      
+      const method = editingPropertyId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        toast.success(editingPropertyId ? 'Imóvel atualizado com sucesso!' : 'Imóvel adicionado com sucesso!');
+        await fetchPatrimony();
+        setShowPropertyForm(false);
+        setEditingPropertyId(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao salvar imóvel');
+      }
+    } catch (error) {
+      toast.error('Erro ao salvar imóvel');
+    }
+  };
+
+  const handleDeleteProperty = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover este imóvel?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/patrimony/properties/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Imóvel removido com sucesso!');
+        await fetchPatrimony();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao remover imóvel');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover imóvel');
+    }
+  };
+
+  // Patrimony Handlers - Vehicles
+  const handleAddVehicle = () => {
+    setEditingVehicleId(null);
+    setVehicleForm({
+      vehicleType: '',
+      model: '',
+      year: '',
+      estimatedValue: '',
+      notes: ''
+    });
+    setShowVehicleForm(true);
+  };
+
+  const handleEditVehicle = (vehicle: Vehicle) => {
+    setEditingVehicleId(vehicle.id);
+    setVehicleForm({
+      vehicleType: vehicle.vehicleType,
+      model: vehicle.model,
+      year: vehicle.year?.toString() || '',
+      estimatedValue: vehicle.estimatedValue.toString(),
+      notes: vehicle.notes || ''
+    });
+    setShowVehicleForm(true);
+  };
+
+  const handleSaveVehicle = async () => {
+    if (!vehicleForm.vehicleType || !vehicleForm.model || !vehicleForm.estimatedValue) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const payload = {
+        vehicleType: vehicleForm.vehicleType,
+        model: vehicleForm.model,
+        year: vehicleForm.year ? parseInt(vehicleForm.year) : undefined,
+        estimatedValue: parseFloat(vehicleForm.estimatedValue),
+        notes: vehicleForm.notes || undefined
+      };
+
+      const url = editingVehicleId 
+        ? `/api/patrimony/vehicles/${editingVehicleId}`
+        : `/api/patrimony/vehicles/user/${clientId}`;
+      
+      const method = editingVehicleId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        toast.success(editingVehicleId ? 'Veículo atualizado com sucesso!' : 'Veículo adicionado com sucesso!');
+        await fetchPatrimony();
+        setShowVehicleForm(false);
+        setEditingVehicleId(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao salvar veículo');
+      }
+    } catch (error) {
+      toast.error('Erro ao salvar veículo');
+    }
+  };
+
+  const handleDeleteVehicle = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover este veículo?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/patrimony/vehicles/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Veículo removido com sucesso!');
+        await fetchPatrimony();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao remover veículo');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover veículo');
+    }
+  };
+
+  // Patrimony Handlers - Valuable Assets
+  const handleAddValuableAsset = () => {
+    setEditingValuableAssetId(null);
+    setValuableAssetForm({
+      description: '',
+      category: '',
+      estimatedValue: '',
+      notes: ''
+    });
+    setShowValuableAssetForm(true);
+  };
+
+  const handleEditValuableAsset = (asset: ValuableAsset) => {
+    setEditingValuableAssetId(asset.id);
+    setValuableAssetForm({
+      description: asset.description,
+      category: asset.category,
+      estimatedValue: asset.estimatedValue.toString(),
+      notes: asset.notes || ''
+    });
+    setShowValuableAssetForm(true);
+  };
+
+  const handleSaveValuableAsset = async () => {
+    if (!valuableAssetForm.description || !valuableAssetForm.category || !valuableAssetForm.estimatedValue) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const payload = {
+        description: valuableAssetForm.description,
+        category: valuableAssetForm.category,
+        estimatedValue: parseFloat(valuableAssetForm.estimatedValue),
+        notes: valuableAssetForm.notes || undefined
+      };
+
+      const url = editingValuableAssetId 
+        ? `/api/patrimony/valuable-assets/${editingValuableAssetId}`
+        : `/api/patrimony/valuable-assets/user/${clientId}`;
+      
+      const method = editingValuableAssetId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        toast.success(editingValuableAssetId ? 'Bem de valor atualizado com sucesso!' : 'Bem de valor adicionado com sucesso!');
+        await fetchPatrimony();
+        setShowValuableAssetForm(false);
+        setEditingValuableAssetId(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao salvar bem de valor');
+      }
+    } catch (error) {
+      toast.error('Erro ao salvar bem de valor');
+    }
+  };
+
+  const handleDeleteValuableAsset = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover este bem de valor?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/patrimony/valuable-assets/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Bem de valor removido com sucesso!');
+        await fetchPatrimony();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao remover bem de valor');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover bem de valor');
+    }
+  };
+
+  const handleCancelPropertyForm = () => {
+    setShowPropertyForm(false);
+    setEditingPropertyId(null);
+  };
+
+  const handleCancelVehicleForm = () => {
+    setShowVehicleForm(false);
+    setEditingVehicleId(null);
+  };
+
+  const handleCancelValuableAssetForm = () => {
+    setShowValuableAssetForm(false);
+    setEditingValuableAssetId(null);
+  };
+
   const fetchCategories = async () => {
     try {
       const res = await fetch('/api/client-categories');
@@ -414,6 +758,24 @@ export default function EditClientPage() {
       setLoadingMaritalStatuses(false);
     }
   }, []);
+
+  const fetchPatrimony = useCallback(async () => {
+    if (!clientId) return;
+    setLoadingPatrimony(true);
+    try {
+      const res = await fetch(`/api/patrimony/user/${clientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setProperties(data.properties || []);
+        setVehicles(data.vehicles || []);
+        setValuableAssets(data.valuableAssets || []);
+      }
+    } catch (error) {
+      console.error('Error fetching patrimony:', error);
+    } finally {
+      setLoadingPatrimony(false);
+    }
+  }, [clientId]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -713,6 +1075,13 @@ export default function EditClientPage() {
     }
   }, [activeTab, clientId, fetchLatestQuestionnaire]);
 
+  // Effect to load patrimony when tab is active
+  useEffect(() => {
+    if (activeTab === 'patrimonio' && clientId) {
+      fetchPatrimony();
+    }
+  }, [activeTab, clientId, fetchPatrimony]);
+
   if (!isAuthenticated || !user) return null;
 
   const isAdmin = user.roles?.some(role => ['Administrador', 'Consultor'].includes(role.name));
@@ -784,12 +1153,45 @@ export default function EditClientPage() {
               />
 
               {/* Tab: Patrimônio */}
-              <TabsContent value="patrimonio" className="space-y-4">
-                <div className="flex flex-col items-center justify-center py-12">
-                  <p className="text-slate-600 dark:text-gray-400 text-center">
-                    A funcionalidade de Patrimônio será implementada em breve.
-                  </p>
-                </div>
+              <TabsContent value="patrimonio" className="space-y-6">
+                {loadingPatrimony ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card))]" />
+                  </div>
+                ) : (
+                  <PatrimonySection
+                    properties={properties}
+                    vehicles={vehicles}
+                    valuableAssets={valuableAssets}
+                    showPropertyForm={showPropertyForm}
+                    propertyForm={propertyForm}
+                    editingPropertyId={editingPropertyId}
+                    onAddProperty={handleAddProperty}
+                    onEditProperty={handleEditProperty}
+                    onSaveProperty={handleSaveProperty}
+                    onDeleteProperty={handleDeleteProperty}
+                    onCancelPropertyForm={handleCancelPropertyForm}
+                    setPropertyForm={setPropertyForm}
+                    showVehicleForm={showVehicleForm}
+                    vehicleForm={vehicleForm}
+                    editingVehicleId={editingVehicleId}
+                    onAddVehicle={handleAddVehicle}
+                    onEditVehicle={handleEditVehicle}
+                    onSaveVehicle={handleSaveVehicle}
+                    onDeleteVehicle={handleDeleteVehicle}
+                    onCancelVehicleForm={handleCancelVehicleForm}
+                    setVehicleForm={setVehicleForm}
+                    showValuableAssetForm={showValuableAssetForm}
+                    valuableAssetForm={valuableAssetForm}
+                    editingValuableAssetId={editingValuableAssetId}
+                    onAddValuableAsset={handleAddValuableAsset}
+                    onEditValuableAsset={handleEditValuableAsset}
+                    onSaveValuableAsset={handleSaveValuableAsset}
+                    onDeleteValuableAsset={handleDeleteValuableAsset}
+                    onCancelValuableAssetForm={handleCancelValuableAssetForm}
+                    setValuableAssetForm={setValuableAssetForm}
+                  />
+                )}
               </TabsContent>
 
               {/* Tab: Planejamento Financeiro */}
