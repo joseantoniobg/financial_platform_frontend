@@ -104,7 +104,7 @@ interface PatrimonySectionProps {
 
 const PROPERTY_TYPES = ['Casa', 'Apartamento', 'Terreno', 'Ponto Comercial', 'Imóvel Rural', 'Outro'];
 const VEHICLE_TYPES = [
-  'Carro', 'Moto', 'Caminhonete/Pickup', 'SUV', 'Caminhão', 'Ônibus/Micro-ônibus',
+  'Carro', 'Moto', 'Caminhonete / Pickup', 'SUV', 'Caminhão', 'Ônibus / Micro-ônibus',
   'Van', 'Utilitário Leve', 'Trator', 'Máquinas Agrícolas', 'Barco', 'Lancha', 'Jet Ski', 'Outro'
 ];
 const VALUABLE_ASSET_CATEGORIES = ['Joia', 'Equipamento', 'Instrumento', 'Arte', 'Outro'];
