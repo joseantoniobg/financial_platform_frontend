@@ -163,13 +163,13 @@ export default function ServicesPage() {
               <Loader2 className="h-8 w-8 animate-spin text-[]" />
             </div>
           ) : services.length === 0 ? (
-            <div className="text-center p-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center p-8 text-[hsl(var(--foreground))]">
               Nenhum serviço encontrado
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[hsl(var(--background))]/40 border-b border-[hsl(var(--border))]">
+                <thead className="bg-[hsl(var(--card-accent))] border-b border-[hsl(var(--border))]">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">
                       Serviço
@@ -185,10 +185,10 @@ export default function ServicesPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[hsl(var(--border))]">
+                <tbody className="bg-[hsl(var(--card))] divide-y divide-[hsl(var(--border))]">
                   {services.map((service) => (
-                    <tr key={service.id} className="hover:bg-[hsl(var(--background))]">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground-dark))]">
+                    <tr key={service.id} className="hover:bg-[hsl(var(--card-accent))] transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[hsl(var(--foreground))]">
                         {service.service}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -200,7 +200,7 @@ export default function ServicesPage() {
                           {service.isActive ? 'Ativo' : 'Inativo'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))]">
                         {new Date(service.createdAt).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -262,8 +262,8 @@ export default function ServicesPage() {
                 onClick={() => setPage(pageNum)}
                 className={`px-4 py-2 rounded-lg ${
                   page === pageNum
-                    ? 'bg-[#B4F481] text-[#0A1929]'
-                    : 'bg-white dark:bg-[#0D2744] text-slate-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-[hsl(var(--green))] text-[hsl(var(--foreground-dark))]'
+                    : 'bg-[hsl(var(--card))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--card-accent))] dark:text-white dark:hover:bg-[hsl(var(--card-hover))]'
                 }`}
               >
                 {pageNum}

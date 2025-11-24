@@ -81,7 +81,7 @@ export function Sidebar({ userName }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-0 h-full bg-[hsl(var(--card))] border-r border-gray-200 dark:border-gray-700
+          fixed left-0 top-0 h-full bg-[hsl(var(--nav-background))] border-r border-gray-200 dark:border-gray-700
           transition-all duration-300 z-40
           ${isCollapsed ? 'w-20' : 'w-64'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -91,7 +91,7 @@ export function Sidebar({ userName }: SidebarProps) {
           {/* Header */}
           <div className="p-4 border-b border-[hsl(var(--app-border))] flex items-center justify-between">
             {!isCollapsed && (
-              <h1 className="text-xl font-bold text-[hsl(var(--foreground))]">
+              <h1 className="text-xl font-bold text-[hsl(var(--nav-foreground))]">
                 Plataforma
               </h1>
             )}
@@ -100,9 +100,9 @@ export function Sidebar({ userName }: SidebarProps) {
               className="p-1.5 rounded-lg hover:bg-[hsl(var(--hover))] transition-colors hidden lg:block"
             >
               {isCollapsed ? (
-                <ChevronRight className="h-5 w-5 text-[hsl(var(--foreground))]" />
+                <ChevronRight className="h-5 w-5 text-[hsl(var(--nav-foreground))]" />
               ) : (
-                <ChevronLeft className="h-5 w-5 text-[hsl(var(--foreground))]" />
+                <ChevronLeft className="h-5 w-5 text-[hsl(var(--nav-foreground))]" />
               )}
             </button>
           </div>
@@ -111,16 +111,16 @@ export function Sidebar({ userName }: SidebarProps) {
           <div className="p-4 border-b border-[hsl(var(--app-border))]">
             {!isCollapsed ? (
               <div>
-                <p className="text-sm font-medium text-[hsl(var(--foreground))]">
+                <p className="text-sm font-medium text-[hsl(var(--nav-foreground))]">
                   Olá, {userName}
                 </p>
-                <p className="text-xs text-[hsl(var(--foreground))] mt-1">
+                <p className="text-xs text-[hsl(var(--nav-foreground))] mt-1">
                   {user?.roles && user.roles.reduce((acc, role) => acc + role.name + ' ', '')}
                 </p>
               </div>
             ) : (
-              <div className="w-10 h-10 rounded-full bg-[hsl(var(--foreground))] flex items-center justify-center">
-                <span className="text-[hsl(var(--background))] font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-[hsl(var(--nav-foreground))] flex items-center justify-center">
+                <span className="text-[hsl(var(--nav-background))] font-bold text-sm">
                   {userName && userName.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -140,8 +140,8 @@ export function Sidebar({ userName }: SidebarProps) {
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
                     ${active 
-                      ? 'bg-[hsl(var(--primary))] text-[hsl(var(--foreground))]' 
-                      : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--hover))]'
+                      ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]' 
+                      : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
                     }
                     ${isCollapsed ? 'justify-center' : ''}
                   `}

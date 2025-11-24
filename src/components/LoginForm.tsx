@@ -125,14 +125,14 @@ export function LoginForm({ stocks }: LoginFormProps) {
             <div className="space-y-6">
               {/* Title */}
               <div className="text-center space-y-2">
-                <h1 className="text-[hsl(var(--foreground-dark))] text-3xl font-bold">
+                <h1 className="text-[hsl(var(--foreground))] text-3xl font-bold">
                   Plataforma Financeira
                 </h1>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[hsl(var(--foreground-dark))] text-sm font-medium">
+                  <Label htmlFor="email" className="text-[hsl(var(--foreground))] text-sm font-medium">
                   Login / e-mail
                   </Label>
                   <Input
@@ -145,7 +145,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                       if (emailError) validateEmail(e.target.value);
                     }}
                     onBlur={(e) => validateEmail(e.target.value)}
-                    className={`h-12 bg-white border-[hsl(var(--app-border))] text-[hsl(var(--foreground-dark))] focus:border-[hsl(var(--border))] focus:ring-0 ${
+                    className={`h-12 border-[hsl(var(--app-border))] focus:border-[hsl(var(--border))] focus:ring-0 ${
                       emailError ? 'border-red-500 focus:border-red-500' : ''
                     }`}
                     disabled={isLoading}
@@ -153,7 +153,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                   <ErrorText>{emailError}</ErrorText>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-[hsl(var(--foreground-dark))] text-sm font-medium">
+                  <Label htmlFor="password" className="text-[hsl(var(--foreground))] text-sm font-medium">
                     Senha
                   </Label>
                   <div className="relative">
@@ -167,7 +167,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                         if (passwordError) validatePassword(e.target.value);
                       }}
                       onBlur={(e) => validatePassword(e.target.value)}
-                      className={`h-12 bg-white border-[hsl(var(--app-border))] text-[hsl(var(--foreground-dark))] focus:border-[hsl(var(--border))] focus:ring-0 ${
+                      className={`h-12 border-[hsl(var(--app-border))] focus:border-[hsl(var(--border))] focus:ring-0 ${
                         passwordError ? 'border-red-500 focus:border-red-500' : ''
                       }`}
                       disabled={isLoading}
@@ -195,7 +195,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                 {/* Login button */}
                 <Button
                   type="submit"
-                  className="w-full h-12 hover:cursor-pointer bg-[hsl(var(--card-accent))] hover:bg-[hsl(var(--card-hover))] text-[hsl(var(--foreground-clear))] font-bold text-sm rounded-lg transition-colors uppercase"
+                  className="w-full h-12 font-bold text-sm rounded-lg transition-colors uppercase"
                   disabled={isLoading}
                 >
                   {isLoading ? 'ENTRANDO...' : 'ENTRAR'}

@@ -10,22 +10,24 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222.2 84% 11.9%;
     --card-hover: 209, 68%, 53%;
-    --foreground-dark: 222.2 84% 4.9%;
+    --foreground-dark: 222.2 84% 97%;
+    --nav-background: 220, 65%, 21%;
+    --nav-foreground: 222.2 84% 98%;
 
-    --card: 215.4 16.3% 90%;
+    --card: 215.4 16.3% 97%;
     --card-foreground: 222.2 84% 4.9%;
 
-    --card-accent: 215.4 16.3% 80%;
+    --card-accent: 215.4 16.3% 95%;
     --foreground-accent: 222.2 84% 4.9%;
     --foreground-clear: 224, 53%, 0%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221, 75%, 70%;
-    --primary-hover: 217, 75%, 50%;
+    --primary: 221, 75%, 30%;
+    --primary-hover: 217, 75%, 15%;
     --primary-foreground: 222.2 84% 4.9%;
 
     --green: 88 64% 35%;
@@ -69,6 +71,7 @@
     --background: 220, 65%, 11%;
     --foreground: 209, 91%, 95%;
     --foreground-dark: 209, 91%, 25%;
+    --nav-background: 220, 65%, 21%;
 
     --card: 208, 96%, 30%;
     --card-foreground: 223, 82%, 89%;
