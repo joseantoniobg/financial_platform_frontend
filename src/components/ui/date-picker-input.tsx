@@ -19,6 +19,7 @@ export const DatePickerInput = React.forwardRef<HTMLInputElement, DatePickerInpu
     const [displayValue, setDisplayValue] = React.useState('');
     const [isFocused, setIsFocused] = React.useState(false);
     const [isOpen, setIsOpen] = React.useState(false);
+    const [currentMonth, setCurrentMonth] = React.useState<Date | undefined>(value ? new Date(typeof value === 'string' ? value + 'T00:00:00' : value) : undefined);
 
     const toBrazilianFormat = (isoDate: string | Date): string => {
       if (!isoDate) return '';
@@ -176,7 +177,7 @@ export const DatePickerInput = React.forwardRef<HTMLInputElement, DatePickerInpu
           placeholder="dd/mm/aaaa"
           disabled={disabled}
           className={cn(
-            "bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white flex-1",
+            "bg-white dark:bg-[hsl(var(--card-accent))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground))] flex-1",
             className
           )}
           {...props}
@@ -188,7 +189,7 @@ export const DatePickerInput = React.forwardRef<HTMLInputElement, DatePickerInpu
               variant="outline"
               disabled={disabled}
               className={cn(
-                "px-3 border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0A1929] hover:bg-gray-50 dark:hover:bg-gray-800",
+                "px-3 border-[hsl(var(--app-border))] bg-white dark:bg-[hsl(var(--card-accent))] hover:bg-gray-50 dark:hover:bg-gray-800",
                 !value && "text-muted-foreground"
               )}
             >
@@ -199,8 +200,9 @@ export const DatePickerInput = React.forwardRef<HTMLInputElement, DatePickerInpu
             <Calendar
               mode="single"
               selected={getDateFromValue()}
-              month={getDateFromValue()}
+              month={currentMonth}
               onSelect={handleCalendarSelect}
+              onMonthChange={(month) => setCurrentMonth(month)}
               disabled={disabled}
               locale={ptBR}
             />

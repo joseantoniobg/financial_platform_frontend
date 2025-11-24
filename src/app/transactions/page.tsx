@@ -203,7 +203,7 @@ export default function TransactionsPage() {
                     <div className="flex items-center gap-2 flex-1">
                       <ExpandableButton isExpanded={isExpanded} onClick={() => toggleTicket(first.ticket)} />
                       <div className="flex items-center gap-2 flex-1">
-                        <span className="font-mono text-xs bg-[hsl(var(--primary))]/80 text-[hsl(var(--foreground))] px-1.5 py-0.5 rounded font-semibold">
+                        <span className="font-mono text-xs bg-[hsl(var(--primary))]/80 text-[hsl(var(--nav-foreground))] px-1.5 py-0.5 rounded font-semibold">
                           #{first.ticket}
                         </span>
                         <h3 className="font-semibold text-base text-[hsl(var(--foreground))]">

@@ -146,7 +146,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
 
     return (
       <div className="relative">
-        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted))] text-sm pointer-events-none">
+        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted-foreground))] text-sm pointer-events-none">
           R$
         </span>
         <Input

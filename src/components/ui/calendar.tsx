@@ -22,8 +22,8 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium text-slate-900 dark:text-white",
-        nav: "ml-[-20px] pt-2 absolute space-x-5 items-center p-1 bg-[#0A1929] rounded-md",
+        caption_label: "text-sm font-medium text-[hsl(var(--foreground))]",
+        nav: "ml-[-20px] pt-2 absolute space-x-5 items-center p-1 bg-[hsl(var(--card-accent))] rounded-md",
         month_caption: "ml-18 font-semibold text-lg text-white mt-[2px]",
         nav_button: cn(
           buttonVariants({ variant: "default" }),
@@ -32,18 +32,18 @@ function Calendar({
         table: "w-full border-collapse space-y-1",
         head_row: "flex w-full",
         head_cell:
-          "text-slate-500 dark:text-gray-400 w-9 h-12 font-normal text-[0.8rem] flex items-center justify-center",
+          "text-[hsl(var(--foreground))] w-9 h-12 font-normal text-[0.8rem] flex items-center justify-center",
         row: "flex w-full mt-1",
         weekdays: "flex w-full mb-[-10px] mt-[-15px]",
         weekday: "w-9 h-12 font-normal text-[0.8rem] flex items-center justify-center",
         day: cn(
           buttonVariants({ variant: "default" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          "bg-[hsl(var(--card-accent))] hover:bg-[hsl(var(--nav-background))]/40 text-[hsl(var(--foreground))] h-9 w-9 p-0 font-normal aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
         selected:
-          "bg-[#B4F481] text-[#0A1929] hover:bg-[#B4F481] hover:text-[#0A1929] focus:bg-[#B4F481] focus:text-[#0A1929]",
-        day_today: "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white",
+          "bg-[hsl(var(--nav-background))] text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--card-accent))] hover:text-[hsl(var(--card-accent))] focus:bg-[hsl(var(--card-accent))] focus:text-[hsl(var(--card-accent))]",
+        day_today: "bg-slate-100 dark:bg-slate-800 text-[hsl(var(--foreground))]",
         day_outside:
           "day-outside text-slate-500 dark:text-gray-400 opacity-50 aria-selected:bg-slate-100/50 dark:aria-selected:bg-slate-800/50 aria-selected:text-slate-500 dark:aria-selected:text-gray-400 aria-selected:opacity-30",
         day_disabled: "text-slate-500 dark:text-gray-400 opacity-50",

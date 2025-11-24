@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { DatePickerInput } from '@/components/ui/date-picker-input';
 import toast from 'react-hot-toast';
+import { StSelect } from './st-select';
+import { FormField } from './ui/form-field';
 
 interface TransactionType {
   id: string;
@@ -144,27 +146,22 @@ export function TransactionFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#0D2744]">
+      <DialogContent className="sm:max-w-[500px] bg-[hsl(var(--card))]">
         <DialogHeader>
-          <DialogTitle className="text-[#0A1929] dark:text-white">Nova Transação</DialogTitle>
+          <DialogTitle className="text-[hsl(var(--foreground))]">Nova Transação</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="typeId">Sub-categoria*</Label>
-            <select
-              id="typeId"
+            <StSelect
+              label='Categoria'
+              loading={false}
               value={typeId}
-              onChange={(e) => setTypeId(e.target.value)}
+              onChange={(e) => setTypeId(e)}
               required
-              className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-[#0A1929] dark:text-white"
-            >
-              <option value="">Selecione...</option>
-              {transactionTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.type} ({type.category.category})
-                </option>
-              ))}
-            </select>
+              htmlFor='transaction-type'
+              items={transactionTypes.map((tt) => ({ id: tt.id, description: `${tt.type} (${tt.category.category})` }))}
+            />
           </div>
 
           <div>
@@ -172,7 +169,6 @@ export function TransactionFormDialog({
             <CurrencyInput
               id="amount"
               value={amount}
-              className='bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white'
               onChange={(value) => setAmount(value)}
               required
               placeholder="0,00"
@@ -282,32 +278,27 @@ export function TransactionFormDialog({
             </div>
           )}
 
-          <div>
-            <Label htmlFor="obs">Observação</Label>
-            <textarea
-              id="obs"
-              value={obs}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setObs(e.target.value)}
-              placeholder="Observações adicionais..."
-              rows={3}
-              className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-[#0A1929] dark:text-white resize-none"
-            />
-          </div>
-
+          <FormField
+            id="obs"
+            value={obs}
+            onChangeTextArea={(e) => setObs(e.target.value)}
+            placeholder="Observações adicionais..."
+            textArea
+            rows={3}
+            label='Observações'
+          /> 
           <div className="flex gap-2 justify-end pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
-              className="border-gray-300 dark:border-gray-600 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-800 dark:text-white"
             >
               Cancelar
             </Button>
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F] cursor-pointer border-0 dark:text-[#0A1929]"
             >
               {loading ? 'Salvando...' : 'Salvar'}
             </Button>

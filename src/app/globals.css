@@ -70,7 +70,7 @@
   .dark {
     --background: 220, 65%, 11%;
     --foreground: 209, 91%, 95%;
-    --foreground-dark: 209, 91%, 25%;
+    --foreground-dark: 209, 91%, 95%;
     --nav-background: 220, 65%, 21%;
 
     --card: 208, 96%, 30%;
