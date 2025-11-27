@@ -389,7 +389,7 @@ export default function NewClientPage() {
   
   if (!isAdmin) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
             Acesso Negado
@@ -403,7 +403,7 @@ export default function NewClientPage() {
   }
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center gap-4">
           <div className='flex gap-4 items-center'>
@@ -417,7 +417,7 @@ export default function NewClientPage() {
             </Button>
             <PageTitle title="Novo Cliente" />
           </div>
-          <TopAddButton onClick={() => router.push('/clientes/novo')} label="Novo Cliente" />
+          <TopAddButton id="topAddButtonNewClient" onClick={() => router.push('/clientes/novo')} label="Novo Cliente" />
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -435,6 +435,7 @@ export default function NewClientPage() {
                 handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
                 categories={categories} consultants={consultants} isConsultant={isConsultant}
                 maritalStatuses={maritalStatuses}
+                isClient={false}
                 loadingMaritalStatuses={loadingMaritalStatuses}
                 dependents={[]}
                 onAddDependent={async () => {}}

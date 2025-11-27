@@ -8,6 +8,9 @@ import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import UniversalSelect from './UniversalSelect';
+import { FormField } from './ui/form-field';
+import { StSelect } from './st-select';
+import { Button } from './ui/button';
 
 const directionOptions = [
   { value: 'Entrada', label: 'Entrada (recebimento)' },
@@ -27,9 +30,10 @@ interface Props {
   mode: 'create' | 'edit';
   category?: Category;
   onSuccess: () => void;
+  userId?: string;
 }
 
-export function TransactionCategoryFormDialog({ open, onOpenChange, mode, category, onSuccess }: Props) {
+export function TransactionCategoryFormDialog({ open, onOpenChange, mode, category, onSuccess, userId }: Props) {
   const [formData, setFormData] = useState({ 
     category: '',
     defaultDirection: ''
@@ -52,10 +56,12 @@ export function TransactionCategoryFormDialog({ open, onOpenChange, mode, catego
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     setSubmitting(true);
 
     try {
-      const url = mode === 'create' ? '/api/transaction-categories' : `/api/transaction-categories/${category?.id}`;
+      const url = mode === 'create' ? `/api/transaction-categories${userId ? `?userId=${userId}` : ''}` : `/api/transaction-categories/${category?.id}`;
       const method = mode === 'create' ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
@@ -81,26 +87,30 @@ export function TransactionCategoryFormDialog({ open, onOpenChange, mode, catego
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-[hsl(var(--card))] border-gray-200 dark:border-gray-700">
+      <DialogContent className="sm:max-w-[425px] bg-[hsl(var(--card))] border-[hsl(var(--border))]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(var(--foreground))]">{mode === 'create' ? 'Nova Categoria' : 'Editar Categoria'}</DialogTitle>
           <DialogDescription className="text-[hsl(var(--foreground-clear))]">{mode === 'create' ? 'Crie uma nova categoria' : 'Atualize a categoria'}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="category" className="text-[hsl(var(--foreground))]">Nome <span className="text-red-500">*</span></Label>
-            <Input id="category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required />
-          </div>
+          <FormField
+            label='Nome'
+            id='category'
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            required
+          />
 
           <div className="space-y-2">
-            <Label htmlFor="defaultDirection" className="text-[hsl(var(--foreground))]">Direção Padrão</Label>
-            <UniversalSelect
+            <StSelect
+              label="Direção Padrão"
+              required
               value={formData.defaultDirection}
               onChange={(value) => setFormData({ ...formData, defaultDirection: value })}
-              placeholder="Selecione uma direção padrão"
-              items={directionOptions}
-              disabled={submitting}
+              items={directionOptions.map(option => ({ id: option.value, description: option.value }))}
+              loading={submitting}
+              htmlFor='direction'
             />
             <p className="text-xs text-[hsl(var(--foreground-clear))]">
               Quando definida, sub-categorias criadas nesta categoria terão esta direção selecionada por padrão
@@ -108,11 +118,11 @@ export function TransactionCategoryFormDialog({ open, onOpenChange, mode, catego
           </div>
 
           <DialogFooter>
-            <button type="button" onClick={() => onOpenChange(false)} className="px-4 py-2 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--background))] rounded-lg transition-colors" disabled={submitting}>Cancelar</button>
-            <button type="submit" className="px-4 py-2 bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] rounded-lg font-medium hover:bg-[hsl(var(--primary-hover))] transition-colors disabled:opacity-50 flex items-center gap-2" disabled={submitting}>
+            <Button type="button" variant={'outline'} onClick={() => onOpenChange(false)} disabled={submitting}>Cancelar</Button>
+            <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? 'Salvando...' : 'Salvar'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

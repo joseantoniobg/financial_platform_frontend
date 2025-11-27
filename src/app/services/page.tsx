@@ -135,11 +135,11 @@ export default function ServicesPage() {
   }
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <PageTitle title='Serviços' subtitle='Gerencie os serviços, precificação e atribuições' />
-          <TopAddButton label='Novo Serviço' onClick={handleCreate} />
+          <TopAddButton id="topAddButtonNewService" label='Novo Serviço' onClick={handleCreate} />
         </div>
 
         {/* Search */}

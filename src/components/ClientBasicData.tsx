@@ -24,6 +24,7 @@ type ClientBasicDataProps = {
     saving: boolean;
     categories: Array<{ id: string; name: string; description: string }>;
     consultants: Array<{ id: string; name: string }>;
+    isClient: boolean;
     isConsultant: boolean;
     countries: Array<{ id: string; name: string }>;
     states: Array<{ id: string; name: string; code: string }>;
@@ -43,7 +44,7 @@ type ClientBasicDataProps = {
     onDeleteDependent: (id: string) => Promise<void>;
 };
 
-export function ClientBasicData({ formData, setFormData, saving, categories, consultants, isConsultant, 
+export function ClientBasicData({ formData, setFormData, saving, categories, consultants, isConsultant, isClient,
                                 countries, states, cities, 
                                 loadingCountries, loadingStates, loadingCities,
                                 handleCountryChange, handleStateChange, newClient, client, maritalStatuses, loadingMaritalStatuses,
@@ -111,7 +112,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                 )}
 
                 <div>
-                  <SessionTitle title="Dados Principais" subTitle="Informações básicas do cliente" />                  
+                  <SessionTitle title="Dados Principais" subTitle={isClient ? '' : "Informações básicas do cliente"} />                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField 
                         label="Nome Completo / Razão Social"
@@ -180,7 +181,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                 </div>
 
                 {/* Sector 2: Informações da Consultoria */}
-                <div className="space-y-4">
+                {!isClient && <div className="space-y-4">
                   <SessionTitle title="Informações da Consultoria" subTitle="Detalhes do contrato e plano" />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -282,7 +283,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       htmlFor='lastMeeting'
                     />
                   </div>
-                </div>
+                </div>}
 
                 {/* Sector 3: Contato */}
                 <div className="space-y-4">
@@ -400,7 +401,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       items={cities.map((c) => ({ id: c.id, description: c.name }))}
                     />
 
-                    <StSelect
+                    {!isClient && <StSelect
                       htmlFor='status'
                       label='Status de Acesso'
                       value={formData.status}
@@ -408,16 +409,16 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                       loading={saving}
                       items={[{ id: 'active', description: 'Ativo' }, { id: 'inactive', description: 'Inativo' }]}
                       searchable={false}
-                    />
+                    />}
                   </div>
                 </div>
 
                 {/* Sector 4: Prospecção e Origem */}
                 <div className="space-y-4">
-                  <SessionTitle title="Prospecção e Origem" subTitle="Origem e informações profissionais" />
+                  <SessionTitle title={isClient ? "Demais Dados" : "Prospecção e Origem"} subTitle={isClient ? "" : "Origem e informações profissionais"} />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <StSelect
+                    {!isClient && <StSelect
                       htmlFor='prospectionOrigin'
                       label='Origem da Prospecção'
                       value={formData.prospectionOrigin || 'none'}
@@ -430,7 +431,7 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                               { id: 'Eventos', description: 'Eventos' }, 
                               { id: 'Outro', description: 'Outro' }]}
                       searchable={false}
-                    />
+                    />}
 
                     <FormField
                       label="Profissão / Atividade"
@@ -458,18 +459,15 @@ export function ClientBasicData({ formData, setFormData, saving, categories, con
                 {/* Dependents Section - Only show when not creating new client */}
                 {!newClient && (
                   <div className="space-y-4 mt-6">
-                    <div className="flex items-center justify-between">
-                      <SessionTitle title="Dependentes" subTitle="Familiares e dependentes do cliente" />
-                      <Button
+                      <SessionTitle title="Dependentes" subTitle={isClient ? "Meus familiares e dependentes" : "Familiares e dependentes do cliente"} leftContents={<Button
                         type="button"
                         onClick={handleAddDependent}
                         disabled={saving}
                         className="flex items-center gap-2"
                       >
-                        <Plus className="h-4 w-4" />
+                      <Plus className="h-4 w-4" />
                         Adicionar Dependente
-                      </Button>
-                    </div>
+                      </Button>} />
 
                     {showDependentForm && (
                       <div className="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card-accent))]/30">

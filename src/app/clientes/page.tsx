@@ -110,7 +110,7 @@ export default function ClientesPage() {
   
   if (!isAdmin) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
             Acesso Negado
@@ -124,11 +124,11 @@ export default function ClientesPage() {
   }
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <PageTitle title='Gerenciar Clientes' />
-          <TopAddButton onClick={handleCreateClient} label='Novo Cliente' />
+          <TopAddButton id="topAddButtonManageClients" onClick={handleCreateClient} label='Novo Cliente' />
         </div>
 
         <div className="bg-[hsl(var(--card-accent))] rounded-lg shadow-md border border-[hsl(var(--app-border))]">

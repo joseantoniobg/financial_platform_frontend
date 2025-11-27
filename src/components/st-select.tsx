@@ -11,7 +11,7 @@ export function StSelect({ items, value, onChange, loading, htmlFor, label, sear
                 onValueChange={onChange}
                 disabled={loading}
               >
-                <SelectTrigger className="bg-[hsl(var(--card-accent))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+                <SelectTrigger className="bg-[hsl(var(--card-accent))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground))]">
                   <SelectValue placeholder={loading ? "Carregando..." : "Selecione..."} />
                 </SelectTrigger>
                 <SelectContent searchable={searchable} className="bg-[hsl(var(--card-accent))] border-[hsl(var(--border))]">

@@ -223,7 +223,7 @@ export default function ClientAssignmentsPage() {
   const selectedClientData = clients.find(c => c.id === selectedClient);
 
   return (
-    <DashboardLayout userName="Administrador">
+    <DashboardLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white">

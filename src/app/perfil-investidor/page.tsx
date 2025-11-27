@@ -164,6 +164,32 @@ export default function InvestorProfilePage() {
     }
   };
 
+  const getRiskProfileBackgroundColor = (profile: string) => {
+    switch (profile) {
+      case 'Conservador':
+        return 'bg-blue-600/40 dark:bg-blue-400/40';
+      case 'Moderado':
+        return 'bg-yellow-600/40 dark:bg-yellow-400/40';
+      case 'Arrojado':
+        return 'bg-red-600/40 dark:bg-red-400/40';
+      default:
+        return 'text-gray-600/40 dark:text-gray-400/40';
+    }
+  };
+
+  const getRiskProfileBorderColor = (profile: string) => {
+    switch (profile) {
+      case 'Conservador':
+        return 'bg-blue-600 dark:bg-blue-400';
+      case 'Moderado':
+        return 'bg-yellow-600 dark:bg-yellow-400';
+      case 'Arrojado':
+        return 'bg-red-600 dark:bg-red-400';
+      default:
+        return 'text-gray-600 dark:text-gray-400';
+    }
+  };
+
   const getRiskProfileDescription = (profile: string) => {
     switch (profile) {
       case 'Conservador':
@@ -183,12 +209,12 @@ export default function InvestorProfilePage() {
   
   if (!isClient) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
+          <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-4">
             Acesso Negado
           </h1>
-          <p className="text-slate-600 dark:text-gray-400">
+          <p className="text-[hsl(var(--muted-foreground))]">
             Apenas clientes podem acessar esta página.
           </p>
         </div>
@@ -198,7 +224,7 @@ export default function InvestorProfilePage() {
 
   if (loading) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
         </div>
@@ -208,7 +234,7 @@ export default function InvestorProfilePage() {
 
   if (showResult && result) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="text-center space-y-2">
             <CheckCircle2 className="h-16 w-16 text-[hsl(var(--primary))] mx-auto" />
@@ -244,14 +270,12 @@ export default function InvestorProfilePage() {
             <CardFooter className="flex gap-3">
               <Button
                 onClick={() => router.push('/home')}
-                className="flex-1 bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))]"
               >
                 Voltar ao Início
               </Button>
               <Button
                 onClick={() => router.push('/perfil-investidor/historico')}
                 variant="outline"
-                className="flex-1 hover:bg-[hsl(var(--card-accent))]/20"
               >
                 Ver Histórico
               </Button>
@@ -269,19 +293,19 @@ export default function InvestorProfilePage() {
   const canProceed = currentAnswer !== undefined;
 
   return (
-    <DashboardLayout userName={user.name}>
-      <div className="max-w-3xl mx-auto space-y-6">
+    <DashboardLayout>
+      <div className="max-w-3xl mx-auto space-y-6 shadow-lg border border-[hsl(var(--app-border))]/10 p-6 rounded-lg bg-[hsl(var(--card))]/50">
         <PageTitle title='Perfil de Investidor' subtitle='Responda as questões abaixo para identificarmos seu perfil de investidor' />
         {latestProfile && latestProfile.riskProfile !== 'Nenhum' && (
-          <Card className="border-yellow-200 bg-yellow-50">
+          <Card className={`${getRiskProfileBorderColor(latestProfile.riskProfile)} ${getRiskProfileBackgroundColor(latestProfile.riskProfile)}`}>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <TrendingUp className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                <TrendingUp className={`h-5 w-5 ${getRiskProfileColor(latestProfile.riskProfile)}`} />
                 <div>
-                  <p className="font-medium text-[hsl(var(--foreground-dark))]">
+                  <p className="font-medium text-[hsl(var(--foreground))]">
                     Perfil Atual: <span className={getRiskProfileColor(latestProfile.riskProfile)}>{latestProfile.riskProfile}</span>
                   </p>
-                  <p className="text-sm text-[hsl(var(--foreground-dark))]">
+                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
                     Última atualização: {new Date(latestProfile.completedAt).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
@@ -333,7 +357,7 @@ export default function InvestorProfilePage() {
                     key={answer.id}
                     className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
                       currentAnswer === answer.id
-                        ? 'border-[hsl(var(--card-accent))] bg-[hsl(var(--card-accent))]/40'
+                        ? 'border-[hsl(var(--nav-background))] bg-[hsl(var(--nav-background))]/40'
                         : 'border-[hsl(var(--app-border))]/40 bg-[hsl(var(--primary))]/10'
                     }`}
                     onClick={() => handleAnswerSelect(answer.id)}
@@ -363,7 +387,6 @@ export default function InvestorProfilePage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!canProceed || submitting}
-                  className="bg-[hsl(var(--primary))] text-[hsl(var(--foreground-clear))] hover:bg-[hsl(var(--primary-hover))]"
                 >
                   {submitting ? (
                     <>
@@ -381,7 +404,6 @@ export default function InvestorProfilePage() {
                 <Button
                   onClick={handleNext}
                   disabled={!canProceed}
-                  className="bg-[hsl(var(--primary))] text-[hsl(var(--foreground-clear))] hover:bg-[hsl(var(--primary-hover))]"
                 >
                   Próxima
                   <ArrowRight className="h-4 w-4 ml-2" />
@@ -395,7 +417,6 @@ export default function InvestorProfilePage() {
           <Button
             onClick={() => router.push('/home')}
             variant="ghost"
-            className="text-slate-600 dark:text-gray-400"
           >
             Cancelar e Voltar
           </Button>

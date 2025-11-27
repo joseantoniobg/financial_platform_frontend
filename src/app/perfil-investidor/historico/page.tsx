@@ -75,7 +75,7 @@ export default function InvestorProfileHistoryPage() {
   
   if (!isClient) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
             Acesso Negado
@@ -90,7 +90,7 @@ export default function InvestorProfileHistoryPage() {
 
   if (loading) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card-accent))]" />
         </div>
@@ -99,7 +99,7 @@ export default function InvestorProfileHistoryPage() {
   }
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
           <button

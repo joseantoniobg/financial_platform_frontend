@@ -95,11 +95,11 @@ export default function UsersPage() {
   if (!isAuthenticated || !user) return null;
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <PageTitle title='Gerenciar Usuários' />
-          <TopAddButton onClick={handleCreateUser} label='Novo Usuário' />
+          <TopAddButton id="topAddButtonManageUsers" onClick={handleCreateUser} label='Novo Usuário' />
         </div>
 
         <UserFormDialog

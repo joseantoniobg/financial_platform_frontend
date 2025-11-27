@@ -4,6 +4,7 @@ export function ExpandableButton({ isExpanded, onClick }: { isExpanded: boolean;
     return (
                 <button
                     onClick={onClick}
+                    type="button"
                     className="p-1 bg-[hsl(var(--hover))]/10 rounded-md hover:bg-[hsl(var(--hover))]/40 transition-colors flex items-center justify-center"
                     title={isExpanded ? 'Recolher' : 'Expandir'}
                 >

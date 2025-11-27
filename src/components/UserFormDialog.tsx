@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/button';
 import { StSelect } from './st-select';
+import { FormField } from './ui/form-field';
 
 interface Role {
   id: string;
@@ -363,7 +364,7 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-[hsl(var(--card))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
         <DialogHeader>
-          <DialogTitle className="text-[hsl(var(--foreground))] dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))">
             {mode === 'create' ? 'Novo Usuário' : 'Editar Usuário'}
           </DialogTitle>
           <DialogDescription className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
@@ -376,43 +377,31 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="login" className="text-slate-700 dark:text-gray-300">
-                Login <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="login"
+              <FormField
+                label="Login"
+                required
                 value={formData.login}
                 onChange={(e) => setFormData({ ...formData, login: e.target.value })}
                 disabled={loading}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-[hsl(var(--foreground))]">
-                Nome <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="name"
+              <FormField
+                label="Nome"
+                required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 disabled={loading}
               />
-            </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-[hsl(var(--foreground))]">
-              Email <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              disabled={loading}
-            />
-          </div>
+            
+          <FormField
+            label="Email"
+            type='email'
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            disabled={loading}
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -474,8 +463,8 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
           </div>
 
           {mode === 'edit' && (
-            <div className="space-y-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-              <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+            <div className="space-y-2 p-3 bg-[hsl(var(--accent))]/15 rounded-md">
+              <p className="text-sm text-[hsl(var(--foreground))]">
                 Para alterar a senha do usuário, envie um email de redefinição através da opção &quot;Esqueci minha senha&quot; na tela de login.
               </p>
             </div>
@@ -491,15 +480,15 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
           )}
 
           {tempPassword !== '' && (
-            <div className="space-y-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-              <p className="text-sm text-green-800 dark:text-green-200">
+            <div className="space-y-2 p-3 bg-[hsl(var(--success))]/15 rounded-md">
+              <p className="text-sm text-[hsl(var(--foreground))]">
                 Senha temporária gerada: <strong>{tempPassword}</strong>
               </p>
             </div>
           )}
 
           <div className="space-y-2">
-            <Label className="text-slate-700 dark:text-gray-300">
+            <Label className="text-[hsl(var(--foreground))]">
               Perfis <span className="text-red-500">*</span>
             </Label>
             <div className="grid grid-cols-2 gap-2">
@@ -554,17 +543,16 @@ export function UserFormDialog({ open, onOpenChange, mode, user, onSuccess }: Us
           </div>
 
           <DialogFooter>
-            <button
+            <Button
               type="button"
+              variant={"outline"}
               onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               disabled={loading}
             >
               Cancelar
-            </button>
+            </Button>
             <Button
               type="submit"
-              className="px-4 py-2 text-sm font-medium bg-[hsl(var(--primary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
               disabled={loading}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}

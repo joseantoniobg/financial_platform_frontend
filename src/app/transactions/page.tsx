@@ -171,7 +171,7 @@ export default function TransactionsPage() {
 
   if (!isClient) {
     return (
-      <DashboardLayout userName={user?.name || ''}>
+      <DashboardLayout>
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-foreground mb-2">Acesso Negado</h2>
@@ -183,14 +183,14 @@ export default function TransactionsPage() {
   }
 
   return (
-    <DashboardLayout userName={user?.name || ''}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <PageTitle title={"Transações"} subtitle={"Gerencie suas transações financeiras e parcelas"} />
-          <TopAddButton onClick={() => setDialogOpen(true)} label={"Nova Transação"} />
+          <TopAddButton id="topAddButtonNewTransaction" onClick={() => setDialogOpen(true)} label={"Nova Transação"} />
         </div>
 
-        <MainLoadableContent isLoading={loading} length={groupedTransactions.length}>
+        <MainLoadableContent isLoading={loading} noItems={groupedTransactions.length === 0 ? "Nenhuma transação cadastrada" : ""}>
           <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))]/50 divide-y divide-[hsl(var(--app-border))]">
             {groupedTransactions.map((group) => {
               const first = group[0];

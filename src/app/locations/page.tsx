@@ -214,7 +214,7 @@ export default function LocationsPage() {
 
   if (!isAdmin) {
     return (
-      <DashboardLayout userName={user?.name || ''}>
+      <DashboardLayout>
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-foreground mb-2">Acesso Negado</h2>
@@ -226,7 +226,7 @@ export default function LocationsPage() {
   }
 
   return (
-    <DashboardLayout userName={user?.name || ''}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

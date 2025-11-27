@@ -12,7 +12,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Não autenticado' }, { status: 401 });
     }
 
-    const response = await fetch(`${backendUrl}/transaction-types-users`, {
+    // Support userId query parameter
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const url = userId 
+      ? `${backendUrl}/transaction-types-users?userId=${userId}`
+      : `${backendUrl}/transaction-types-users`;
+
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

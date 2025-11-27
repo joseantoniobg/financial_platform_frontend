@@ -47,8 +47,10 @@ export async function POST(request: NextRequest) {
     if (!token) return NextResponse.json({ message: 'Não autenticado' }, { status: 401 });
 
     const body = await request.json();
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/transactions/categories`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/transactions/categories${userId ? `?userId=${userId}` : ''}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

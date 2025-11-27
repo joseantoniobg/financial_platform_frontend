@@ -138,8 +138,8 @@ export default function ConformidadePage() {
   if (!isAuthenticated) return null;
 
   return (
-    <DashboardLayout userName={user?.name}>
-      <div className="max-w-3xl mx-auto py-8">
+    <DashboardLayout>
+      <div className="max-w-3xl mx-auto space-y-6 shadow-lg border border-[hsl(var(--app-border))]/10 p-6 rounded-lg bg-[hsl(var(--card))]/50">
         <h1 className="text-2xl font-bold mb-4">Conformidade (PLD/CPFT + PEP)</h1>
 
         {loading ? (
@@ -318,7 +318,7 @@ export default function ConformidadePage() {
             </div>
 
             <div className="flex justify-end gap-3 mt-2">
-              <Button type="submit" disabled={saving} className="bg-[hsl(var(--background))]/90 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary-hover))]">
+              <Button type="submit" disabled={saving}>
                 {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Salvar
               </Button>

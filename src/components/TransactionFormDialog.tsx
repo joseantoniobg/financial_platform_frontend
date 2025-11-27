@@ -10,6 +10,7 @@ import { DatePickerInput } from '@/components/ui/date-picker-input';
 import toast from 'react-hot-toast';
 import { StSelect } from './st-select';
 import { FormField } from './ui/form-field';
+import { useAuthStore } from '@/store/authStore';
 
 interface TransactionType {
   id: string;
@@ -20,6 +21,12 @@ interface TransactionType {
     id: string;
     category: string;
   };
+}
+
+interface Wallet {
+  id: string;
+  title: string;
+  description?: string;
 }
 
 interface TransactionFormDialogProps {
@@ -35,6 +42,8 @@ export function TransactionFormDialog({
   transactionTypes,
   onSuccess,
 }: TransactionFormDialogProps) {
+  const { user } = useAuthStore();
+
   const [typeId, setTypeId] = useState('');
   const [amount, setAmount] = useState<number>(0);
   const [transactionDate, setTransactionDate] = useState('');
@@ -46,6 +55,8 @@ export function TransactionFormDialog({
   const [isEarnings, setIsEarnings] = useState(false);
   const [isResgate, setIsResgate] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [walletId, setWalletId] = useState('');
 
   // Check if selected type is Investimento
   const selectedType = transactionTypes.find((t) => t.id === typeId);
@@ -83,6 +94,24 @@ export function TransactionFormDialog({
   }, [typeId, selectedType]);
 
   useEffect(() => {
+    const fetchUserAndWallets = async () => {
+      try {
+          const walletsRes = await fetch(`/api/wallets/user/${user?.sub}`);
+          if (walletsRes.ok) {
+            const walletsData = await walletsRes.json();
+            setWallets(walletsData);
+          }
+      } catch (error) {
+        console.error('Error fetching user or wallets:', error);
+      }
+    };
+
+    if (open) {
+      fetchUserAndWallets();
+    }
+  }, [open]);
+
+  useEffect(() => {
     if (!open) {
       // Reset form
       setTypeId('');
@@ -95,6 +124,7 @@ export function TransactionFormDialog({
       setIsAporte(false);
       setIsEarnings(false);
       setIsResgate(false);
+      setWalletId('');
     } else {
       // Set today's date as default
       const today = new Date().toISOString().split('T')[0];
@@ -120,6 +150,7 @@ export function TransactionFormDialog({
         isEarnings: showInvestimentoOptions ? isEarnings : undefined,
         isAporte: showInvestimentoOptions ? isAporte : undefined,
         isResgate: showInvestimentoOptions ? isResgate : undefined,
+        walletId: walletId || undefined,
       };
 
       const res = await fetch('/api/transactions', {
@@ -162,6 +193,22 @@ export function TransactionFormDialog({
               htmlFor='transaction-type'
               items={transactionTypes.map((tt) => ({ id: tt.id, description: `${tt.type} (${tt.category.category})` }))}
             />
+          </div>
+
+          <div>
+            <StSelect
+              label='Carteira'
+              loading={false}
+              value={walletId}
+              onChange={(e) => setWalletId(e)}
+              required={false}
+              htmlFor='wallet-select'
+              items={wallets.map((w) => ({ id: w.id, description: w.title }))}
+              searchable={false}
+            />
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              Organize suas transações em diferentes carteiras
+            </p>
           </div>
 
           <div>

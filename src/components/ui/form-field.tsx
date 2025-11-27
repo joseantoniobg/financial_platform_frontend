@@ -25,9 +25,13 @@ type FormFieldProps = {
     phone?: boolean; 
     textArea?: boolean;
     rows?: number;
+    helpText?: string;
+    step?: string;
+    min?: number;
+    max?: number;
 }
 
-export function FormField({ label, required, disabled, htmlFor, id, value, onChange, onChangeValue, onChangeTextArea, placeholder, document, date, currency, category, type, phone, textArea, rows }: FormFieldProps) {
+export function FormField({ label, required, disabled, htmlFor, id, value, onChange, onChangeValue, onChangeTextArea, placeholder, document, date, currency, category, type, phone, textArea, rows, helpText, step, min, max }: FormFieldProps) {
     return (
         <div>
             <Label htmlFor={htmlFor} className="text-[hsl(var(--foreground))] mb-1 block">
@@ -37,7 +41,10 @@ export function FormField({ label, required, disabled, htmlFor, id, value, onCha
             <Input
                 id={id}
                 type={type}
+                min={min}
+                max={max}
                 value={value}
+                step={step}
                 onChange={onChange}
                 disabled={disabled}
                 placeholder={placeholder}
@@ -78,7 +85,7 @@ export function FormField({ label, required, disabled, htmlFor, id, value, onCha
                             placeholder={placeholder}
                             rows={rows}
                          />}
-
+            {helpText && <p className="text-xs text-[hsl(var(--foreground-muted))] mt-1">{helpText}</p>}
         </div>
     );
 }

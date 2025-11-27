@@ -7,6 +7,11 @@ import UniversalSelect from './UniversalSelect';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { FormField } from './ui/form-field';
+import { StSelect } from './st-select';
+import { StRadioGroup } from './StRadioGroup';
+import { StCheckInput } from './StCheckInput';
+import { Button } from './ui/button';
 
 interface Category {
   id: string;
@@ -98,6 +103,7 @@ export function UserTransactionTypeFormDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     if (!formData.name.trim() || !formData.categoryId) {
       toast.error('Preencha os campos obrigatórios');
@@ -144,94 +150,67 @@ export function UserTransactionTypeFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700">
+      <DialogContent className="sm:max-w-[480px] bg-[hsl(var(--card))] border-[hsl(var(--app-border))]">
         <DialogHeader>
-          <DialogTitle className="text-slate-800 dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))]">
             {mode === 'create' ? 'Nova Sub-categoria' : 'Editar Sub-categoria'}
           </DialogTitle>
-          <DialogDescription className="text-slate-600 dark:text-gray-400">
+          <DialogDescription className="text-[hsl(var(--muted-foreground))]">
             Informe os detalhes da sub-categoria que deseja controlar.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-slate-700 dark:text-gray-300">
-              Nome <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              disabled={submitting}
-              required
-            />
-          </div>
+          <FormField
+            label='Nome'
+            htmlFor='name'
+            placeholder='Cartões, Renda Fixa, Salário, etc'
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            disabled={submitting}
+          />
+
+          <StSelect
+            htmlFor='category'
+            label='Categoria'
+            required
+            value={formData.categoryId}
+            onChange={handleCategoryChange}
+            loading={submitting}
+            items={categories.map((category) => ({
+              id: category.id,
+              description: category.category,
+            }))}
+          />
+
+          <StRadioGroup
+            label='Tipo da Movimentação'
+            name='direction'
+            options={directionOptions.map((option) => ({ id: option.value, description: option.label }))}
+            selected={formData.direction}
+            onChange={(value) => setFormData({ ...formData, direction: value })}
+            disabled={submitting}
+          />
+
+          <StCheckInput
+            label='Lançamento Fixo (recorrente)'
+            id='isFixed'
+            checked={formData.isFixed}
+            onChange={(checked) => setFormData({ ...formData, isFixed: checked })}
+            disabled={submitting}
+          />
 
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-slate-700 dark:text-gray-300">
-              Categoria <span className="text-red-500">*</span>
-            </Label>
-            <UniversalSelect
-              value={formData.categoryId}
-              onChange={handleCategoryChange}
-              placeholder="Selecione uma categoria"
-              items={categories.map((category) => ({ value: category.id, label: category.category }))}
-              searchable
-              searchPlaceholder="Buscar categoria..."
-              disabled={submitting}
-              triggerClassName="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              contentClassName="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-slate-700 dark:text-gray-300">Tipo da movimentação</Label>
-            <div className="flex flex-col gap-2">
-              {directionOptions.map((option) => (
-                <label key={option.value} className="flex items-center gap-2 text-slate-700 dark:text-gray-300">
-                  <input
-                    type="radio"
-                    name="direction"
-                    value={option.value}
-                    checked={formData.direction === option.value}
-                    onChange={(e) => setFormData({ ...formData, direction: e.target.value })}
-                    disabled={submitting}
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isFixed"
-              checked={formData.isFixed}
-              onChange={(e) => setFormData({ ...formData, isFixed: e.target.checked })}
-              className="rounded border-gray-300 dark:border-gray-600"
-              disabled={submitting}
-            />
-            <Label htmlFor="isFixed" className="text-slate-700 dark:text-gray-300 cursor-pointer">
-              Lançamento Fixo (recorrente)
-            </Label>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="defaultDueDay" className="text-slate-700 dark:text-gray-300">
-              Dia de Vencimento Padrão
-            </Label>
-            <Input
-              id="defaultDueDay"
-              type="number"
-              min="1"
-              max="31"
-              value={formData.defaultDueDay || ''}
+            <FormField
+              label='Dia de Vencimento Padrão'
+              id='defaultDueDay'
+              type='number'
+              min={1}
+              max={31}
+              placeholder='Ex: 10 (dia 10 de cada mês)'
+              value={formData.defaultDueDay !== undefined ? `${formData.defaultDueDay}` : ''}
               onChange={(e) => setFormData({ ...formData, defaultDueDay: e.target.value ? parseInt(e.target.value) : undefined })}
-              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              placeholder="Ex: 10 (dia 10 de cada mês)"
               disabled={submitting}
             />
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -240,22 +219,21 @@ export function UserTransactionTypeFormDialog({
           </div>
 
           <DialogFooter>
-            <button
+            <Button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              variant={'outline'}
               disabled={submitting}
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg font-medium hover:bg-[#9FD96F] transition-colors disabled:opacity-50 flex items-center gap-2"
               disabled={submitting}
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? 'Salvando...' : 'Salvar'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

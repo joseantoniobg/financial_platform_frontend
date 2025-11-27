@@ -1,16 +1,18 @@
 'use client';
 
+import { useAuthStore } from '@/store/authStore';
 import { Sidebar } from './Sidebar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  userName?: string;
 }
 
-export function DashboardLayout({ children, userName }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { user } = useAuthStore();
+
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar userName={userName} />
+    <div className="flex min-h-screen bg-background transition-colors">
+      <Sidebar userName={user?.name || ''} />
       <main className="flex-1 lg:ml-64 transition-all duration-300">
         <div className="p-6 lg:p-8">
           {children}

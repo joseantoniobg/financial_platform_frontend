@@ -3,7 +3,7 @@
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Loader2, ArrowLeft, Save, TrendingUp, Calendar, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -12,19 +12,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { PhoneInput } from '@/components/ui/phone-input';
 import { DateInput } from '@/components/ui/date-input';
-import { DatePickerInput } from '@/components/ui/date-picker-input';
-import { DocumentInput } from '@/components/ui/document-input';
-import { CurrencyInput } from '@/components/ui/currency-input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { PageTitle } from '@/components/ui/page-title';
-import { SessionTitle } from '@/components/ui/session-title';
-import { FormField } from '@/components/ui/form-field';
-import { StSelect } from '@/components/st-select';
 import { ClientBasicData } from '@/components/ClientBasicData';
 import { PatrimonySection } from '@/components/PatrimonySection';
+import { FinancialGoalsSection } from '@/components/FinancialGoalsSection';
+import { MonthlyBudgetsSection } from '@/components/MonthlyBudgetsSection';
 
 interface Role {
   id: string;
@@ -119,17 +112,46 @@ interface ValuableAsset {
   notes?: string;
 }
 
-export default function EditClientPage() {
+interface FinancialGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  startDate: string;
+  targetDate: string;
+  expectedReturnRate: number;
+  monthlyContribution: number;
+  notes?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  type: 'Entrada' | 'Saída' | 'Investimento';
+  parentId?: string;
+}
+
+interface MonthlyBudget {
+  id: string;
+  categoryId: string;
+  subcategoryId?: string;
+  budgetType: 'teto' | 'piso';
+  amount: number;
+  category: Category;
+  subcategory?: Category;
+}
+
+export default function EditClientPage({ searchParams }: { searchParams: Promise<{ module?: string | undefined }> }) {
   const { user } = useAuthStore();
   const isAuthenticated = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const clientId = params.id as string;
+  const { module } = use(searchParams);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [client, setClient] = useState<Client | null>(null);
-  const [activeTab, setActiveTab] = useState('dados-cadastrais');
+  const [activeTab, setActiveTab] = useState(module || 'dados-cadastrais');
   const [consultants, setConsultants] = useState<{ id: string; name: string }[]>([]);
   const [maritalStatuses, setMaritalStatuses] = useState<{ id: string; name: string }[]>([]);
   const [loadingMaritalStatuses, setLoadingMaritalStatuses] = useState(false);
@@ -140,6 +162,10 @@ export default function EditClientPage() {
     birthDate: string;
     relation: string;
   }>>([]);
+
+  useEffect(() => {
+    setActiveTab(module || 'dados-cadastrais');
+  }, [module]);
   
   // Patrimony state
   const [properties, setProperties] = useState<Property[]>([]);
@@ -176,6 +202,32 @@ export default function EditClientPage() {
     category: '',
     estimatedValue: '',
     notes: ''
+  });
+  
+  // Financial Goals state
+  const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>([]);
+  const [loadingFinancialGoals, setLoadingFinancialGoals] = useState(false);
+  const [showGoalForm, setShowGoalForm] = useState(false);
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
+  const [goalForm, setGoalForm] = useState({
+    title: '',
+    targetAmount: '',
+    startDate: '',
+    targetDate: '',
+    expectedReturnRate: '1.0',
+    notes: ''
+  });
+  
+  // Monthly Budgets state
+  const [monthlyBudgets, setMonthlyBudgets] = useState<MonthlyBudget[]>([]);
+  const [loadingMonthlyBudgets, setLoadingMonthlyBudgets] = useState(false);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null);
+  const [budgetForm, setBudgetForm] = useState({
+    categoryId: '',
+    subcategoryId: '',
+    budgetType: 'teto' as 'teto' | 'piso',
+    amount: ''
   });
   
   // Investor Profile state
@@ -777,6 +829,224 @@ export default function EditClientPage() {
     }
   }, [clientId]);
 
+  // Financial Goals Handlers
+  const fetchFinancialGoals = useCallback(async () => {
+    if (!clientId) return;
+    setLoadingFinancialGoals(true);
+    try {
+      const res = await fetch(`/api/financial-goals/user/${clientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setFinancialGoals(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching financial goals:', error);
+    } finally {
+      setLoadingFinancialGoals(false);
+    }
+  }, [clientId]);
+
+  const handleAddGoal = () => {
+    setEditingGoalId(null);
+    setGoalForm({
+      title: '',
+      targetAmount: '',
+      startDate: '',
+      targetDate: '',
+      expectedReturnRate: '1.0',
+      notes: ''
+    });
+    setShowGoalForm(true);
+  };
+
+  const handleEditGoal = (goal: FinancialGoal) => {
+    setEditingGoalId(goal.id);
+    setGoalForm({
+      title: goal.title,
+      targetAmount: goal.targetAmount.toString(),
+      startDate: goal.startDate,
+      targetDate: goal.targetDate,
+      expectedReturnRate: goal.expectedReturnRate.toString(),
+      notes: goal.notes || ''
+    });
+    setShowGoalForm(true);
+  };
+
+  const handleSaveGoal = async () => {
+    if (!goalForm.title || !goalForm.targetAmount || !goalForm.startDate || !goalForm.targetDate) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const payload = {
+        title: goalForm.title,
+        targetAmount: parseFloat(goalForm.targetAmount),
+        startDate: goalForm.startDate,
+        targetDate: goalForm.targetDate,
+        expectedReturnRate: parseFloat(goalForm.expectedReturnRate),
+        notes: goalForm.notes || undefined
+      };
+
+      const url = editingGoalId 
+        ? `/api/financial-goals/${editingGoalId}`
+        : `/api/financial-goals/user/${clientId}`;
+      
+      const method = editingGoalId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        toast.success(editingGoalId ? 'Objetivo atualizado com sucesso!' : 'Objetivo adicionado com sucesso!');
+        await fetchFinancialGoals();
+        setShowGoalForm(false);
+        setEditingGoalId(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao salvar objetivo');
+      }
+    } catch (error) {
+      toast.error('Erro ao salvar objetivo');
+    }
+  };
+
+  const handleDeleteGoal = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover este objetivo financeiro?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/financial-goals/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Objetivo removido com sucesso!');
+        await fetchFinancialGoals();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao remover objetivo');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover objetivo');
+    }
+  };
+
+  const handleCancelGoalForm = () => {
+    setShowGoalForm(false);
+    setEditingGoalId(null);
+  };
+
+  // Monthly Budgets Handlers
+  const fetchMonthlyBudgets = useCallback(async () => {
+    if (!clientId) return;
+    setLoadingMonthlyBudgets(true);
+    try {
+      const res = await fetch(`/api/monthly-budgets/user/${clientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMonthlyBudgets(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching monthly budgets:', error);
+    } finally {
+      setLoadingMonthlyBudgets(false);
+    }
+  }, [clientId]);
+
+  const handleAddBudget = () => {
+    setEditingBudgetId(null);
+    setBudgetForm({
+      categoryId: '',
+      subcategoryId: '',
+      budgetType: 'teto',
+      amount: ''
+    });
+    setShowBudgetForm(curr => !curr);
+  };
+
+  const handleEditBudget = (budget: MonthlyBudget) => {
+    setEditingBudgetId(budget.id);
+    setBudgetForm({
+      categoryId: budget.categoryId,
+      subcategoryId: budget.subcategoryId || '',
+      budgetType: budget.budgetType,
+      amount: budget.amount.toString()
+    });
+    setShowBudgetForm(true);
+  };
+
+  const handleSaveBudget = async () => {
+    if (!budgetForm.categoryId || !budgetForm.amount) {
+      toast.error('Preencha a categoria e o valor');
+      return;
+    }
+
+    try {
+      const payload = {
+        categoryId: budgetForm.categoryId,
+        subcategoryId: budgetForm.subcategoryId || undefined,
+        budgetType: budgetForm.budgetType,
+        amount: parseFloat(budgetForm.amount)
+      };
+
+      const url = editingBudgetId 
+        ? `/api/monthly-budgets/${editingBudgetId}`
+        : `/api/monthly-budgets/user/${clientId}`;
+      
+      const method = editingBudgetId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        toast.success(editingBudgetId ? 'Teto/Piso atualizado com sucesso!' : 'Teto/Piso adicionado com sucesso!');
+        await fetchMonthlyBudgets();
+        setShowBudgetForm(false);
+        setEditingBudgetId(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao salvar teto/piso');
+      }
+    } catch (error) {
+      toast.error('Erro ao salvar teto/piso');
+    }
+  };
+
+  const handleDeleteBudget = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover este teto/piso?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/monthly-budgets/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Teto/Piso removido com sucesso!');
+        await fetchMonthlyBudgets();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao remover teto/piso');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover teto/piso');
+    }
+  };
+
+  const handleCancelBudgetForm = () => {
+    setShowBudgetForm(false);
+    setEditingBudgetId(null);
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchClient();
@@ -797,6 +1067,19 @@ export default function EditClientPage() {
       setIsConsultant(true);
     }
   }, [user, consultants]);
+
+  useEffect(() => {
+    if (activeTab === 'patrimonio' && clientId) {
+      fetchPatrimony();
+    }
+  }, [activeTab, clientId, fetchPatrimony]);
+
+  useEffect(() => {
+    if (activeTab === 'planejamento' && clientId) {
+      fetchFinancialGoals();
+      fetchMonthlyBudgets();
+    }
+  }, [activeTab, clientId, fetchFinancialGoals, fetchMonthlyBudgets]);
 
   const handleCountryChange = (countryId: string) => {
     setFormData(prev => ({
@@ -950,7 +1233,7 @@ export default function EditClientPage() {
 
       if (res.ok) {
         toast.success('Cliente atualizado com sucesso!');
-        router.push('/clientes');
+        router.push(isClient ? `/home` : '/clientes');
       } else {
         toast.error(data.message || 'Erro ao salvar cliente');
       }
@@ -1085,16 +1368,17 @@ export default function EditClientPage() {
   if (!isAuthenticated || !user) return null;
 
   const isAdmin = user.roles?.some(role => ['Administrador', 'Consultor'].includes(role.name));
+  const isClient = user.roles?.some(role => role.name === 'Cliente') && user.roles.length === 1;
   
-  if (!isAdmin) {
+  if (!isAdmin && !isClient || (isClient && (user.sub !== clientId || !module))) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
             Acesso Negado
           </h1>
           <p className="text-slate-600 dark:text-gray-400">
-            Apenas administradores podem acessar esta página.
+            Apenas administradores, consultores ou clientes podem acessar esta página.
           </p>
         </div>
       </DashboardLayout>
@@ -1103,7 +1387,7 @@ export default function EditClientPage() {
 
   if (loading) {
     return (
-      <DashboardLayout userName={user.name}>
+      <DashboardLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card))]" />
         </div>
@@ -1112,29 +1396,29 @@ export default function EditClientPage() {
   }
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button
+          {!isClient && <Button
             onClick={() => router.push('/clientes')}
             variant="outline"
             size="icon"
             className="p-2 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-8 w-8 text-[hsl(var(--foreground))]" />
-          </Button>
-          <PageTitle title="Editar Cliente" />
+          </Button>}
+          <PageTitle title={isClient ? module === 'planejamento' ? "Meus Objetivos" : module === 'dados-cadastrais' ? "Meus Dados" : "Meu Patrimônio" : "Editar Cliente"} />
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))] p-6">
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-lg border border-[hsl(var(--app-border))]/10 p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full justify-start mb-6">
+              {!isClient && <TabsList className="w-full justify-start mb-6">
                 <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
                 <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
                 <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
                 <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
-              </TabsList>
+              </TabsList>}
 
               {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
               <ClientBasicData formData={formData} setFormData={setFormData} saving={saving}
@@ -1143,6 +1427,7 @@ export default function EditClientPage() {
                 handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
                 categories={categories} consultants={consultants}
                 isConsultant={isConsultant}
+                isClient={isClient && module !== undefined && !isConsultant}
                 client={client}
                 maritalStatuses={maritalStatuses}
                 loadingMaritalStatuses={loadingMaritalStatuses}
@@ -1196,11 +1481,48 @@ export default function EditClientPage() {
 
               {/* Tab: Planejamento Financeiro */}
               <TabsContent value="planejamento" className="space-y-4">
-                <div className="flex flex-col items-center justify-center py-12">
-                  <p className="text-slate-600 dark:text-gray-400 text-center">
-                    A funcionalidade de Planejamento Financeiro será implementada em breve.
-                  </p>
-                </div>
+                {loadingFinancialGoals ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
+                  </div>
+                ) : (
+                  <>
+                    <FinancialGoalsSection
+                      goals={financialGoals}
+                      isClient={isClient}
+                      showGoalForm={showGoalForm}
+                      goalForm={goalForm}
+                      editingGoalId={editingGoalId}
+                      onAddGoal={handleAddGoal}
+                      onEditGoal={handleEditGoal}
+                      onSaveGoal={handleSaveGoal}
+                      onDeleteGoal={handleDeleteGoal}
+                      onCancelGoalForm={handleCancelGoalForm}
+                      setGoalForm={setGoalForm}
+                    />
+
+                    {loadingMonthlyBudgets ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
+                      </div>
+                    ) : (
+                      <MonthlyBudgetsSection
+                        clientId={clientId}
+                        isClient={isClient}
+                        budgets={monthlyBudgets}
+                        showBudgetForm={showBudgetForm}
+                        budgetForm={budgetForm}
+                        editingBudgetId={editingBudgetId}
+                        onAddBudget={handleAddBudget}
+                        onEditBudget={handleEditBudget}
+                        onSaveBudget={handleSaveBudget}
+                        onDeleteBudget={handleDeleteBudget}
+                        onCancelBudgetForm={handleCancelBudgetForm}
+                        setBudgetForm={setBudgetForm}
+                      />
+                    )}
+                  </>
+                )}
               </TabsContent>
 
               {/* Tab: Perfil de Investidor */}
@@ -1212,7 +1534,7 @@ export default function EditClientPage() {
                 ) : showNewQuestionnaire ? (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-slate-800 dark:text-white">
+                      <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">
                         Novo Questionário - Perfil de Investidor
                       </h3>
                       <Button
@@ -1307,14 +1629,13 @@ export default function EditClientPage() {
                   // Display latest questionnaire
                   <div className="space-y-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                      <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] flex items-center gap-2">
                         <TrendingUp className="w-5 h-5" />
                         Perfil de Investidor
                       </h3>
                       <Button
                         type="button"
                         onClick={handleStartNewQuestionnaire}
-                        className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--foreground))]"
                       >
                         Realizar Novo Questionário
                       </Button>
@@ -1325,28 +1646,28 @@ export default function EditClientPage() {
                         {/* Profile summary */}
                         <div className={`p-6 rounded-lg ${getRiskProfileColor(latestQuestionnaire.riskProfile)}`}>
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-lg font-semibold text-slate-800 dark:text-white">
+                            <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">
                               Perfil: {latestQuestionnaire.riskProfile}
                             </h4>
-                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-gray-400">
+                            <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
                               <Calendar className="w-4 h-4" />
                               {new Date(latestQuestionnaire.completedAt).toLocaleDateString('pt-BR')}
                             </div>
                           </div>
-                          <p className="text-sm text-slate-700 dark:text-gray-300">
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">
                             {getRiskProfileDescription(latestQuestionnaire.riskProfile)}
                           </p>
                           <div className="mt-4 pt-4 border-t border-slate-300 dark:border-gray-600">
                             <div className="flex gap-6 text-sm">
                               <div>
-                                <span className="text-slate-600 dark:text-gray-400">Pontuação Total: </span>
-                                <span className="font-semibold text-slate-800 dark:text-white">
+                                <span className="text-[hsl(var(--muted-foreground))]">Pontuação Total: </span>
+                                <span className="font-semibold text-[hsl(var(--foreground))]">
                                   {latestQuestionnaire.totalWeight}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-slate-600 dark:text-gray-400">Média: </span>
-                                <span className="font-semibold text-slate-800 dark:text-white">
+                                <span className="text-[hsl(var(--muted-foreground))]">Média: </span>
+                                <span className="font-semibold text-[hsl(var(--foreground))]">
                                   {latestQuestionnaire.averageWeight.toFixed(2)}
                                 </span>
                               </div>
@@ -1356,20 +1677,20 @@ export default function EditClientPage() {
 
                         {/* Questions and answers */}
                         <div className="space-y-3">
-                          <h5 className="font-medium text-slate-800 dark:text-white">
+                          <h5 className="font-medium text-[hsl(var(--foreground))]">
                             Respostas do Questionário:
                           </h5>
                           {latestQuestionnaire.responses.map((response: any, index: number) => (
                             <div
                               key={response.id}
-                              className="bg-slate-50 dark:bg-[#0A1E33] p-4 rounded-lg"
+                              className="bg-[hsl(var(--card-accent))] p-4 rounded-lg"
                             >
-                              <p className="font-medium text-slate-800 dark:text-white mb-2">
+                              <p className="font-medium text-[hsl(var(--foreground))] mb-2">
                                 {index + 1}. {response.question}
                               </p>
-                              <p className="text-slate-600 dark:text-gray-400 pl-4">
+                              <p className="text-[hsl(var(--muted-foreground))] pl-4">
                                 → {response.answer}
-                                <span className="ml-2 text-xs text-slate-500 dark:text-gray-500">
+                                <span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">
                                   (Peso: {response.weight})
                                 </span>
                               </p>
@@ -1378,12 +1699,12 @@ export default function EditClientPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-12 bg-slate-50 dark:bg-[#0A1E33] rounded-lg">
-                        <AlertCircle className="w-12 h-12 text-slate-400 dark:text-gray-500 mb-4" />
-                        <p className="text-slate-600 dark:text-gray-400 text-center mb-4">
+                      <div className="flex flex-col items-center justify-center py-12 bg-[hsl(var(--nav-background))]/15 rounded-lg">
+                        <AlertCircle className="w-12 h-12 text-[hsl(var(--muted-foreground))]" />
+                        <p className="text-[hsl(var(--muted-foreground))] text-center mb-4">
                           Este cliente ainda não possui um perfil de investidor cadastrado.
                         </p>
-                        <p className="text-sm text-slate-500 dark:text-gray-500 text-center mb-6">
+                        <p className="text-sm text-[hsl(var(--muted-foreground))] text-center mb-6">
                           Realize o questionário para determinar o perfil de investidor do cliente.
                         </p>
                       </div>
@@ -1395,8 +1716,8 @@ export default function EditClientPage() {
                     {/* Conformidade Section */}
                     <div className="mt-6 p-6 bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]">
                       <div className="pb-2 border-b border-gray-100 dark:border-gray-800 mb-4">
-                        <h4 className="text-lg font-semibold text-slate-800 dark:text-white">Conformidade (PLD/CPFT + PEP)</h4>
-                        <p className="text-sm text-slate-600 dark:text-gray-400">Informações de conformidade e PEP</p>
+                        <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">Conformidade (PLD/CPFT + PEP)</h4>
+                        <p className="text-sm text-[hsl(var(--muted-foreground))]">Informações de conformidade e PEP</p>
                       </div>
 
                       {client?.pldRiskClassification && (
@@ -1409,7 +1730,7 @@ export default function EditClientPage() {
                         }`}>
                           <div className="flex items-center justify-between">
                             <div>
-                              <h5 className="text-sm font-medium text-slate-600 dark:text-gray-400">
+                              <h5 className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
                                 Classificação de Risco PLD
                               </h5>
                               <p className={`text-xl font-bold mt-1 ${
@@ -1423,7 +1744,7 @@ export default function EditClientPage() {
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-[hsl(var(--foreground-muted))]">Pontuação</p>
+                              <p className="text-xs text-[hsl(var(--muted-foreground))]">Pontuação</p>
                               <p className="text-2xl font-bold text-[hsl(var(--foreground))]">
                                 {client.pldRiskScore || 0}
                               </p>
@@ -1434,7 +1755,7 @@ export default function EditClientPage() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-slate-700 dark:text-gray-300">Você ocupa ou foi ocupante de cargo público relevante?</Label>
+                          <Label className="text-[hsl(var(--foreground))]">Você ocupa ou foi ocupante de cargo público relevante?</Label>
                           <div className="flex items-center gap-4">
                             <label className="flex items-center gap-2">
                               <input
@@ -1443,7 +1764,7 @@ export default function EditClientPage() {
                                 checked={!!formData.isPublicPosition}
                                 onChange={() => setFormData({ ...formData, isPublicPosition: true })}
                               />
-                              <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                              <span className="text-[hsl(var(--foreground))]">Sim</span>
                             </label>
                             <label className="flex items-center gap-2">
                               <input
@@ -1452,13 +1773,13 @@ export default function EditClientPage() {
                                 checked={!formData.isPublicPosition}
                                 onChange={() => setFormData({ ...formData, isPublicPosition: false })}
                               />
-                              <span className="text-slate-700 dark:text-gray-300">Não</span>
+                              <span className="text-[hsl(var(--foreground))]">Não</span>
                             </label>
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-700 dark:text-gray-300">É cônjuge / parente / sócio de PEP?</Label>
+                          <Label className="text-[hsl(var(--foreground))]">É cônjuge / parente / sócio de PEP?</Label>
                           <div className="flex items-center gap-4">
                             <label className="flex items-center gap-2">
                               <input
@@ -1467,7 +1788,7 @@ export default function EditClientPage() {
                                 checked={!!formData.isRelatedToPEP}
                                 onChange={() => setFormData({ ...formData, isRelatedToPEP: true })}
                               />
-                              <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                              <span className="text-[hsl(var(--foreground))]">Sim</span>
                             </label>
                             <label className="flex items-center gap-2">
                               <input
@@ -1476,7 +1797,7 @@ export default function EditClientPage() {
                                 checked={!formData.isRelatedToPEP}
                                 onChange={() => setFormData({ ...formData, isRelatedToPEP: false })}
                               />
-                              <span className="text-slate-700 dark:text-gray-300">Não</span>
+                              <span className="text-[hsl(var(--foreground))]">Não</span>
                             </label>
                           </div>
                         </div>
@@ -1485,48 +1806,48 @@ export default function EditClientPage() {
                       {(formData.isPublicPosition || formData.isRelatedToPEP) && (
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label className="text-slate-700 dark:text-gray-300">Nome da pessoa exposta</Label>
+                            <Label className="text-[hsl(var(--foreground))]">Nome da pessoa exposta</Label>
                             <Input value={formData.pepName} onChange={(e) => setFormData({ ...formData, pepName: e.target.value })} />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-slate-700 dark:text-gray-300">Cargo/Função</Label>
+                            <Label className="text-[hsl(var(--foreground))]">Cargo/Função</Label>
                             <Input value={formData.pepRole} onChange={(e) => setFormData({ ...formData, pepRole: e.target.value })} />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-slate-700 dark:text-gray-300">Órgão/Entidade</Label>
+                            <Label className="text-[hsl(var(--foreground))]">Órgão/Entidade</Label>
                             <Input value={formData.pepEntity} onChange={(e) => setFormData({ ...formData, pepEntity: e.target.value })} />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-slate-700 dark:text-gray-300">País</Label>
+                            <Label className="text-[hsl(var(--foreground))]">País</Label>
                             <Input value={formData.pepCountry} onChange={(e) => setFormData({ ...formData, pepCountry: e.target.value })} />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-slate-700 dark:text-gray-300">Data início</Label>
+                            <Label className="text-[hsl(var(--foreground))]">Data início</Label>
                             <DateInput value={formData.pepStartDate} onChange={(value) => setFormData({ ...formData, pepStartDate: value })} />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-slate-700 dark:text-gray-300">Data término (se aplicável)</Label>
+                            <Label className="text-[hsl(var(--foreground))]">Data término (se aplicável)</Label>
                             <DateInput value={formData.pepEndDate} onChange={(value) => setFormData({ ...formData, pepEndDate: value })} />
                           </div>
                         </div>
                       )}
 
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-gray-300">Você é o proprietário real dos recursos?</Label>
+                        <Label className="text-[hsl(var(--foreground))]">Você é o proprietário real dos recursos?</Label>
                         <div className="flex items-center gap-4">
                           <label className="flex items-center gap-2">
                             <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
-                            <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                            <span className="text-[hsl(var(--foreground))]">Sim</span>
                           </label>
                           <label className="flex items-center gap-2">
                             <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
-                            <span className="text-slate-700 dark:text-gray-300">Não</span>
+                            <span className="text-[hsl(var(--foreground))]">Não</span>
                           </label>
                         </div>
                       </div>
 
                       <div className="space-y-2 md:col-span-2">
-                        <Label className="text-slate-700 dark:text-gray-300">Origem dos recursos</Label>
+                        <Label className="text-[hsl(var(--foreground))]">Origem dos recursos</Label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                           {['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações', 'Outros'].map(opt => (
                             <label key={opt} className="flex items-center gap-2">
@@ -1536,7 +1857,7 @@ export default function EditClientPage() {
                                 checked={formData.resourceOrigin === opt}
                                 onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
                               />
-                              <span className="text-slate-700 dark:text-gray-300">{opt}</span>
+                              <span className="text-[hsl(var(--foreground))]">{opt}</span>
                             </label>
                           ))}
                         </div>
@@ -1548,15 +1869,15 @@ export default function EditClientPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-gray-300">Transações internacionais</Label>
+                        <Label className="text-[hsl(var(--foreground))]">Transações internacionais</Label>
                         <div className="flex items-center gap-4">
                           <label className="flex items-center gap-2">
                             <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
-                            <span className="text-slate-700 dark:text-gray-300">Sim</span>
+                            <span className="text-[hsl(var(--foreground))]">Sim</span>
                           </label>
                           <label className="flex items-center gap-2">
                             <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
-                            <span className="text-slate-700 dark:text-gray-300">Não</span>
+                            <span className="text-[hsl(var(--foreground))]">Não</span>
                           </label>
                         </div>
                       </div>
@@ -1565,12 +1886,14 @@ export default function EditClientPage() {
                         <label className="flex items-start gap-3">
                           <input
                             type="checkbox"
+                            className='mt-1'
                             checked={!!formData.pldDeclarationAccepted}
                             onChange={(e) => {
                               const accepted = e.target.checked;
                               setFormData({ ...formData, pldDeclarationAccepted: accepted, pldDeclarationDate: accepted ? new Date().toISOString() : '' });
                             }}
                           />
+                          <span className="text-[hsl(var(--foreground))]">Declaro que as informações fornecidas acima são verdadeiras e completas, e compreendo que a omissão ou falsificação de informações pode acarretar consequências legais.</span>
                         </label>
                       </div>
                     </div>
@@ -1581,7 +1904,7 @@ export default function EditClientPage() {
             <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
                 onClick={() => router.push('/clientes')}
                 disabled={saving}
               >

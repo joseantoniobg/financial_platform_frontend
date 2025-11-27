@@ -96,7 +96,7 @@ export default function HomePage() {
   const textColor = (currentMonthNetBalance ?? 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout>
       <div className="space-y-6">
           <div className="bg-[hsl(var(--card))] rounded-lg shadow-md pl-5 p-3 border border-gray-200 dark:border-gray-700">
             <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">

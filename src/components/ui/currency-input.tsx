@@ -72,15 +72,10 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
         formatted = parts[0] + ',' + parts[1].slice(0, 2);
       }
 
-      let finalNumber = String(Number(formatted) / 100).replace('.', ',');
-
-      if (finalNumber.indexOf(',') === -1) {
-        finalNumber += ',00';
-      }
-
-      if (finalNumber.split(',')[1]?.length === 1) {
-        finalNumber += '0';
-      }
+      const finalNumber = (Number(formatted) / 100).toLocaleString('pt-BR', { 
+                                                                        minimumFractionDigits: 2,
+                                                                        maximumFractionDigits: 2 
+                                                                      });
 
       setDisplayValue(finalNumber);
 
