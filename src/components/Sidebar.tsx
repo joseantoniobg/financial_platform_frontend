@@ -34,7 +34,7 @@ interface SidebarProps {
   userName?: string;
 }
 
-export function Sidebar({ userName }: SidebarProps) {
+function SidebarComponent({ userName }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -103,7 +103,7 @@ export function Sidebar({ userName }: SidebarProps) {
   const isActive = (href: string) => `${pathname}${searchParams.toString() !== "" ? '?' + searchParams.toString() : ''}` === href;
 
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <>
       {/* Mobile menu button */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -300,6 +300,14 @@ export function Sidebar({ userName }: SidebarProps) {
           </div>
         </div>
       </aside>
+    </>
+  );
+}
+
+export function Sidebar({ userName }: SidebarProps) {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <SidebarComponent userName={userName} />
     </Suspense>
   );
 }
