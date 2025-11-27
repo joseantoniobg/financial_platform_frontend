@@ -1,42 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import { SessionTitle } from '@/components/ui/session-title';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2, Plus, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StSelect } from './st-select';
 import { FormField } from './ui/form-field';
-import { TransactionDirection } from '@/types/transaction.direction.enum';
 import { Categories } from './Categories';
 import { StTable } from './st-table';
-
-interface Category {
-  id: string;
-  category: string;
-  defaultDirection: 'Entrada' | 'Saída' | 'Investimento';
-}
-
-interface UserTransactionType {
-  id: string;
-  type: string;
-  direction: 'Entrada' | 'Saída' | 'Investimento' | 'Aporte' | 'Resgate';
-  category: Category;
-}
-
-interface MonthlyBudget {
-  id: string;
-  categoryId: string;
-  subcategoryId?: string;
-  budgetType: 'teto' | 'piso';
-  amount: number;
-  category: Category;
-  subcategory?: UserTransactionType;
-}
+import { Category, MonthlyBudget, UserTransactionType } from '@/app/clientes/[id]/page';
 
 interface MonthlyBudgetsSectionProps {
   clientId: string;

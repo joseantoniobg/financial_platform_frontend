@@ -123,21 +123,28 @@ interface FinancialGoal {
   notes?: string;
 }
 
-interface Category {
+export interface Category {
   id: string;
-  name: string;
-  type: 'Entrada' | 'Saída' | 'Investimento';
+  category: string;
+  defaultDirection: 'Entrada' | 'Saída' | 'Investimento';
   parentId?: string;
 }
 
-interface MonthlyBudget {
+export interface UserTransactionType {
+  id: string;
+  type: string;
+  direction: 'Entrada' | 'Saída' | 'Investimento' | 'Aporte' | 'Resgate';
+  category: Category;
+}
+
+export interface MonthlyBudget {
   id: string;
   categoryId: string;
   subcategoryId?: string;
   budgetType: 'teto' | 'piso';
   amount: number;
   category: Category;
-  subcategory?: Category;
+  subcategory?: UserTransactionType;
 }
 
 export default function EditClientPage({ searchParams }: { searchParams: Promise<{ module?: string | undefined }> }) {
