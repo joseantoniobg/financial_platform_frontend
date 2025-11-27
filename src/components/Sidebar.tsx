@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -103,7 +103,7 @@ export function Sidebar({ userName }: SidebarProps) {
   const isActive = (href: string) => `${pathname}${searchParams.toString() !== "" ? '?' + searchParams.toString() : ''}` === href;
 
   return (
-    <>
+    <Suspense fallback={<div>Carregando...</div>}>
       {/* Mobile menu button */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -300,6 +300,6 @@ export function Sidebar({ userName }: SidebarProps) {
           </div>
         </div>
       </aside>
-    </>
+    </Suspense>
   );
 }
