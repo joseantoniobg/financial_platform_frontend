@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { FormField } from './ui/form-field';
+import { Button } from './ui/button';
 
 interface Country {
   id: string;
@@ -80,12 +82,12 @@ export function CountryFormDialog({ open, onOpenChange, mode, country, onSuccess
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700">
+      <DialogContent className="sm:max-w-[425px] bg-[hsl(var(--card))] border-[hsl(var(--border))] shadow-lg">
         <DialogHeader>
-          <DialogTitle className="text-slate-800 dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))]">
             {mode === 'create' ? 'Novo País' : 'Editar País'}
           </DialogTitle>
-          <DialogDescription className="text-slate-600 dark:text-gray-400">
+          <DialogDescription className="text-[hsl(var(--muted-foreground))]">
             {mode === 'create' 
               ? 'Preencha os dados do novo país'
               : 'Atualize os dados do país'
@@ -94,34 +96,26 @@ export function CountryFormDialog({ open, onOpenChange, mode, country, onSuccess
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-slate-700 dark:text-gray-300">
-              Nome <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="name"
+            <FormField
+              label='Nome'
+              htmlFor='name'
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              disabled={submitting}
               required
+              disabled={submitting}
             />
-          </div>
 
           <div className="space-y-2">
-            <Label htmlFor="code" className="text-slate-700 dark:text-gray-300">
-              Código <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="code"
+            <FormField
+              label='Código'
+              htmlFor='code'
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              maxLength={3}
-              disabled={submitting}
               required
+              disabled={submitting}
+              placeholder="Código de 2-3 letras (ex: BRA, USA)"
             />
-            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">
               Código de 2-3 letras (ex: BRA, USA)
             </p>
           </div>
@@ -132,31 +126,30 @@ export function CountryFormDialog({ open, onOpenChange, mode, country, onSuccess
               id="isActive"
               checked={formData.isActive}
               onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-              className="rounded border-gray-300 dark:border-gray-600"
+              className="rounded border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
               disabled={submitting}
             />
-            <Label htmlFor="isActive" className="text-slate-700 dark:text-gray-300 cursor-pointer">
+            <Label htmlFor="isActive" className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] cursor-pointer">
               Ativo
             </Label>
           </div>
 
           <DialogFooter>
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               disabled={submitting}
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg font-medium hover:bg-[#9FD96F] transition-colors disabled:opacity-50 flex items-center gap-2"
               disabled={submitting}
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? 'Salvando...' : 'Salvar'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

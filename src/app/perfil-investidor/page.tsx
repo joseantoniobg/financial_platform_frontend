@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Loader2, CheckCircle2, ArrowRight, ArrowLeft, TrendingUp, HelpCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageTitle } from '@/components/ui/page-title';
+import { StLoading } from '@/components/StLoading';
 
 interface Answer {
   id: string;
@@ -294,134 +295,136 @@ export default function InvestorProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl mx-auto space-y-6 shadow-lg border border-[hsl(var(--app-border))]/10 p-6 rounded-lg bg-[hsl(var(--card))]/50">
-        <PageTitle title='Perfil de Investidor' subtitle='Responda as questões abaixo para identificarmos seu perfil de investidor' />
-        {latestProfile && latestProfile.riskProfile !== 'Nenhum' && (
-          <Card className={`${getRiskProfileBorderColor(latestProfile.riskProfile)} ${getRiskProfileBackgroundColor(latestProfile.riskProfile)}`}>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <TrendingUp className={`h-5 w-5 ${getRiskProfileColor(latestProfile.riskProfile)}`} />
-                <div>
-                  <p className="font-medium text-[hsl(var(--foreground))]">
-                    Perfil Atual: <span className={getRiskProfileColor(latestProfile.riskProfile)}>{latestProfile.riskProfile}</span>
-                  </p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                    Última atualização: {new Date(latestProfile.completedAt).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm text-[hsl(var(--foreground))]">
-            <span>Questão {currentQuestionIndex + 1} de {questions.length}</span>
-            <span>{Math.round(progress)}%</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-
-        {currentQuestion && (
-          <Card className="border-[hsl(var(--app-border))] bg-[hsl(var(--card))]">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-xl">{currentQuestion.questionText}</CardTitle>
-                {currentQuestion.orderIndex === 6 && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button className="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors">
-                          <HelpCircle className="h-5 w-5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-sm">
-                          <strong>Obs.:</strong> Patrimônio financeiro = investimentos + saldo em conta + reserva + aplicações. Não inclui imóveis nem carros.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              </div>
-              <CardDescription>Escolha a opção que melhor se adequa ao seu perfil</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup
-                value={currentAnswer}
-                onValueChange={handleAnswerSelect}
-                className="space-y-3"
-              >
-                {currentQuestion.answers.map((answer) => (
-                  <div
-                    key={answer.id}
-                    className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                      currentAnswer === answer.id
-                        ? 'border-[hsl(var(--nav-background))] bg-[hsl(var(--nav-background))]/40'
-                        : 'border-[hsl(var(--app-border))]/40 bg-[hsl(var(--primary))]/10'
-                    }`}
-                    onClick={() => handleAnswerSelect(answer.id)}
-                  >
-                    <RadioGroupItem value={answer.id} id={answer.id} />
-                    <Label
-                      htmlFor={answer.id}
-                      className="flex-1 cursor-pointer text-[hsl(var(--foreground))]"
-                    >
-                      {answer.answerText}
-                    </Label>
+      <StLoading loading={loading}>
+        <div className="max-w-3xl mx-auto space-y-6 shadow-lg border border-[hsl(var(--app-border))]/10 p-6 rounded-lg bg-[hsl(var(--card))]/50">
+          <PageTitle title='Perfil de Investidor' subtitle='Responda as questões abaixo para identificarmos seu perfil de investidor' />
+          {latestProfile && latestProfile.riskProfile !== 'Nenhum' && (
+            <Card className={`${getRiskProfileBorderColor(latestProfile.riskProfile)} ${getRiskProfileBackgroundColor(latestProfile.riskProfile)}`}>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className={`h-5 w-5 ${getRiskProfileColor(latestProfile.riskProfile)}`} />
+                  <div>
+                    <p className="font-medium text-[hsl(var(--foreground))]">
+                      Perfil Atual: <span className={getRiskProfileColor(latestProfile.riskProfile)}>{latestProfile.riskProfile}</span>
+                    </p>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                      Última atualização: {new Date(latestProfile.completedAt).toLocaleDateString('pt-BR')}
+                    </p>
                   </div>
-                ))}
-              </RadioGroup>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button
-                onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
-                variant="outline"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Anterior
-              </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-              {isLastQuestion ? (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!canProceed || submitting}
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Finalizar
-                    </>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm text-[hsl(var(--foreground))]">
+              <span>Questão {currentQuestionIndex + 1} de {questions.length}</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+
+          {currentQuestion && (
+            <Card className="border-[hsl(var(--app-border))] bg-[hsl(var(--card))]">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-xl">{currentQuestion.questionText}</CardTitle>
+                  {currentQuestion.orderIndex === 6 && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors">
+                            <HelpCircle className="h-5 w-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            <strong>Obs.:</strong> Patrimônio financeiro = investimentos + saldo em conta + reserva + aplicações. Não inclui imóveis nem carros.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  disabled={!canProceed}
+                </div>
+                <CardDescription>Escolha a opção que melhor se adequa ao seu perfil</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup
+                  value={currentAnswer}
+                  onValueChange={handleAnswerSelect}
+                  className="space-y-3"
                 >
-                  Próxima
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  {currentQuestion.answers.map((answer) => (
+                    <div
+                      key={answer.id}
+                      className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                        currentAnswer === answer.id
+                          ? 'border-[hsl(var(--nav-background))] bg-[hsl(var(--nav-background))]/40'
+                          : 'border-[hsl(var(--app-border))]/40 bg-[hsl(var(--primary))]/10'
+                      }`}
+                      onClick={() => handleAnswerSelect(answer.id)}
+                    >
+                      <RadioGroupItem value={answer.id} id={answer.id} />
+                      <Label
+                        htmlFor={answer.id}
+                        className="flex-1 cursor-pointer text-[hsl(var(--foreground))]"
+                      >
+                        {answer.answerText}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button
+                  onClick={handlePrevious}
+                  disabled={currentQuestionIndex === 0}
+                  variant="outline"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Anterior
                 </Button>
-              )}
-            </CardFooter>
-          </Card>
-        )}
 
-        <div className="text-center">
-          <Button
-            onClick={() => router.push('/home')}
-            variant="ghost"
-          >
-            Cancelar e Voltar
-          </Button>
+                {isLastQuestion ? (
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!canProceed || submitting}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Finalizar
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleNext}
+                    disabled={!canProceed}
+                  >
+                    Próxima
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          )}
+
+          <div className="text-center">
+            <Button
+              onClick={() => router.push('/home')}
+              variant="ghost"
+            >
+              Cancelar e Voltar
+            </Button>
+          </div>
         </div>
-      </div>
+      </StLoading>
     </DashboardLayout>
   );
 }

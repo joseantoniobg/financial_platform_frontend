@@ -9,6 +9,10 @@ import toast from 'react-hot-toast';
 import { CountryFormDialog } from '@/components/CountryFormDialog';
 import { StateFormDialog } from '@/components/StateFormDialog';
 import { CityFormDialog } from '@/components/CityFormDialog';
+import { StLoading } from '@/components/StLoading';
+import { PageTitle } from '@/components/ui/page-title';
+import { Button } from '@/components/ui/button';
+import { LocationTab } from '@/components/LocationTab';
 
 interface Country {
   id: string;
@@ -227,296 +231,185 @@ export default function LocationsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Localidades</h1>
-            <p className="text-slate-600 dark:text-gray-400 mt-1">Gerencie países, estados e cidades</p>
+      <StLoading loading={loading}>
+        <div className="space-y-6">
+          <PageTitle title="Localidades" subtitle="Gerencie países, estados e cidades" />
+          {/* Tabs */}
+          <div className="flex space-x-2 border-b border-gray-200 dark:border-gray-700">
+            <Button
+              onClick={() => setActiveTab('countries')}
+              variant={"ghost"}
+              className={`hover:font-bold ${activeTab === 'countries' ? 'font-bold text-blue-400 border-b-2 border-blue-400 rounded-xs' : ''}`}
+            >
+              <Globe className="h-4 w-4" />
+              Países
+            </Button>
+            <Button
+              onClick={() => setActiveTab('states')}
+              variant={"ghost"}
+              className={`hover:font-bold ${activeTab === 'states' ? 'font-bold text-blue-400 border-b-2 border-blue-400 rounded-xs' : ''}`}
+            >
+              <Map className="h-4 w-4" />
+              Estados
+            </Button>
+            <Button
+              onClick={() => setActiveTab('cities')}
+              variant={"ghost"}
+              className={`hover:font-bold ${activeTab === 'cities' ? 'font-bold text-blue-400 border-b-2 border-blue-400 rounded-xs' : ''}`}
+            >
+              <MapPin className="h-4 w-4" />
+              Cidades
+            </Button>
           </div>
+
+          {/* Countries Tab */}
+          {activeTab === 'countries' && (
+            <LocationTab 
+              handleCreate={handleCreateCountry}
+              labelCreate="Adicionar País"
+              loading={loading}
+              columns={['Nome', 'Código', 'Status', 'Ações']}
+              items={countries.map(country => ({
+                Nome: country.name,
+                Código: country.code,
+                Status: <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                country.isActive
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                              }`}
+                            >
+                              {country.isActive ? 'Ativo' : 'Inativo'}
+                            </span>,
+                Ações: <div className="flex justify-end gap-2">
+                          <Button
+                            onClick={() => handleEditCountry(country)}
+                            variant={"edit"}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteCountry(country.id)}
+                            variant={"destructive"}
+                            title="Desativar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+              }))}
+              noItemsLabel="Nenhum país cadastrado"
+            />
+          )}
+
+          {/* States Tab */}
+          {activeTab === 'states' && (
+            <LocationTab
+              handleCreate={handleCreateState}
+              labelCreate="Adicionar Estado"
+              loading={loading}
+              columns={['Nome', 'Código', 'País', 'Status', 'Ações']}
+              items={states.map(state => ({
+                Nome: state.name,
+                Código: state.code,
+                País: state.country?.name,
+                Status: <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                state.isActive
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                              }`}
+                            >
+                              {state.isActive ? 'Ativo' : 'Inativo'}
+                            </span>,
+                Ações: <div className="flex justify-end gap-2">
+                          <Button
+                            onClick={() => handleEditState(state)}
+                            variant={"edit"}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteState(state.id)}
+                            variant={"destructive"}
+                            title="Desativar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+              }))}
+              noItemsLabel="Nenhum estado cadastrado"
+            />
+          )}
+
+          {/* Cities Tab */}
+          {activeTab === 'cities' && (
+            <LocationTab
+              handleCreate={handleCreateCity}
+              labelCreate="Adicionar Cidade"
+              loading={loading}
+              columns={['Nome', 'Estado', 'País', 'Status', 'Ações']}
+              items={cities.map(city => ({
+                Nome: city.name,
+                Estado: city.state?.name,
+                País: city.state?.country?.name,
+                Status: <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                city.isActive
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                              }`}
+                            >
+                              {city.isActive ? 'Ativo' : 'Inativo'}
+                            </span>,
+                Ações: <div className="flex justify-end gap-2">
+                          <Button
+                            onClick={() => handleEditCity(city)}
+                            variant={"edit"}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteCity(city.id)}
+                            variant={"destructive"}
+                            title="Desativar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+              }))}
+              noItemsLabel="Nenhuma cidade cadastrada"
+            />
+          )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex space-x-2 border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab('countries')}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === 'countries'
-                ? 'border-[#B4F481] text-[#B4F481]'
-                : 'border-transparent text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white'
-            }`}
-          >
-            <Globe className="h-4 w-4" />
-            Países
-          </button>
-          <button
-            onClick={() => setActiveTab('states')}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === 'states'
-                ? 'border-[#B4F481] text-[#B4F481]'
-                : 'border-transparent text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white'
-            }`}
-          >
-            <Map className="h-4 w-4" />
-            Estados
-          </button>
-          <button
-            onClick={() => setActiveTab('cities')}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === 'cities'
-                ? 'border-[#B4F481] text-[#B4F481]'
-                : 'border-transparent text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white'
-            }`}
-          >
-            <MapPin className="h-4 w-4" />
-            Cidades
-          </button>
-        </div>
+        {/* Dialogs */}
+        <CountryFormDialog
+          open={countryDialogOpen}
+          onOpenChange={setCountryDialogOpen}
+          mode={dialogMode}
+          country={selectedCountry}
+          onSuccess={fetchCountries}
+        />
 
-        {/* Countries Tab */}
-        {activeTab === 'countries' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Países</h2>
-              <button
-                onClick={handleCreateCountry}
-                className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Adicionar País
-              </button>
-            </div>
+        <StateFormDialog
+          open={stateDialogOpen}
+          onOpenChange={setStateDialogOpen}
+          mode={dialogMode}
+          state={selectedState}
+          onSuccess={fetchStates}
+        />
 
-            {loading ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
-            ) : countries.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Nenhum país cadastrado</div>
-            ) : (
-              <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Código</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {countries.map((country) => (
-                      <tr key={country.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-slate-800 dark:text-white">{country.name}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{country.code}</td>
-                        <td className="px-6 py-4 text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              country.isActive
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                            }`}
-                          >
-                            {country.isActive ? 'Ativo' : 'Inativo'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleEditCountry(country)}
-                              className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors"
-                              title="Editar"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteCountry(country.id)}
-                              className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                              title="Desativar"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* States Tab */}
-        {activeTab === 'states' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Estados</h2>
-              <button
-                onClick={handleCreateState}
-                className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Adicionar Estado
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
-            ) : states.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Nenhum estado cadastrado</div>
-            ) : (
-              <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Código</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">País</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {states.map((state) => (
-                      <tr key={state.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-slate-800 dark:text-white">{state.name}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{state.code}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{state.country?.name}</td>
-                        <td className="px-6 py-4 text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              state.isActive
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                            }`}
-                          >
-                            {state.isActive ? 'Ativo' : 'Inativo'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleEditState(state)}
-                              className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors"
-                              title="Editar"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteState(state.id)}
-                              className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                              title="Desativar"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Cities Tab */}
-        {activeTab === 'cities' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Cidades</h2>
-              <button
-                onClick={handleCreateCity}
-                className="flex items-center gap-2 bg-[#B4F481] text-[#0A1929] px-4 py-2 rounded-lg font-medium hover:bg-[#9FD96F] transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Adicionar Cidade
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
-            ) : cities.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Nenhuma cidade cadastrada</div>
-            ) : (
-              <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">País</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {cities.map((city) => (
-                      <tr key={city.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-slate-800 dark:text-white">{city.name}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{city.state?.name}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-gray-300">{city.state?.country?.name}</td>
-                        <td className="px-6 py-4 text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              city.isActive
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                            }`}
-                          >
-                            {city.isActive ? 'Ativo' : 'Inativo'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleEditCity(city)}
-                              className="p-2 text-[#B4F481] hover:bg-[#B4F481]/10 rounded-lg transition-colors"
-                              title="Editar"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteCity(city.id)}
-                              className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                              title="Desativar"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Dialogs */}
-      <CountryFormDialog
-        open={countryDialogOpen}
-        onOpenChange={setCountryDialogOpen}
-        mode={dialogMode}
-        country={selectedCountry}
-        onSuccess={fetchCountries}
-      />
-
-      <StateFormDialog
-        open={stateDialogOpen}
-        onOpenChange={setStateDialogOpen}
-        mode={dialogMode}
-        state={selectedState}
-        onSuccess={fetchStates}
-      />
-
-      <CityFormDialog
-        open={cityDialogOpen}
-        onOpenChange={setCityDialogOpen}
-        mode={dialogMode}
-        city={selectedCity}
-        onSuccess={fetchCities}
-      />
+        <CityFormDialog
+          open={cityDialogOpen}
+          onOpenChange={setCityDialogOpen}
+          mode={dialogMode}
+          city={selectedCity}
+          onSuccess={fetchCities}
+        />
+      </StLoading>
     </DashboardLayout>
   );
 }

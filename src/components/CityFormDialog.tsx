@@ -7,6 +7,9 @@ import UniversalSelect from './UniversalSelect';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { FormField } from './ui/form-field';
+import { StSelect } from './st-select';
+import { Button } from './ui/button';
 
 interface Country {
   id: string;
@@ -113,12 +116,12 @@ export function CityFormDialog({ open, onOpenChange, mode, city, onSuccess }: Ci
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700">
+      <DialogContent className="sm:max-w-[425px] bg-[hsl(var(--card))] border-[hsl(var(--border))] shadow-lg">
         <DialogHeader>
-          <DialogTitle className="text-slate-800 dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))]">
             {mode === 'create' ? 'Nova Cidade' : 'Editar Cidade'}
           </DialogTitle>
-          <DialogDescription className="text-slate-600 dark:text-gray-400">
+          <DialogDescription className="text-[hsl(var(--muted-foreground))]">
             {mode === 'create' 
               ? 'Preencha os dados da nova cidade'
               : 'Atualize os dados da cidade'
@@ -127,37 +130,24 @@ export function CityFormDialog({ open, onOpenChange, mode, city, onSuccess }: Ci
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-slate-700 dark:text-gray-300">
-              Nome <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              disabled={submitting}
-              required
-            />
-          </div>
+          <FormField
+            htmlFor="name"
+            label="Nome"
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            disabled={submitting}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="state" className="text-slate-700 dark:text-gray-300">
-              Estado <span className="text-red-500">*</span>
-            </Label>
-            <UniversalSelect
-              value={formData.stateId}
-              onChange={(value) => setFormData({ ...formData, stateId: value })}
-              items={states.map((s) => ({ value: s.id, label: `${s.name} (${s.country?.name ?? ''})` }))}
-              placeholder="Selecione um estado"
-              searchable
-              searchPlaceholder="Buscar estado..."
-              disabled={loadingStates || submitting}
-              triggerClassName="w-full bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
-              contentClassName="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600 max-h-[40vh] overflow-auto p-1"
-              itemClassName="text-slate-800 dark:text-white whitespace-normal break-words py-1"
-            />
-          </div>
+          <StSelect
+            label="Estado"
+            htmlFor="state"
+            required
+            value={formData.stateId}
+            onChange={(value) => setFormData({ ...formData, stateId: value })}
+            items={states.map((s) => ({ id: s.id, description: `${s.name} (${s.country?.name ?? ''})` }))}
+            loading={loadingStates || submitting}
+          />
 
           <div className="flex items-center gap-2">
             <input
@@ -165,31 +155,30 @@ export function CityFormDialog({ open, onOpenChange, mode, city, onSuccess }: Ci
               id="isActive"
               checked={formData.isActive}
               onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-              className="rounded border-gray-300 dark:border-gray-600"
+              className="rounded border-[hsl(var(--border))] bg-[hsl(var(--input-background))] text-[hsl(var(--primary))] focus:ring-2 focus:ring-offset-2 focus:ring-[hsl(var(--ring))] focus:ring-offset-[hsl(var(--background))]"
               disabled={submitting}
             />
-            <Label htmlFor="isActive" className="text-slate-700 dark:text-gray-300 cursor-pointer">
+            <Label htmlFor="isActive" className="text-[hsl(var(--foreground))] cursor-pointer">
               Ativo
             </Label>
           </div>
 
           <DialogFooter>
-            <button
+            <Button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              variant="outline"
               disabled={submitting}
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg font-medium hover:bg-[#9FD96F] transition-colors disabled:opacity-50 flex items-center gap-2"
               disabled={submitting}
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? 'Salvando...' : 'Salvar'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

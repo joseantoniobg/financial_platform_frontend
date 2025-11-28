@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, Search, Plus, Trash2, Calendar, DollarSign } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { formatDate } from '@/lib/utils';
+import { PageTitle } from '@/components/ui/page-title';
+import { StSelect } from '@/components/st-select';
 
 interface Client {
   id: string;
@@ -225,18 +227,11 @@ export default function ClientAssignmentsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-            Atribuição de Serviços
-          </h1>
-          <p className="text-slate-600 dark:text-gray-400 mt-2">
-            Gerencie os serviços atribuídos aos clientes
-          </p>
-        </div>
-
+        <PageTitle title="Atribuição de Serviços" subtitle="Gerencie os serviços atribuídos aos clientes" />
+    
         {/* Client Selection */}
-        <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+        <div className="bg-[hsl(var(--card))] rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
             Selecionar Cliente
           </h2>
 
@@ -247,36 +242,20 @@ export default function ClientAssignmentsPage() {
                 placeholder="Buscar cliente..."
                 value={searchClient}
                 onChange={(e) => setSearchClient(e.target.value)}
-                className="pl-10 bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white"
+                className="pl-10 bg-[hsl(var(--card-accent))] border-gray-300 dark:border-gray-600 text-[hsl(var(--foreground))]"
               />
             </div>
-
-            <Select value={selectedClient} onValueChange={setSelectedClient}>
-              <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                <SelectValue placeholder="Selecione um cliente" />
-              </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                {loadingClients ? (
-                  <div className="p-2 text-center text-gray-500">
-                    <Loader2 className="h-4 w-4 animate-spin inline" />
-                  </div>
-                ) : clients.length === 0 ? (
-                  <div className="p-2 text-center text-gray-500 dark:text-gray-400 text-sm">
-                    Nenhum cliente encontrado
-                  </div>
-                ) : (
-                  clients.map((client) => (
-                    <SelectItem
-                      key={client.id}
-                      value={client.id}
-                      className="text-slate-800 dark:text-white"
-                    >
-                      {client.name} ({client.email})
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <StSelect
+              label="Cliente"
+              value={selectedClient}
+              onChange={setSelectedClient}
+              items={clients.map((client) => ({
+                id: client.id,
+                description: `${client.name} (${client.email})`,
+              }))}
+              loading={loadingClients}
+              htmlFor='client'
+            />
           </div>
         </div>
 
@@ -285,7 +264,7 @@ export default function ClientAssignmentsPage() {
           <div className="bg-white dark:bg-[#0D2744] rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">
                   Serviços de {selectedClientData?.name}
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">

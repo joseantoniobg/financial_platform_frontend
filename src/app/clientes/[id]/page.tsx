@@ -18,6 +18,7 @@ import { ClientBasicData } from '@/components/ClientBasicData';
 import { PatrimonySection } from '@/components/PatrimonySection';
 import { FinancialGoalsSection } from '@/components/FinancialGoalsSection';
 import { MonthlyBudgetsSection } from '@/components/MonthlyBudgetsSection';
+import { StLoading } from '@/components/StLoading';
 
 interface Role {
   id: string;
@@ -1392,543 +1393,535 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
     );
   }
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card))]" />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          {!isClient && <Button
-            onClick={() => router.push('/clientes')}
-            variant="outline"
-            size="icon"
-            className="p-2 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-8 w-8 text-[hsl(var(--foreground))]" />
-          </Button>}
-          <PageTitle title={isClient ? module === 'planejamento' ? "Meus Objetivos" : module === 'dados-cadastrais' ? "Meus Dados" : "Meu Patrimônio" : "Editar Cliente"} />
-        </div>
+      <StLoading loading={loading || loadingPatrimony}>
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            {!isClient && <Button
+              onClick={() => router.push('/clientes')}
+              variant="outline"
+              size="icon"
+              className="p-2 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="h-8 w-8 text-[hsl(var(--foreground))]" />
+            </Button>}
+            <PageTitle title={isClient ? module === 'planejamento' ? "Meus Objetivos" : module === 'dados-cadastrais' ? "Meus Dados" : "Meu Patrimônio" : "Editar Cliente"} />
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="bg-[hsl(var(--card))] rounded-lg shadow-lg border border-[hsl(var(--app-border))]/10 p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              {!isClient && <TabsList className="w-full justify-start mb-6">
-                <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
-                <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
-                <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
-                <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
-              </TabsList>}
+          <form onSubmit={handleSubmit}>
+            <div className="bg-[hsl(var(--card))] rounded-lg shadow-lg border border-[hsl(var(--app-border))]/10 p-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                {!isClient && <TabsList className="w-full justify-start mb-6">
+                  <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
+                  <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
+                  <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
+                  <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
+                </TabsList>}
 
-              {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
-              <ClientBasicData formData={formData} setFormData={setFormData} saving={saving}
-                countries={countries} states={states} cities={cities}
-                loadingCountries={loadingCountries} loadingStates={loadingStates} loadingCities={loadingCities}
-                handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
-                categories={categories} consultants={consultants}
-                isConsultant={isConsultant}
-                isClient={isClient && module !== undefined && !isConsultant}
-                client={client}
-                maritalStatuses={maritalStatuses}
-                loadingMaritalStatuses={loadingMaritalStatuses}
-                dependents={dependents}
-                onAddDependent={handleAddDependent}
-                onUpdateDependent={handleUpdateDependent}
-                onDeleteDependent={handleDeleteDependent}
-              />
+                {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
+                <ClientBasicData formData={formData} setFormData={setFormData} saving={saving}
+                  countries={countries} states={states} cities={cities}
+                  loadingCountries={loadingCountries} loadingStates={loadingStates} loadingCities={loadingCities}
+                  handleCountryChange={handleCountryChange} handleStateChange={handleStateChange}
+                  categories={categories} consultants={consultants}
+                  isConsultant={isConsultant}
+                  isClient={isClient && module !== undefined && !isConsultant}
+                  client={client}
+                  maritalStatuses={maritalStatuses}
+                  loadingMaritalStatuses={loadingMaritalStatuses}
+                  dependents={dependents}
+                  onAddDependent={handleAddDependent}
+                  onUpdateDependent={handleUpdateDependent}
+                  onDeleteDependent={handleDeleteDependent}
+                />
 
-              {/* Tab: Patrimônio */}
-              <TabsContent value="patrimonio" className="space-y-6">
-                {loadingPatrimony ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card))]" />
-                  </div>
-                ) : (
-                  <PatrimonySection
-                    properties={properties}
-                    vehicles={vehicles}
-                    valuableAssets={valuableAssets}
-                    showPropertyForm={showPropertyForm}
-                    propertyForm={propertyForm}
-                    editingPropertyId={editingPropertyId}
-                    onAddProperty={handleAddProperty}
-                    onEditProperty={handleEditProperty}
-                    onSaveProperty={handleSaveProperty}
-                    onDeleteProperty={handleDeleteProperty}
-                    onCancelPropertyForm={handleCancelPropertyForm}
-                    setPropertyForm={setPropertyForm}
-                    showVehicleForm={showVehicleForm}
-                    vehicleForm={vehicleForm}
-                    editingVehicleId={editingVehicleId}
-                    onAddVehicle={handleAddVehicle}
-                    onEditVehicle={handleEditVehicle}
-                    onSaveVehicle={handleSaveVehicle}
-                    onDeleteVehicle={handleDeleteVehicle}
-                    onCancelVehicleForm={handleCancelVehicleForm}
-                    setVehicleForm={setVehicleForm}
-                    showValuableAssetForm={showValuableAssetForm}
-                    valuableAssetForm={valuableAssetForm}
-                    editingValuableAssetId={editingValuableAssetId}
-                    onAddValuableAsset={handleAddValuableAsset}
-                    onEditValuableAsset={handleEditValuableAsset}
-                    onSaveValuableAsset={handleSaveValuableAsset}
-                    onDeleteValuableAsset={handleDeleteValuableAsset}
-                    onCancelValuableAssetForm={handleCancelValuableAssetForm}
-                    setValuableAssetForm={setValuableAssetForm}
-                  />
-                )}
-              </TabsContent>
-
-              {/* Tab: Planejamento Financeiro */}
-              <TabsContent value="planejamento" className="space-y-4">
-                {loadingFinancialGoals ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
-                  </div>
-                ) : (
-                  <>
-                    <FinancialGoalsSection
-                      goals={financialGoals}
-                      isClient={isClient}
-                      showGoalForm={showGoalForm}
-                      goalForm={goalForm}
-                      editingGoalId={editingGoalId}
-                      onAddGoal={handleAddGoal}
-                      onEditGoal={handleEditGoal}
-                      onSaveGoal={handleSaveGoal}
-                      onDeleteGoal={handleDeleteGoal}
-                      onCancelGoalForm={handleCancelGoalForm}
-                      setGoalForm={setGoalForm}
-                    />
-
-                    {loadingMonthlyBudgets ? (
-                      <div className="flex items-center justify-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
-                      </div>
-                    ) : (
-                      <MonthlyBudgetsSection
-                        clientId={clientId}
-                        isClient={isClient}
-                        budgets={monthlyBudgets}
-                        showBudgetForm={showBudgetForm}
-                        budgetForm={budgetForm}
-                        editingBudgetId={editingBudgetId}
-                        onAddBudget={handleAddBudget}
-                        onEditBudget={handleEditBudget}
-                        onSaveBudget={handleSaveBudget}
-                        onDeleteBudget={handleDeleteBudget}
-                        onCancelBudgetForm={handleCancelBudgetForm}
-                        setBudgetForm={setBudgetForm}
-                      />
-                    )}
-                  </>
-                )}
-              </TabsContent>
-
-              {/* Tab: Perfil de Investidor */}
-              <TabsContent value="perfil-investidor" className="space-y-4">
-                {loadingQuestionnaire ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
-                  </div>
-                ) : showNewQuestionnaire ? (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">
-                        Novo Questionário - Perfil de Investidor
-                      </h3>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setShowNewQuestionnaire(false);
-                          setCurrentQuestionIndex(0);
-                          setResponses(new Map());
-                        }}
-                      >
-                        Cancelar
-                      </Button>
+                {/* Tab: Patrimônio */}
+                <TabsContent value="patrimonio" className="space-y-6">
+                  {loadingPatrimony ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--card))]" />
                     </div>
+                  ) : (
+                    <PatrimonySection
+                      properties={properties}
+                      vehicles={vehicles}
+                      valuableAssets={valuableAssets}
+                      showPropertyForm={showPropertyForm}
+                      propertyForm={propertyForm}
+                      editingPropertyId={editingPropertyId}
+                      onAddProperty={handleAddProperty}
+                      onEditProperty={handleEditProperty}
+                      onSaveProperty={handleSaveProperty}
+                      onDeleteProperty={handleDeleteProperty}
+                      onCancelPropertyForm={handleCancelPropertyForm}
+                      setPropertyForm={setPropertyForm}
+                      showVehicleForm={showVehicleForm}
+                      vehicleForm={vehicleForm}
+                      editingVehicleId={editingVehicleId}
+                      onAddVehicle={handleAddVehicle}
+                      onEditVehicle={handleEditVehicle}
+                      onSaveVehicle={handleSaveVehicle}
+                      onDeleteVehicle={handleDeleteVehicle}
+                      onCancelVehicleForm={handleCancelVehicleForm}
+                      setVehicleForm={setVehicleForm}
+                      showValuableAssetForm={showValuableAssetForm}
+                      valuableAssetForm={valuableAssetForm}
+                      editingValuableAssetId={editingValuableAssetId}
+                      onAddValuableAsset={handleAddValuableAsset}
+                      onEditValuableAsset={handleEditValuableAsset}
+                      onSaveValuableAsset={handleSaveValuableAsset}
+                      onDeleteValuableAsset={handleDeleteValuableAsset}
+                      onCancelValuableAssetForm={handleCancelValuableAssetForm}
+                      setValuableAssetForm={setValuableAssetForm}
+                    />
+                  )}
+                </TabsContent>
 
-                    {questions.length > 0 && (
-                      <div className="space-y-6">
-                        {/* Progress indicator */}
-                        <div className="flex items-center justify-between text-sm text-slate-600 dark:text-gray-400">
-                          <span>
-                            Questão {currentQuestionIndex + 1} de {questions.length}
-                          </span>
-                          <span>
-                            {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% concluído
-                          </span>
+                {/* Tab: Planejamento Financeiro */}
+                <TabsContent value="planejamento" className="space-y-4">
+                  {loadingFinancialGoals ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
+                    </div>
+                  ) : (
+                    <>
+                      <FinancialGoalsSection
+                        goals={financialGoals}
+                        isClient={isClient}
+                        showGoalForm={showGoalForm}
+                        goalForm={goalForm}
+                        editingGoalId={editingGoalId}
+                        onAddGoal={handleAddGoal}
+                        onEditGoal={handleEditGoal}
+                        onSaveGoal={handleSaveGoal}
+                        onDeleteGoal={handleDeleteGoal}
+                        onCancelGoalForm={handleCancelGoalForm}
+                        setGoalForm={setGoalForm}
+                      />
+
+                      {loadingMonthlyBudgets ? (
+                        <div className="flex items-center justify-center py-12">
+                          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
                         </div>
+                      ) : (
+                        <MonthlyBudgetsSection
+                          clientId={clientId}
+                          isClient={isClient}
+                          budgets={monthlyBudgets}
+                          showBudgetForm={showBudgetForm}
+                          budgetForm={budgetForm}
+                          editingBudgetId={editingBudgetId}
+                          onAddBudget={handleAddBudget}
+                          onEditBudget={handleEditBudget}
+                          onSaveBudget={handleSaveBudget}
+                          onDeleteBudget={handleDeleteBudget}
+                          onCancelBudgetForm={handleCancelBudgetForm}
+                          setBudgetForm={setBudgetForm}
+                        />
+                      )}
+                    </>
+                  )}
+                </TabsContent>
 
-                        {/* Question */}
-                        <div className="bg-[hsl(var(--card))] p-6 rounded-lg">
-                          <h4 className="text-lg font-medium text-slate-800 dark:text-white mb-4">
-                            {questions[currentQuestionIndex]?.questionText}
-                          </h4>
+                {/* Tab: Perfil de Investidor */}
+                <TabsContent value="perfil-investidor" className="space-y-4">
+                  {loadingQuestionnaire ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
+                    </div>
+                  ) : showNewQuestionnaire ? (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+                          Novo Questionário - Perfil de Investidor
+                        </h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setShowNewQuestionnaire(false);
+                            setCurrentQuestionIndex(0);
+                            setResponses(new Map());
+                          }}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
 
-                          <RadioGroup
-                            value={responses.get(questions[currentQuestionIndex]?.id) || ''}
-                            onValueChange={(value) => {
-                              const newResponses = new Map(responses);
-                              newResponses.set(questions[currentQuestionIndex].id, value);
-                              setResponses(newResponses);
-                            }}
-                          >
-                            {questions[currentQuestionIndex]?.answers.map((answer: any) => (
-                              <div key={answer.id} className="flex items-center space-x-2 mb-3">
-                                <RadioGroupItem value={answer.id} id={answer.id} />
-                                <Label
-                                  htmlFor={answer.id}
-                                  className="text-slate-700 dark:text-gray-300 cursor-pointer flex-1"
-                                >
-                                  {answer.answerText}
-                                </Label>
+                      {questions.length > 0 && (
+                        <div className="space-y-6">
+                          {/* Progress indicator */}
+                          <div className="flex items-center justify-between text-sm text-slate-600 dark:text-gray-400">
+                            <span>
+                              Questão {currentQuestionIndex + 1} de {questions.length}
+                            </span>
+                            <span>
+                              {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% concluído
+                            </span>
+                          </div>
+
+                          {/* Question */}
+                          <div className="bg-[hsl(var(--card))] p-6 rounded-lg">
+                            <h4 className="text-lg font-medium text-slate-800 dark:text-white mb-4">
+                              {questions[currentQuestionIndex]?.questionText}
+                            </h4>
+
+                            <RadioGroup
+                              value={responses.get(questions[currentQuestionIndex]?.id) || ''}
+                              onValueChange={(value) => {
+                                const newResponses = new Map(responses);
+                                newResponses.set(questions[currentQuestionIndex].id, value);
+                                setResponses(newResponses);
+                              }}
+                            >
+                              {questions[currentQuestionIndex]?.answers.map((answer: any) => (
+                                <div key={answer.id} className="flex items-center space-x-2 mb-3">
+                                  <RadioGroupItem value={answer.id} id={answer.id} />
+                                  <Label
+                                    htmlFor={answer.id}
+                                    className="text-slate-700 dark:text-gray-300 cursor-pointer flex-1"
+                                  >
+                                    {answer.answerText}
+                                  </Label>
+                                </div>
+                              ))}
+                            </RadioGroup>
+                          </div>
+
+                          {/* Navigation buttons */}
+                          <div className="flex justify-between pt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+                              disabled={currentQuestionIndex === 0}
+                            >
+                              <ChevronLeft className="w-4 h-4 mr-2" />
+                              Anterior
+                            </Button>
+
+                            {currentQuestionIndex === questions.length - 1 ? (
+                              <Button
+                                type="button"
+                                onClick={handleSubmitQuestionnaire}
+                                disabled={responses.size !== questions.length}
+                                className="bg-[hsl(var(--primary)] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))]"
+                              >
+                                Finalizar Questionário
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+                                disabled={!responses.has(questions[currentQuestionIndex]?.id)}
+                              >
+                                Próxima
+                                <ChevronRight className="w-4 h-4 ml-2" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // Display latest questionnaire
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5" />
+                          Perfil de Investidor
+                        </h3>
+                        <Button
+                          type="button"
+                          onClick={handleStartNewQuestionnaire}
+                        >
+                          Realizar Novo Questionário
+                        </Button>
+                      </div>
+
+                      {latestQuestionnaire && latestQuestionnaire.riskProfile !== 'Nenhum' ? (
+                        <div className="space-y-4">
+                          {/* Profile summary */}
+                          <div className={`p-6 rounded-lg ${getRiskProfileColor(latestQuestionnaire.riskProfile)}`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                                Perfil: {latestQuestionnaire.riskProfile}
+                              </h4>
+                              <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
+                                <Calendar className="w-4 h-4" />
+                                {new Date(latestQuestionnaire.completedAt).toLocaleDateString('pt-BR')}
+                              </div>
+                            </div>
+                            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                              {getRiskProfileDescription(latestQuestionnaire.riskProfile)}
+                            </p>
+                            <div className="mt-4 pt-4 border-t border-slate-300 dark:border-gray-600">
+                              <div className="flex gap-6 text-sm">
+                                <div>
+                                  <span className="text-[hsl(var(--muted-foreground))]">Pontuação Total: </span>
+                                  <span className="font-semibold text-[hsl(var(--foreground))]">
+                                    {latestQuestionnaire.totalWeight}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-[hsl(var(--muted-foreground))]">Média: </span>
+                                  <span className="font-semibold text-[hsl(var(--foreground))]">
+                                    {latestQuestionnaire.averageWeight.toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Questions and answers */}
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-[hsl(var(--foreground))]">
+                              Respostas do Questionário:
+                            </h5>
+                            {latestQuestionnaire.responses.map((response: any, index: number) => (
+                              <div
+                                key={response.id}
+                                className="bg-[hsl(var(--card-accent))] p-4 rounded-lg"
+                              >
+                                <p className="font-medium text-[hsl(var(--foreground))] mb-2">
+                                  {index + 1}. {response.question}
+                                </p>
+                                <p className="text-[hsl(var(--muted-foreground))] pl-4">
+                                  → {response.answer}
+                                  <span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">
+                                    (Peso: {response.weight})
+                                  </span>
+                                </p>
                               </div>
                             ))}
-                          </RadioGroup>
-                        </div>
-
-                        {/* Navigation buttons */}
-                        <div className="flex justify-between pt-4">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
-                            disabled={currentQuestionIndex === 0}
-                          >
-                            <ChevronLeft className="w-4 h-4 mr-2" />
-                            Anterior
-                          </Button>
-
-                          {currentQuestionIndex === questions.length - 1 ? (
-                            <Button
-                              type="button"
-                              onClick={handleSubmitQuestionnaire}
-                              disabled={responses.size !== questions.length}
-                              className="bg-[hsl(var(--primary)] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))]"
-                            >
-                              Finalizar Questionário
-                            </Button>
-                          ) : (
-                            <Button
-                              type="button"
-                              onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
-                              disabled={!responses.has(questions[currentQuestionIndex]?.id)}
-                            >
-                              Próxima
-                              <ChevronRight className="w-4 h-4 ml-2" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  // Display latest questionnaire
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5" />
-                        Perfil de Investidor
-                      </h3>
-                      <Button
-                        type="button"
-                        onClick={handleStartNewQuestionnaire}
-                      >
-                        Realizar Novo Questionário
-                      </Button>
-                    </div>
-
-                    {latestQuestionnaire && latestQuestionnaire.riskProfile !== 'Nenhum' ? (
-                      <div className="space-y-4">
-                        {/* Profile summary */}
-                        <div className={`p-6 rounded-lg ${getRiskProfileColor(latestQuestionnaire.riskProfile)}`}>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">
-                              Perfil: {latestQuestionnaire.riskProfile}
-                            </h4>
-                            <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-                              <Calendar className="w-4 h-4" />
-                              {new Date(latestQuestionnaire.completedAt).toLocaleDateString('pt-BR')}
-                            </div>
                           </div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                            {getRiskProfileDescription(latestQuestionnaire.riskProfile)}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-12 bg-[hsl(var(--nav-background))]/15 rounded-lg">
+                          <AlertCircle className="w-12 h-12 text-[hsl(var(--muted-foreground))]" />
+                          <p className="text-[hsl(var(--muted-foreground))] text-center mb-4">
+                            Este cliente ainda não possui um perfil de investidor cadastrado.
                           </p>
-                          <div className="mt-4 pt-4 border-t border-slate-300 dark:border-gray-600">
-                            <div className="flex gap-6 text-sm">
-                              <div>
-                                <span className="text-[hsl(var(--muted-foreground))]">Pontuação Total: </span>
-                                <span className="font-semibold text-[hsl(var(--foreground))]">
-                                  {latestQuestionnaire.totalWeight}
-                                </span>
-                              </div>
-                              <div>
-                                <span className="text-[hsl(var(--muted-foreground))]">Média: </span>
-                                <span className="font-semibold text-[hsl(var(--foreground))]">
-                                  {latestQuestionnaire.averageWeight.toFixed(2)}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Questions and answers */}
-                        <div className="space-y-3">
-                          <h5 className="font-medium text-[hsl(var(--foreground))]">
-                            Respostas do Questionário:
-                          </h5>
-                          {latestQuestionnaire.responses.map((response: any, index: number) => (
-                            <div
-                              key={response.id}
-                              className="bg-[hsl(var(--card-accent))] p-4 rounded-lg"
-                            >
-                              <p className="font-medium text-[hsl(var(--foreground))] mb-2">
-                                {index + 1}. {response.question}
-                              </p>
-                              <p className="text-[hsl(var(--muted-foreground))] pl-4">
-                                → {response.answer}
-                                <span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">
-                                  (Peso: {response.weight})
-                                </span>
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-12 bg-[hsl(var(--nav-background))]/15 rounded-lg">
-                        <AlertCircle className="w-12 h-12 text-[hsl(var(--muted-foreground))]" />
-                        <p className="text-[hsl(var(--muted-foreground))] text-center mb-4">
-                          Este cliente ainda não possui um perfil de investidor cadastrado.
-                        </p>
-                        <p className="text-sm text-[hsl(var(--muted-foreground))] text-center mb-6">
-                          Realize o questionário para determinar o perfil de investidor do cliente.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-
-                    {/* Conformidade Section */}
-                    <div className="mt-6 p-6 bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]">
-                      <div className="pb-2 border-b border-gray-100 dark:border-gray-800 mb-4">
-                        <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">Conformidade (PLD/CPFT + PEP)</h4>
-                        <p className="text-sm text-[hsl(var(--muted-foreground))]">Informações de conformidade e PEP</p>
-                      </div>
-
-                      {client?.pldRiskClassification && (
-                        <div className={`mb-4 p-4 rounded-lg border-2 ${
-                          client.pldRiskClassification === 'Alto' 
-                            ? 'bg-red-50 dark:bg-red-900/20 border-red-500' 
-                            : client.pldRiskClassification === 'Médio'
-                            ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
-                            : 'bg-green-50 dark:bg-green-900/20 border-green-500'
-                        }`}>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                                Classificação de Risco PLD
-                              </h5>
-                              <p className={`text-xl font-bold mt-1 ${
-                                client.pldRiskClassification === 'Alto' 
-                                  ? 'text-red-700 dark:text-red-400' 
-                                  : client.pldRiskClassification === 'Médio'
-                                  ? 'text-yellow-700 dark:text-yellow-400'
-                                  : 'text-green-700 dark:text-green-400'
-                              }`}>
-                                {client.pldRiskClassification}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-xs text-[hsl(var(--muted-foreground))]">Pontuação</p>
-                              <p className="text-2xl font-bold text-[hsl(var(--foreground))]">
-                                {client.pldRiskScore || 0}
-                              </p>
-                            </div>
-                          </div>
+                          <p className="text-sm text-[hsl(var(--muted-foreground))] text-center mb-6">
+                            Realize o questionário para determinar o perfil de investidor do cliente.
+                          </p>
                         </div>
                       )}
+                    </div>
+                  )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-[hsl(var(--foreground))]">Você ocupa ou foi ocupante de cargo público relevante?</Label>
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="isPublicPosition"
-                                checked={!!formData.isPublicPosition}
-                                onChange={() => setFormData({ ...formData, isPublicPosition: true })}
-                              />
-                              <span className="text-[hsl(var(--foreground))]">Sim</span>
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="isPublicPosition"
-                                checked={!formData.isPublicPosition}
-                                onChange={() => setFormData({ ...formData, isPublicPosition: false })}
-                              />
-                              <span className="text-[hsl(var(--foreground))]">Não</span>
-                            </label>
-                          </div>
+
+                      {/* Conformidade Section */}
+                      <div className="mt-6 p-6 bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]">
+                        <div className="pb-2 border-b border-gray-100 dark:border-gray-800 mb-4">
+                          <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">Conformidade (PLD/CPFT + PEP)</h4>
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Informações de conformidade e PEP</p>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label className="text-[hsl(var(--foreground))]">É cônjuge / parente / sócio de PEP?</Label>
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="isRelatedToPEP"
-                                checked={!!formData.isRelatedToPEP}
-                                onChange={() => setFormData({ ...formData, isRelatedToPEP: true })}
-                              />
-                              <span className="text-[hsl(var(--foreground))]">Sim</span>
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="isRelatedToPEP"
-                                checked={!formData.isRelatedToPEP}
-                                onChange={() => setFormData({ ...formData, isRelatedToPEP: false })}
-                              />
-                              <span className="text-[hsl(var(--foreground))]">Não</span>
-                            </label>
-                          </div>
-                        </div>
-
-                      {/* PEP details - shown if any of the two above is true */}
-                      {(formData.isPublicPosition || formData.isRelatedToPEP) && (
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label className="text-[hsl(var(--foreground))]">Nome da pessoa exposta</Label>
-                            <Input value={formData.pepName} onChange={(e) => setFormData({ ...formData, pepName: e.target.value })} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[hsl(var(--foreground))]">Cargo/Função</Label>
-                            <Input value={formData.pepRole} onChange={(e) => setFormData({ ...formData, pepRole: e.target.value })} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[hsl(var(--foreground))]">Órgão/Entidade</Label>
-                            <Input value={formData.pepEntity} onChange={(e) => setFormData({ ...formData, pepEntity: e.target.value })} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[hsl(var(--foreground))]">País</Label>
-                            <Input value={formData.pepCountry} onChange={(e) => setFormData({ ...formData, pepCountry: e.target.value })} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[hsl(var(--foreground))]">Data início</Label>
-                            <DateInput value={formData.pepStartDate} onChange={(value) => setFormData({ ...formData, pepStartDate: value })} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[hsl(var(--foreground))]">Data término (se aplicável)</Label>
-                            <DateInput value={formData.pepEndDate} onChange={(value) => setFormData({ ...formData, pepEndDate: value })} />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        <Label className="text-[hsl(var(--foreground))]">Você é o proprietário real dos recursos?</Label>
-                        <div className="flex items-center gap-4">
-                          <label className="flex items-center gap-2">
-                            <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
-                            <span className="text-[hsl(var(--foreground))]">Sim</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
-                            <span className="text-[hsl(var(--foreground))]">Não</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <Label className="text-[hsl(var(--foreground))]">Origem dos recursos</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                          {['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações', 'Outros'].map(opt => (
-                            <label key={opt} className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="resourceOrigin"
-                                checked={formData.resourceOrigin === opt}
-                                onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
-                              />
-                              <span className="text-[hsl(var(--foreground))]">{opt}</span>
-                            </label>
-                          ))}
-                        </div>
-                        {!( ['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações'].includes(formData.resourceOrigin)) && (
-                          <div className="mt-2">
-                            <Input placeholder="Descreva a origem dos recursos" value={formData.resourceOrigin} onChange={(e) => setFormData({ ...formData, resourceOrigin: e.target.value })} />
+                        {client?.pldRiskClassification && (
+                          <div className={`mb-4 p-4 rounded-lg border-2 ${
+                            client.pldRiskClassification === 'Alto' 
+                              ? 'bg-red-50 dark:bg-red-900/20 border-red-500' 
+                              : client.pldRiskClassification === 'Médio'
+                              ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
+                              : 'bg-green-50 dark:bg-green-900/20 border-green-500'
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h5 className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
+                                  Classificação de Risco PLD
+                                </h5>
+                                <p className={`text-xl font-bold mt-1 ${
+                                  client.pldRiskClassification === 'Alto' 
+                                    ? 'text-red-700 dark:text-red-400' 
+                                    : client.pldRiskClassification === 'Médio'
+                                    ? 'text-yellow-700 dark:text-yellow-400'
+                                    : 'text-green-700 dark:text-green-400'
+                                }`}>
+                                  {client.pldRiskClassification}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-[hsl(var(--muted-foreground))]">Pontuação</p>
+                                <p className="text-2xl font-bold text-[hsl(var(--foreground))]">
+                                  {client.pldRiskScore || 0}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         )}
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label className="text-[hsl(var(--foreground))]">Transações internacionais</Label>
-                        <div className="flex items-center gap-4">
-                          <label className="flex items-center gap-2">
-                            <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
-                            <span className="text-[hsl(var(--foreground))]">Sim</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
-                            <span className="text-[hsl(var(--foreground))]">Não</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[hsl(var(--foreground))]">Você ocupa ou foi ocupante de cargo público relevante?</Label>
+                            <div className="flex items-center gap-4">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="isPublicPosition"
+                                  checked={!!formData.isPublicPosition}
+                                  onChange={() => setFormData({ ...formData, isPublicPosition: true })}
+                                />
+                                <span className="text-[hsl(var(--foreground))]">Sim</span>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="isPublicPosition"
+                                  checked={!formData.isPublicPosition}
+                                  onChange={() => setFormData({ ...formData, isPublicPosition: false })}
+                                />
+                                <span className="text-[hsl(var(--foreground))]">Não</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="text-[hsl(var(--foreground))]">É cônjuge / parente / sócio de PEP?</Label>
+                            <div className="flex items-center gap-4">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="isRelatedToPEP"
+                                  checked={!!formData.isRelatedToPEP}
+                                  onChange={() => setFormData({ ...formData, isRelatedToPEP: true })}
+                                />
+                                <span className="text-[hsl(var(--foreground))]">Sim</span>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="isRelatedToPEP"
+                                  checked={!formData.isRelatedToPEP}
+                                  onChange={() => setFormData({ ...formData, isRelatedToPEP: false })}
+                                />
+                                <span className="text-[hsl(var(--foreground))]">Não</span>
+                              </label>
+                            </div>
+                          </div>
+
+                        {/* PEP details - shown if any of the two above is true */}
+                        {(formData.isPublicPosition || formData.isRelatedToPEP) && (
+                          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-[hsl(var(--foreground))]">Nome da pessoa exposta</Label>
+                              <Input value={formData.pepName} onChange={(e) => setFormData({ ...formData, pepName: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[hsl(var(--foreground))]">Cargo/Função</Label>
+                              <Input value={formData.pepRole} onChange={(e) => setFormData({ ...formData, pepRole: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[hsl(var(--foreground))]">Órgão/Entidade</Label>
+                              <Input value={formData.pepEntity} onChange={(e) => setFormData({ ...formData, pepEntity: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[hsl(var(--foreground))]">País</Label>
+                              <Input value={formData.pepCountry} onChange={(e) => setFormData({ ...formData, pepCountry: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[hsl(var(--foreground))]">Data início</Label>
+                              <DateInput value={formData.pepStartDate} onChange={(value) => setFormData({ ...formData, pepStartDate: value })} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[hsl(var(--foreground))]">Data término (se aplicável)</Label>
+                              <DateInput value={formData.pepEndDate} onChange={(value) => setFormData({ ...formData, pepEndDate: value })} />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
+                          <Label className="text-[hsl(var(--foreground))]">Você é o proprietário real dos recursos?</Label>
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2">
+                              <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
+                              <span className="text-[hsl(var(--foreground))]">Sim</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
+                              <span className="text-[hsl(var(--foreground))]">Não</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                          <Label className="text-[hsl(var(--foreground))]">Origem dos recursos</Label>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            {['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações', 'Outros'].map(opt => (
+                              <label key={opt} className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="resourceOrigin"
+                                  checked={formData.resourceOrigin === opt}
+                                  onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
+                                />
+                                <span className="text-[hsl(var(--foreground))]">{opt}</span>
+                              </label>
+                            ))}
+                          </div>
+                          {!( ['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações'].includes(formData.resourceOrigin)) && (
+                            <div className="mt-2">
+                              <Input placeholder="Descreva a origem dos recursos" value={formData.resourceOrigin} onChange={(e) => setFormData({ ...formData, resourceOrigin: e.target.value })} />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-[hsl(var(--foreground))]">Transações internacionais</Label>
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2">
+                              <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
+                              <span className="text-[hsl(var(--foreground))]">Sim</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
+                              <span className="text-[hsl(var(--foreground))]">Não</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="md:col-span-2 mt-2">
+                          <label className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              className='mt-1'
+                              checked={!!formData.pldDeclarationAccepted}
+                              onChange={(e) => {
+                                const accepted = e.target.checked;
+                                setFormData({ ...formData, pldDeclarationAccepted: accepted, pldDeclarationDate: accepted ? new Date().toISOString() : '' });
+                              }}
+                            />
+                            <span className="text-[hsl(var(--foreground))]">Declaro que as informações fornecidas acima são verdadeiras e completas, e compreendo que a omissão ou falsificação de informações pode acarretar consequências legais.</span>
                           </label>
                         </div>
                       </div>
-
-                      <div className="md:col-span-2 mt-2">
-                        <label className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            className='mt-1'
-                            checked={!!formData.pldDeclarationAccepted}
-                            onChange={(e) => {
-                              const accepted = e.target.checked;
-                              setFormData({ ...formData, pldDeclarationAccepted: accepted, pldDeclarationDate: accepted ? new Date().toISOString() : '' });
-                            }}
-                          />
-                          <span className="text-[hsl(var(--foreground))]">Declaro que as informações fornecidas acima são verdadeiras e completas, e compreendo que a omissão ou falsificação de informações pode acarretar consequências legais.</span>
-                        </label>
-                      </div>
                     </div>
-                  </div>
-              </TabsContent>
-            </Tabs>
+                </TabsContent>
+              </Tabs>
 
-            <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push('/clientes')}
-                disabled={saving}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={saving}
-              >
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                <Save className="h-4 w-4" />
-                Salvar Alterações
-              </Button>
+              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push('/clientes')}
+                  disabled={saving}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={saving}
+                >
+                  {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <Save className="h-4 w-4" />
+                  Salvar Alterações
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      </StLoading>
     </DashboardLayout>
   );
 }

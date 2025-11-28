@@ -10,6 +10,7 @@ import { DateInput } from '@/components/ui/date-input';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { StLoading } from '@/components/StLoading';
 
 export default function ConformidadePage() {
   const { user } = useAuthStore();
@@ -139,194 +140,196 @@ export default function ConformidadePage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl mx-auto space-y-6 shadow-lg border border-[hsl(var(--app-border))]/10 p-6 rounded-lg bg-[hsl(var(--card))]/50">
-        <h1 className="text-2xl font-bold mb-4">Conformidade (PLD/CPFT + PEP)</h1>
+      <StLoading loading={loading}>
+        <div className="max-w-3xl mx-auto space-y-6 shadow-lg border border-[hsl(var(--app-border))]/10 p-6 rounded-lg bg-[hsl(var(--card))]/50">
+          <h1 className="text-2xl font-bold mb-4">Conformidade (PLD/CPFT + PEP)</h1>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
-          </div>
-        ) : (
-          <>
-            {/* Risk Classification Display */}
-            {formData.pldRiskClassification && (
-              <div className={`mb-6 p-4 rounded-lg border-2 ${
-                formData.pldRiskClassification === 'Alto' 
-                  ? 'bg-red-50 dark:bg-red-900/20 border-red-500' 
-                  : formData.pldRiskClassification === 'Médio'
-                  ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
-                  : 'bg-green-50 dark:bg-green-900/20 border-green-500'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-bold text-[hsl(var(--foreground))]">
-                      Classificação de Risco PLD
-                    </h2>
-                    <p className={`text-2xl font-bold mt-1 ${
-                      formData.pldRiskClassification === 'Alto' 
-                        ? 'text-red-700 dark:text-red-400' 
-                        : formData.pldRiskClassification === 'Médio'
-                        ? 'text-yellow-700 dark:text-yellow-400'
-                        : 'text-green-700 dark:text-green-400'
-                    }`}>
-                      {formData.pldRiskClassification}
-                    </p>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--foreground))]" />
+            </div>
+          ) : (
+            <>
+              {/* Risk Classification Display */}
+              {formData.pldRiskClassification && (
+                <div className={`mb-6 p-4 rounded-lg border-2 ${
+                  formData.pldRiskClassification === 'Alto' 
+                    ? 'bg-red-50 dark:bg-red-900/20 border-red-500' 
+                    : formData.pldRiskClassification === 'Médio'
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
+                    : 'bg-green-50 dark:bg-green-900/20 border-green-500'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-[hsl(var(--foreground))]">
+                        Classificação de Risco PLD
+                      </h2>
+                      <p className={`text-2xl font-bold mt-1 ${
+                        formData.pldRiskClassification === 'Alto' 
+                          ? 'text-red-700 dark:text-red-400' 
+                          : formData.pldRiskClassification === 'Médio'
+                          ? 'text-yellow-700 dark:text-yellow-400'
+                          : 'text-green-700 dark:text-green-400'
+                      }`}>
+                        {formData.pldRiskClassification}
+                      </p>
+                    </div>
+                    {/* <div className="text-right">
+                      <p className="text-sm text-[hsl(var(--foreground-clear))]">Pontuação</p>
+                      <p className="text-3xl font-bold text-[hsl(var(--foreground))]">
+                        {formData.pldRiskScore}
+                      </p>
+                    </div> */}
                   </div>
-                  {/* <div className="text-right">
-                    <p className="text-sm text-[hsl(var(--foreground-clear))]">Pontuação</p>
-                    <p className="text-3xl font-bold text-[hsl(var(--foreground))]">
-                      {formData.pldRiskScore}
-                    </p>
-                  </div> */}
                 </div>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-[hsl(var(--card))] p-6 rounded-lg border border-[hsl(var(--app-border))]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Você ocupa ou foi ocupante de cargo público relevante?</Label>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="isPublicPosition" checked={!!formData.isPublicPosition} onChange={() => setFormData({ ...formData, isPublicPosition: true })} />
-                    <span className="text-[hsl(var(--foreground))]">Sim</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="isPublicPosition" checked={!formData.isPublicPosition} onChange={() => setFormData({ ...formData, isPublicPosition: false })} />
-                    <span className="text-[hsl(var(--foreground))]">Não</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>É cônjuge / companheiro / parente até 2º grau / sócio de alguém que é ou foi PEP?</Label>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="isRelatedToPEP" checked={!!formData.isRelatedToPEP} onChange={() => setFormData({ ...formData, isRelatedToPEP: true })} />
-                    <span className="text-[hsl(var(--foreground))]">Sim</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="isRelatedToPEP" checked={!formData.isRelatedToPEP} onChange={() => setFormData({ ...formData, isRelatedToPEP: false })} />
-                    <span className="text-[hsl(var(--foreground))]">Não</span>
-                  </label>
-                </div>
-              </div>
-
-              {(formData.isPublicPosition || formData.isRelatedToPEP) && (
-                <>
-                  <div className="space-y-2">
-                    <Label>Nome da pessoa exposta</Label>
-                    <Input value={formData.pepName} onChange={(e) => setFormData({ ...formData, pepName: e.target.value })} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Cargo/Função</Label>
-                    <Input value={formData.pepRole} onChange={(e) => setFormData({ ...formData, pepRole: e.target.value })} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Órgão/Entidade</Label>
-                    <Input value={formData.pepEntity} onChange={(e) => setFormData({ ...formData, pepEntity: e.target.value })} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>País</Label>
-                    <Input value={formData.pepCountry} onChange={(e) => setFormData({ ...formData, pepCountry: e.target.value })} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Data de início</Label>
-                    <DateInput value={formData.pepStartDate} onChange={(value) => setFormData({ ...formData, pepStartDate: value })} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Data de término (se aplicável)</Label>
-                    <DateInput value={formData.pepEndDate} onChange={(value) => setFormData({ ...formData, pepEndDate: value })} />
-                  </div>
-                </>
               )}
 
-              <div className="space-y-2">
-                <Label>Você é o proprietário real dos recursos?</Label>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
-                    <span className="text-[hsl(var(--foreground))]">Sim</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
-                    <span className="text-[hsl(var(--foreground))]">Não</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="md:col-span-2 space-y-2">
-                <Label>Origem dos recursos</Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  {['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações', 'Outros'].map(opt => (
-                    <label key={opt} className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="resourceOrigin"
-                        checked={formData.resourceOrigin === opt}
-                        onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
-                      />
-                      <span className="text-[hsl(var(--foreground))]">{opt}</span>
+              <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-[hsl(var(--card))] p-6 rounded-lg border border-[hsl(var(--app-border))]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Você ocupa ou foi ocupante de cargo público relevante?</Label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="isPublicPosition" checked={!!formData.isPublicPosition} onChange={() => setFormData({ ...formData, isPublicPosition: true })} />
+                      <span className="text-[hsl(var(--foreground))]">Sim</span>
                     </label>
-                  ))}
-                </div>
-                {formData.resourceOrigin === '' && (
-                  <div className="mt-2">
-                    <Input placeholder="Descreva a origem dos recursos" value={formData.resourceOrigin} onChange={(e) => setFormData({ ...formData, resourceOrigin: e.target.value })} />
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="isPublicPosition" checked={!formData.isPublicPosition} onChange={() => setFormData({ ...formData, isPublicPosition: false })} />
+                      <span className="text-[hsl(var(--foreground))]">Não</span>
+                    </label>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>É cônjuge / companheiro / parente até 2º grau / sócio de alguém que é ou foi PEP?</Label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="isRelatedToPEP" checked={!!formData.isRelatedToPEP} onChange={() => setFormData({ ...formData, isRelatedToPEP: true })} />
+                      <span className="text-[hsl(var(--foreground))]">Sim</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="isRelatedToPEP" checked={!formData.isRelatedToPEP} onChange={() => setFormData({ ...formData, isRelatedToPEP: false })} />
+                      <span className="text-[hsl(var(--foreground))]">Não</span>
+                    </label>
+                  </div>
+                </div>
+
+                {(formData.isPublicPosition || formData.isRelatedToPEP) && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Nome da pessoa exposta</Label>
+                      <Input value={formData.pepName} onChange={(e) => setFormData({ ...formData, pepName: e.target.value })} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Cargo/Função</Label>
+                      <Input value={formData.pepRole} onChange={(e) => setFormData({ ...formData, pepRole: e.target.value })} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Órgão/Entidade</Label>
+                      <Input value={formData.pepEntity} onChange={(e) => setFormData({ ...formData, pepEntity: e.target.value })} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>País</Label>
+                      <Input value={formData.pepCountry} onChange={(e) => setFormData({ ...formData, pepCountry: e.target.value })} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Data de início</Label>
+                      <DateInput value={formData.pepStartDate} onChange={(value) => setFormData({ ...formData, pepStartDate: value })} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Data de término (se aplicável)</Label>
+                      <DateInput value={formData.pepEndDate} onChange={(value) => setFormData({ ...formData, pepEndDate: value })} />
+                    </div>
+                  </>
                 )}
-              </div>
 
-              <div className="space-y-2">
-                <Label>Transações internacionais</Label>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
-                    <span className="text-[hsl(var(--foreground))]">Sim</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
-                    <span className="text-[hsl(var(--foreground))]">Não</span>
+                <div className="space-y-2">
+                  <Label>Você é o proprietário real dos recursos?</Label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="isBeneficialOwner" checked={!!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: true })} />
+                      <span className="text-[hsl(var(--foreground))]">Sim</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="isBeneficialOwner" checked={!formData.isBeneficialOwner} onChange={() => setFormData({ ...formData, isBeneficialOwner: false })} />
+                      <span className="text-[hsl(var(--foreground))]">Não</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2 space-y-2">
+                  <Label>Origem dos recursos</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {['Salário / Rendimento próprio', 'Lucros / Dividendos', 'Venda de bens', 'Herança / Doações', 'Outros'].map(opt => (
+                      <label key={opt} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="resourceOrigin"
+                          checked={formData.resourceOrigin === opt}
+                          onChange={() => setFormData({ ...formData, resourceOrigin: opt === 'Outros' ? '' : opt })}
+                        />
+                        <span className="text-[hsl(var(--foreground))]">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {formData.resourceOrigin === '' && (
+                    <div className="mt-2">
+                      <Input placeholder="Descreva a origem dos recursos" value={formData.resourceOrigin} onChange={(e) => setFormData({ ...formData, resourceOrigin: e.target.value })} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Transações internacionais</Label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="internationalTransactions" checked={!!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: true })} />
+                      <span className="text-[hsl(var(--foreground))]">Sim</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="radio" name="internationalTransactions" checked={!formData.internationalTransactions} onChange={() => setFormData({ ...formData, internationalTransactions: false })} />
+                      <span className="text-[hsl(var(--foreground))]">Não</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2 mt-2">
+                  <label className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={!!formData.pldDeclarationAccepted}
+                      onChange={(e) => {
+                        const accepted = e.target.checked;
+                        setFormData({ ...formData, pldDeclarationAccepted: accepted, pldDeclarationDate: accepted ? new Date().toISOString() : '' });
+                      }}
+                    />
+                    <div className="text-sm">
+                      <div className="font-medium text-[hsl(var(--foreground))]">Declaração</div>
+                      <div className="text-[hsl(var(--foreground-clear))]/90">Declaro que as informações prestadas são verdadeiras e estou ciente das políticas de PLD/FT.</div>
+                      {formData.pldDeclarationDate && (
+                        <div className="text-xs text-[hsl(var(--foreground-clear))] mt-1">Data: {new Date(formData.pldDeclarationDate).toLocaleString('pt-BR')}</div>
+                      )}
+                    </div>
                   </label>
                 </div>
               </div>
 
-              <div className="md:col-span-2 mt-2">
-                <label className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={!!formData.pldDeclarationAccepted}
-                    onChange={(e) => {
-                      const accepted = e.target.checked;
-                      setFormData({ ...formData, pldDeclarationAccepted: accepted, pldDeclarationDate: accepted ? new Date().toISOString() : '' });
-                    }}
-                  />
-                  <div className="text-sm">
-                    <div className="font-medium text-[hsl(var(--foreground))]">Declaração</div>
-                    <div className="text-[hsl(var(--foreground-clear))]/90">Declaro que as informações prestadas são verdadeiras e estou ciente das políticas de PLD/FT.</div>
-                    {formData.pldDeclarationDate && (
-                      <div className="text-xs text-[hsl(var(--foreground-clear))] mt-1">Data: {new Date(formData.pldDeclarationDate).toLocaleString('pt-BR')}</div>
-                    )}
-                  </div>
-                </label>
+              <div className="flex justify-end gap-3 mt-2">
+                <Button type="submit" disabled={saving}>
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Salvar
+                </Button>
               </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-2">
-              <Button type="submit" disabled={saving}>
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Salvar
-              </Button>
-            </div>
-          </form>
-          </>
-        )}
-      </div>
+            </form>
+            </>
+          )}
+        </div>
+      </StLoading>
     </DashboardLayout>
   );
 }

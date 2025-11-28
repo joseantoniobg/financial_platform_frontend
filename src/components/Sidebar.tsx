@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -29,14 +29,25 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
 import { useThemeStore } from '@/store/themeStore';
+import { Button } from './ui/button';
+import { set } from 'date-fns';
+
+interface InternalSidebarProps {
+  userName?: string;
+  children?: React.ReactNode;
+  isCollapsed: boolean;
+  setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 interface SidebarProps {
   userName?: string;
+  children?: React.ReactNode;
 }
 
-function SidebarComponent({ userName }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: InternalSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(0);
+  const [screenHeight, setScreenHeight] = useState(0);
 
   const { expandableMenus: expandedMenus, setExpandableMenus: setExpandedMenus } = useThemeStore();
   const pathname = usePathname();
@@ -55,6 +66,24 @@ function SidebarComponent({ userName }: SidebarProps) {
   const toggleMenu = (menuId: string) => {
     setExpandedMenus(menuId);
   };
+
+  useEffect(() => {
+    setScreenWidth(window.innerWidth);
+    setScreenHeight(window.innerHeight);
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      setScreenHeight(window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (screenWidth <= 768 && screenWidth > 0) {
+      setIsMobileOpen(false);
+      setIsCollapsed(true);
+    }
+  }, [screenWidth, setIsMobileOpen, setIsCollapsed]);
 
   const allMenuItems = [
     { icon: Home, label: 'Dashboard', href: '/home', roles: ['all'] },
@@ -107,7 +136,7 @@ function SidebarComponent({ userName }: SidebarProps) {
       {/* Mobile menu button */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-slate-800 shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-slate-800 shadow-lg"
       >
         <Menu className="h-6 w-6 text-slate-700 dark:text-white" />
       </button>
@@ -115,7 +144,7 @@ function SidebarComponent({ userName }: SidebarProps) {
       {/* Overlay for mobile */}
       {isMobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -123,30 +152,30 @@ function SidebarComponent({ userName }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-0 h-full bg-[hsl(var(--nav-background))] border-r border-gray-200 dark:border-gray-700
+          fixed min-h-[100vh] bg-[hsl(var(--nav-background))] border-r border-gray-200 dark:border-gray-700
           transition-all duration-300 z-40
           ${isCollapsed ? 'w-20' : 'w-64'}
-          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b border-[hsl(var(--app-border))] flex items-center justify-between">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             {!isCollapsed && (
               <h1 className="text-xl font-bold text-[hsl(var(--nav-foreground))]">
-                Plataforma
+                Plataforma 
               </h1>
             )}
-            <button
+            <Button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-[hsl(var(--hover))] transition-colors hidden lg:block"
+              variant={'ghost'}
             >
               {isCollapsed ? (
                 <ChevronRight className="h-5 w-5 text-[hsl(var(--nav-foreground))]" />
               ) : (
                 <ChevronLeft className="h-5 w-5 text-[hsl(var(--nav-foreground))]" />
               )}
-            </button>
+            </Button>
           </div>
 
           {/* User info */}
@@ -161,7 +190,7 @@ function SidebarComponent({ userName }: SidebarProps) {
                 </p>
               </div>
             ) : (
-              <div className="w-10 h-10 rounded-full bg-[hsl(var(--nav-foreground))] flex items-center justify-center">
+              <div className="ml-1 w-10 h-10 rounded-full bg-[hsl(var(--nav-foreground))] flex items-center justify-center">
                 <span className="text-[hsl(var(--nav-background))] font-bold text-sm">
                   {userName && userName.charAt(0).toUpperCase()}
                 </span>
@@ -169,145 +198,152 @@ function SidebarComponent({ userName }: SidebarProps) {
             )}
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-            {/* Regular menu items */}
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
-                    ${active 
-                      ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]' 
-                      : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
-                    }
-                    ${isCollapsed ? 'justify-center' : ''}
-                  `}
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  {!isCollapsed && <span className="font-medium">{item.label}</span>}
-                </Link>
-              );
-            })}
-
-            {/* Expandable menus for Cliente */}
-            {!isCollapsed && expandableMenus.map((menu) => {
-              const MenuIcon = menu.icon;
-              const isExpanded = expandedMenus[menu.id];
-              const hasActiveItem = menu.items.some(item => isActive(item.href));
-              
-              return (
-                <div key={menu.id}>
-                  <button
-                    onClick={() => toggleMenu(menu.id)}
+            {/* Navigation */}
+            <nav className="p-4 space-y-2 overflow-y-auto">
+              {/* Regular menu items */}
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
                     className={`
-                      flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors w-full
-                      ${hasActiveItem
-                        ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]'
+                      flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                      ${active 
+                        ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]' 
+                        : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
+                      }
+                      ${isCollapsed ? 'justify-center' : ''}
+                    `}
+                    onClick={() => setIsMobileOpen(false)}
+                  >
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    {!isCollapsed && <span className="font-medium">{item.label}</span>}
+                  </Link>
+                );
+              })}
+
+              {/* Expandable menus for Cliente */}
+              {!isCollapsed && expandableMenus.map((menu) => {
+                const MenuIcon = menu.icon;
+                const isExpanded = expandedMenus[menu.id];
+                const hasActiveItem = menu.items.some(item => isActive(item.href));
+                
+                return (
+                  <div key={menu.id}>
+                    <button
+                      onClick={() => toggleMenu(menu.id)}
+                      className={`
+                        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors w-full
+                        ${hasActiveItem
+                          ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]'
+                          : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
+                        }
+                      `}
+                    >
+                      <MenuIcon className="h-5 w-5 flex-shrink-0" />
+                      <span className="font-medium flex-1 text-left">{menu.label}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    
+                    <div
+                      className={`
+                        overflow-hidden transition-all duration-300 ease-in-out
+                        bg-[hsl(var(--nav-foreground))]/10 rounded-lg
+                        ${isExpanded ? 'p-2 m-2 space-y-1 max-h-96 opacity-100' : 'max-h-0 opacity-0'}
+                      `}
+                    >
+                      {menu.items.map((item) => {
+                        const ItemIcon = item.icon;
+                        const active = isActive(item.href);
+                        
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`
+                              flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm
+                              ${active
+                                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]'
+                                : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
+                              }
+                            `}
+                            onClick={() => setIsMobileOpen(false)}
+                          >
+                            <ItemIcon className="h-4 w-4 flex-shrink-0" />
+                            <span className="font-medium">{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Collapsed expandable menu items - show as flat list */}
+              {isCollapsed && expandableMenus.flatMap(menu => menu.items).map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`
+                      flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors justify-center
+                      ${active 
+                        ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]' 
                         : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
                       }
                     `}
+                    onClick={() => setIsMobileOpen(false)}
                   >
-                    <MenuIcon className="h-5 w-5 flex-shrink-0" />
-                    <span className="font-medium flex-1 text-left">{menu.label}</span>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        isExpanded ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-                  
-                  <div
-                    className={`
-                      overflow-hidden transition-all duration-300 ease-in-out
-                      bg-[hsl(var(--nav-foreground))]/10 rounded-lg
-                      ${isExpanded ? 'p-2 m-2 space-y-1 max-h-96 opacity-100' : 'max-h-0 opacity-0'}
-                    `}
-                  >
-                    {menu.items.map((item) => {
-                      const ItemIcon = item.icon;
-                      const active = isActive(item.href);
-                      
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={`
-                            flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm
-                            ${active
-                              ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]'
-                              : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
-                            }
-                          `}
-                          onClick={() => setIsMobileOpen(false)}
-                        >
-                          <ItemIcon className="h-4 w-4 flex-shrink-0" />
-                          <span className="font-medium">{item.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                  </Link>
+                );
+              })}
+            </nav>
 
-            {/* Collapsed expandable menu items - show as flat list */}
-            {isCollapsed && expandableMenus.flatMap(menu => menu.items).map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors justify-center
-                    ${active 
-                      ? 'bg-[hsl(var(--primary))] text-[hsl(var(--nav-foreground))]' 
-                      : 'text-[hsl(var(--nav-foreground))] hover:bg-[hsl(var(--hover))]'
-                    }
-                  `}
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-            <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-start'} mb-2`}>
-              <ThemeToggle />
+            {/* Footer */}
+            <div className="fixed bottom-0 pb-2 p-4 border-t border-gray-200 dark:border-gray-700 space-y-2 bg-[hsl(var(--nav-background))] w-full">
+              <div className={`flex justify-center mb-2`}>
+                <ThemeToggle isCollapsed={isCollapsed} />
+              </div>
+              <Button
+                onClick={handleLogout}
+                className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors w-full bg-red-400/30
+                  text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20
+                  ${isCollapsed ? 'justify-center' : ''}
+                `}
+              >
+                <LogOut className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="font-medium">Sair</span>}
+              </Button>
             </div>
-            <button
-              onClick={handleLogout}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors w-full
-                text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20
-                ${isCollapsed ? 'justify-center' : ''}
-              `}
-            >
-              <LogOut className="h-5 w-5 flex-shrink-0" />
-              {!isCollapsed && <span className="font-medium">Sair</span>}
-            </button>
           </div>
-        </div>
       </aside>
+      <main className={`ml-4 ${isCollapsed ? 'md:ml-24' : 'md:ml-68'} flex-1 transition-all duration-300 m-5`}>
+          {children}
+      </main>
     </>
   );
 }
 
-export function Sidebar({ userName }: SidebarProps) {
+export function Sidebar({ userName, children }: SidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <Suspense fallback={<div>Carregando...</div>}>
-      <SidebarComponent userName={userName} />
+      <SidebarComponent userName={userName} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed}>
+        {children}
+      </SidebarComponent>
     </Suspense>
   );
 }

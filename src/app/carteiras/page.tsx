@@ -19,6 +19,8 @@ import {
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { PageTitle } from '@/components/ui/page-title';
+import { useLoadingStore } from '@/store/loadingStore';
+import { StLoading } from '@/components/StLoading';
 
 interface Wallet {
   id: string;
@@ -30,8 +32,8 @@ interface Wallet {
 export default function WalletsPage() {
   const { user } = useAuthStore();
 
+  const [loading, setLoading] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
   const [deletingWallet, setDeletingWallet] = useState<Wallet | null>(null);
@@ -94,21 +96,9 @@ export default function WalletsPage() {
     }
   };
 
-  if (loading) {
-    return (
-        <DashboardLayout>
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Carregando...</p>
-                </div>
-            </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
      <DashboardLayout>
+      <StLoading loading={loading}>
         <div className="container mx-auto py-8 px-4">
             <div className='mb-4 flex justify-between'>
                 <PageTitle title="Carteiras" subtitle="Gerencie suas carteiras financeiras" />
@@ -208,6 +198,7 @@ export default function WalletsPage() {
                 </AlertDialogContent>
             </AlertDialog>
         </div>
+      </StLoading>
     </DashboardLayout>
   );
 }
