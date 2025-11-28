@@ -1,10 +1,10 @@
 import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 
-export function LocationTab({ handleCreate, labelCreate, loading, columns, items, noItemsLabel }: { handleCreate: () => void; labelCreate: string; loading: boolean; columns: string[]; items: any[]; noItemsLabel: string }) {
+export function LocationTab({ title, handleCreate, labelCreate, loading, columns, items, noItemsLabel }: { title: string; handleCreate: () => void; labelCreate: string; loading: boolean; columns: string[]; items: any[]; noItemsLabel: string }) {
     return (<div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">Países</h2>
+                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">{title}</h2>
                 <Button
                   onClick={handleCreate}
                 >

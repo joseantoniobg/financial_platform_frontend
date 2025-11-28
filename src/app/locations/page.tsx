@@ -265,6 +265,7 @@ export default function LocationsPage() {
           {/* Countries Tab */}
           {activeTab === 'countries' && (
             <LocationTab 
+              title="Países"
               handleCreate={handleCreateCountry}
               labelCreate="Adicionar País"
               loading={loading}
@@ -305,6 +306,7 @@ export default function LocationsPage() {
           {/* States Tab */}
           {activeTab === 'states' && (
             <LocationTab
+              title="Estados"
               handleCreate={handleCreateState}
               labelCreate="Adicionar Estado"
               loading={loading}
@@ -346,6 +348,7 @@ export default function LocationsPage() {
           {/* Cities Tab */}
           {activeTab === 'cities' && (
             <LocationTab
+              title="Cidades"
               handleCreate={handleCreateCity}
               labelCreate="Adicionar Cidade"
               loading={loading}
