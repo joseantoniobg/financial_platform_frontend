@@ -19,7 +19,6 @@ import {
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { PageTitle } from '@/components/ui/page-title';
-import { useLoadingStore } from '@/store/loadingStore';
 import { StLoading } from '@/components/StLoading';
 
 interface Wallet {

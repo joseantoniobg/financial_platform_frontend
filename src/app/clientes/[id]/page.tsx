@@ -1416,7 +1416,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
                   <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
                   <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
-                  <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
+                  <TabsTrigger value="planejamento">Objetivos & Planejamento Financeiro</TabsTrigger>
                 </TabsList>}
 
                 {/* Tab: Dados Cadastrais - Contains all 4 sectors */}

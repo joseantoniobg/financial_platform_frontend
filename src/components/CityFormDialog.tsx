@@ -2,8 +2,6 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import UniversalSelect from './UniversalSelect';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
