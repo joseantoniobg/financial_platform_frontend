@@ -125,7 +125,7 @@ export function Categories({ userId, isClient }: { userId?: string, isClient?: b
         const res = await fetch(`/api/user-transaction-types/${id}`, { method: 'DELETE' });
         if (res.ok) {
             toast.success('Sub-categoria removida');
-            fetchTransactionTypes();
+            fetchCategories();
         } else {
             toast.error('Erro ao remover sub-categoria');
         }
@@ -241,7 +241,7 @@ export function Categories({ userId, isClient }: { userId?: string, isClient?: b
               type={selectedType}
               categories={categories}
               initialCategoryId={initialCategoryId}
-              onSuccess={() => { fetchTransactionTypes(); fetchCategories(); }}
+              onSuccess={fetchCategories}
           />
       </div>
     </StLoading>);
