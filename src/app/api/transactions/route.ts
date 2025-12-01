@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
     const sessionUser = session.user;
@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const response = await fetch(`${backendUrl}/transactions`, {
+    const response = await fetch(`${backendUrl}/transactions?` + req.url.split('?')[1], {
       headers: {
         Authorization: `Bearer ${token}`,
       },

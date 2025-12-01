@@ -329,7 +329,7 @@ function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: I
             </div>
           </div>
       </aside>
-      <main className={`ml-4 ${isCollapsed ? 'md:ml-24' : 'md:ml-68'} flex-1 transition-all duration-300 m-5`}>
+      <main className={`ml-4 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} flex-1 transition-all duration-300 p-5 min-h-[100vh]`}>
           {children}
       </main>
     </>

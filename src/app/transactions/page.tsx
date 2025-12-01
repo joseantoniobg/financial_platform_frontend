@@ -1,25 +1,26 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, CheckCircle, Circle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Trash2, CheckCircle, Circle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { TransactionFormDialog } from '@/components/TransactionFormDialog';
 import { PaymentDateDialog } from '@/components/PaymentDateDialog';
 import toast from 'react-hot-toast';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate, formatUrlParams } from '@/lib/utils';
 import { PageTitle } from '@/components/ui/page-title';
 import { TopAddButton } from '@/components/ui/top-add-button';
 import { MainLoadableContent } from '@/components/ui/main-loadable-content';
 import { ExpandableButton } from '@/components/ui/expandable-button';
-import { StLoading } from '@/components/StLoading';
 import { FormField } from '@/components/ui/form-field';
 import { StCard } from '@/components/StCard';
 import { Button } from '@/components/ui/button';
 import { StSelect } from '@/components/st-select';
 import { PaginatedResponseType } from '../../types/paginated.response.type';
 import { PaginationInfo } from '@/components/PaginationInfo';
+import { TransactionFilterModel } from '@/models/transaction.filter.model';
+import Pagination from '@/components/Pagination';
 
 interface TransactionType {
   id: string;
@@ -66,12 +67,7 @@ export default function TransactionsPage() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [expandedTickets, setExpandedTickets] = useState<Set<number>>(new Set());
   const [wallets, setWallets] = useState<TransactionWallet[]>([]);
-
-  const [initialDate, setInitialDate] = useState<string>('');
-  const [finalDate, setFinalDate] = useState<string>('');
-  const [walletId, setWalletId] = useState<string>('');
-  const [categoryId, setCategoryId] = useState<string>('None');
-  const [transactionTypeId, setTransactionTypeId] = useState<string>('None');
+  const [filters, setFilters] = useState<TransactionFilterModel>(new TransactionFilterModel());
 
   const isClient = useMemo(() => {
     return user?.roles?.some((role) => role.name === 'Cliente');
@@ -83,12 +79,14 @@ export default function TransactionsPage() {
       fetchTransactionTypes();
       fetchWallets();
     }
-  }, [isAuthenticated, isClient]);
+  }, [isAuthenticated, isClient, filters.page, filters.size]);
 
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/transactions');
+      const params = formatUrlParams(filters);
+
+      const res = await fetch('/api/transactions?' + params);
       if (res.ok) {
         const data = await res.json();
         setTransactions(data);
@@ -107,7 +105,6 @@ export default function TransactionsPage() {
       const res = await fetch('/api/user-transaction-types');
       if (res.ok) {
         const data = await res.json();
-        // Filter out Aporte and Resgate types (not user-selectable, created via checkboxes)
         const visibleTypes = data.filter((type: { direction?: string }) => 
           type.direction !== 'Aporte' && type.direction !== 'Resgate'
         );
@@ -127,8 +124,8 @@ export default function TransactionsPage() {
   }, [transactionTypes]);
 
   const selectedTransactionTypes = useMemo(() => {
-    return transactionTypes.filter((type) => type.category.id === categoryId);
-  }, [categoryId, transactionTypes]);
+    return transactionTypes.filter((type) => type.category.id === filters.categoryId);
+  }, [filters.categoryId, transactionTypes]);
 
   const fetchWallets = async () => {
     try {
@@ -202,7 +199,6 @@ export default function TransactionsPage() {
     });
   };
 
-  // Group transactions by ticket
   const groupedTransactions = useMemo(() => {
     const groups: { [key: number]: Transaction[] } = {};
     transactions?.content.forEach(transaction => {
@@ -245,15 +241,15 @@ export default function TransactionsPage() {
               label="Data Inicial"
               htmlFor="initialDate"
               date
-              value={initialDate}
-              onChangeValue={(value) => setInitialDate(`${value}`)}
+              value={filters.initialDate}
+              onChangeValue={(value) => setFilters({ ...filters, initialDate: `${value}` })}
             />
             <FormField
               label="Data Final"
               htmlFor="finalDate"
               date
-              value={finalDate}
-              onChangeValue={(value) => setFinalDate(`${value}`)}
+              value={filters.finalDate}
+              onChangeValue={(value) => setFilters({ ...filters, finalDate: `${value}` })}
             />
             <StSelect
               label="Carteira"
@@ -261,8 +257,8 @@ export default function TransactionsPage() {
               loading={loading}
               searchable={false}
               items={[{ id: 'None', description: 'Todas' }, ...wallets.map((wallet) => ({ id: wallet.id, description: wallet.title }))]}
-              value={walletId}
-              onChange={(value) => setWalletId(value)}
+              value={filters.walletId}
+              onChange={(value) => setFilters({ ...filters, walletId: value })}
             />
             <StSelect
               label="Categoria"
@@ -270,8 +266,8 @@ export default function TransactionsPage() {
               loading={loading}
               searchable={false}
               items={[{ id: 'None', description: 'Todas' }, ...categories.map((category) => ({ id: category.id, description: category.category }))]}
-              value={categoryId}
-              onChange={(value) => setCategoryId(value)}
+              value={filters.categoryId}
+              onChange={(value) => setFilters({ ...filters, categoryId: value })}
             />
             {selectedTransactionTypes?.length > 0 && (<StSelect
               label="Subcategoria"
@@ -279,15 +275,15 @@ export default function TransactionsPage() {
               loading={loading}
               searchable={false}
               items={[{ id: 'None', description: 'Todas' }, ...selectedTransactionTypes.map((type) => ({ id: type.id, description: type.type }))]}
-              value={transactionTypeId}
-              onChange={(value) => setTransactionTypeId(value)}
+              value={filters.transactionTypeId}
+              onChange={(value) => setFilters({ ...filters, transactionTypeId: value })}
             />)}
             <Button className='self-end' onClick={fetchTransactions}>Filtrar</Button>
           </div>
         </StCard>
 
         <MainLoadableContent isLoading={loading} noItems={groupedTransactions.length === 0 ? "Nenhuma transação cadastrada" : ""}>
-          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))]/50 divide-y divide-[hsl(var(--app-border))]">
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))]/50 divide-y divide-[hsl(var(--app-border))] mb-[-15px]">
             {groupedTransactions.map((group) => {
               const first = group[0];
               const total = group.reduce((sum, t) => sum + (t.calculation !== 3 ? parseFloat(t.amount.toString()) : 0), 0);
@@ -295,7 +291,7 @@ export default function TransactionsPage() {
               
               return (
                 <div key={first.ticket} className="p-4">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-0">
                     <div className="flex items-center gap-2 flex-1">
                       <ExpandableButton isExpanded={isExpanded} onClick={() => toggleTicket(first.ticket)} />
                       <div className="flex items-center gap-2 flex-1">
@@ -402,7 +398,12 @@ export default function TransactionsPage() {
               );
             })}
           </div>
-          <PaginationInfo props={transactions} />
+          <Pagination
+            totalPages={transactions?.totalPages}
+            currentPage={filters.page}
+            totalRecords={transactions?.totalRecords}
+            setPage={setFilters}
+          />
         </MainLoadableContent>
 
         <TransactionFormDialog
