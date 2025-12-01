@@ -25,6 +25,7 @@
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
+    --cyan: 192, 100%, 60%;
 
     --primary: 221, 75%, 30%;
     --primary-hover: 217, 75%, 15%;
@@ -83,6 +84,7 @@
 
     --popover: 209, 91%, 75%;
     --popover-foreground: 224, 53%, 26%;
+    --cyan: 192, 100%, 30%;
 
     --primary: 221, 75%, 20%;
     --primary-hover: 217, 75%, 10%;
