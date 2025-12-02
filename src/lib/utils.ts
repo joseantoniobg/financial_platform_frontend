@@ -28,9 +28,16 @@ export const formatCurrency = (value: number | null | undefined) => {
   }).format(value);
 };
 
-export const formatUrlParams = (params: Object) => {
+export const formatUrlParams = (params: object) => {
   const urlParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(val => {
+        urlParams.append(key, String(val));
+      });
+      return;
+    }
+
     if (value !== undefined && value !== null && value !== 'None' && value !== '') {
       urlParams.append(key, String(value));
     }

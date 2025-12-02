@@ -21,6 +21,7 @@ import { PaginatedResponseType } from '../../types/paginated.response.type';
 import { PaginationInfo } from '@/components/PaginationInfo';
 import { TransactionFilterModel } from '@/models/transaction.filter.model';
 import Pagination from '@/components/Pagination';
+import StMultiSelect from '@/components/StMultiSelect';
 
 interface TransactionType {
   id: string;
@@ -124,8 +125,8 @@ export default function TransactionsPage() {
   }, [transactionTypes]);
 
   const selectedTransactionTypes = useMemo(() => {
-    return transactionTypes.filter((type) => type.category.id === filters.categoryId);
-  }, [filters.categoryId, transactionTypes]);
+    return transactionTypes.filter((type) => filters.categoryIds.includes(type.category.id));
+  }, [filters.categoryIds, transactionTypes]);
 
   const fetchWallets = async () => {
     try {
@@ -260,24 +261,24 @@ export default function TransactionsPage() {
               value={filters.walletId}
               onChange={(value) => setFilters({ ...filters, walletId: value })}
             />
-            <StSelect
-              label="Categoria"
-              htmlFor="category"
-              loading={loading}
-              searchable={false}
-              items={[{ id: 'None', description: 'Todas' }, ...categories.map((category) => ({ id: category.id, description: category.category }))]}
-              value={filters.categoryId}
-              onChange={(value) => setFilters({ ...filters, categoryId: value })}
+            <StMultiSelect
+              label="Categorias"
+              htmlFor="categories"
+              items={categories.map((category) => ({ id: category.id, label: category.category }))}
+              onChange={(selectedItems) => {
+                const selectedIds = selectedItems.map(item => item.id);
+                setFilters({ ...filters, categoryIds: selectedIds });
+              }}
             />
-            {selectedTransactionTypes?.length > 0 && (<StSelect
+            {selectedTransactionTypes?.length > 0 && (<StMultiSelect
               label="Subcategoria"
               htmlFor="subcategory"
-              loading={loading}
-              searchable={false}
-              items={[{ id: 'None', description: 'Todas' }, ...selectedTransactionTypes.map((type) => ({ id: type.id, description: type.type }))]}
-              value={filters.transactionTypeId}
-              onChange={(value) => setFilters({ ...filters, transactionTypeId: value })}
-            />)}
+              items={[...selectedTransactionTypes.map((type) => ({ id: type.id, label: type.type }))]}
+              onChange={(selectedItems) => {
+                const selectedIds = selectedItems.map(item => item.id);
+                setFilters({ ...filters, typeIds: selectedIds });
+              }}
+            />)} 
             <Button className='self-end' onClick={fetchTransactions}>Filtrar</Button>
           </div>
         </StCard>

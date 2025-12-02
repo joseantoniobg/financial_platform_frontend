@@ -4,6 +4,6 @@ export class TransactionFilterModel extends PaginationFilterModel {
   initialDate: string = '';
   finalDate: string = '';
   walletId: string = 'None';
-  categoryId: string = 'None';
-  transactionTypeId: string = 'None';
+  categoryIds: string[] = [];
+  typeIds: string[] = [];
 }
