@@ -7,23 +7,28 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { DashBoardCard } from '@/components/ui/dashboard-card';
 import { MonthlyBalancePieChart } from '@/components/MonthlyBalancePieChart';
+import { StCard } from '@/components/StCard';
+import { ArrowBigDown, ArrowBigUp, ArrowDownIcon, ArrowDownToDot, ArrowUpAZ, ArrowUpFromDotIcon, ArrowUpIcon, LineChartIcon } from 'lucide-react';
+import { formatCurrency, formatUrlParams } from '../../lib/utils';
+import { FormField } from '@/components/ui/form-field';
+import { Button } from '@/components/ui/button';
+import { StSelect } from '@/components/st-select';
+import { set } from 'date-fns';
+import PieChartHome, { COLORS } from '@/components/pie-chart-home';
+import { Card } from '@/components/ui/card';
+import { PageTitle } from '@/components/ui/page-title';
 
 type DashboardData = {
-  balances: {
-    currentMonth: string;
+  currentMonth: string;
+  balances: [{
     sumIncomes: number;
     sumEarnings: number;
     sumExpenses: number;
     sumContributions: number;
     sumWithdrawals: number;
-    currentMonthIncomes: number;
-    currentMonthEarnings: number;
-    currentMonthExpenses: number;
-    currentMonthContributions: number;
-    currentMonthWithdrawals: number;
-    netBalance: number;
-    currentMonthNetBalance: number;
-  },
+    category: string;
+    type: string;
+  }],
   expenses: [
         {
             category: string,
@@ -45,18 +50,40 @@ export default function HomePage() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [expensesPerCategory, setExpensesPerCategory] = useState<boolean>(true);
+  const [filters, setFilters] = useState<{ initialDate?: string; finalDate?: string }>({ initialDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], finalDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0] });
+  const [filterType, setFilterType] = useState<string>('1');
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+
+  const handleFilters = (value: string) => {
+    if (filterType === '1') {
+      const year = new Date().getFullYear();
+      const month = parseInt(value) - 1;
+      const initialDate = new Date(year, month, 1).toISOString().split('T')[0];
+      const finalDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
+      setFilters({ initialDate, finalDate });
+    } else if (filterType === '2') {
+      const year = parseInt(value);
+      const initialDate = new Date(year, 0, 1).toISOString().split('T')[0];
+      const finalDate = new Date(year, 11, 31).toISOString().split('T')[0];
+      setFilters({ initialDate, finalDate });
+    }
+  }
+
+  useEffect(() => {
+    handleFilters(filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString()) : (selectedYear || new Date().getFullYear().toString()));
+  }, [filterType, selectedMonth, selectedYear]);
 
   const isAuthenticated = useRequireAuth();
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/dashboard');
+      const params = formatUrlParams(filters);
+      const res = await fetch(`/api/dashboard?${params}`);
       if (res.ok) {
         const data = await res.json();
         setDashboardData(data);
-        console.log("Dashboard data fetched:", data);
       } else {
         toast.error('Erro ao carregar dados do dashboard');
       }
@@ -75,25 +102,21 @@ export default function HomePage() {
     return null;
   }
 
-  const { 
-    currentMonth,
-    sumIncomes,
-    sumEarnings,
-    sumExpenses,
-    sumContributions,
-    sumWithdrawals,
-    currentMonthIncomes,
-    currentMonthEarnings,
-    currentMonthExpenses,
-    currentMonthContributions,
-    currentMonthWithdrawals,
-    netBalance,
-    currentMonthNetBalance, 
-  } = dashboardData?.balances ?? { currentMonthIncomes: 0, currentMonthEarnings: 0, currentMonthExpenses: 0, currentMonthContributions: 0, currentMonthWithdrawals: 0, currentMonth: '' };
+ 
+  const sumIncomes = dashboardData?.balances.reduce((a, b) => a + Number(b.sumIncomes), 0) || 0;
+  const sumExpenses = dashboardData?.balances.reduce((a, b) => a + Number(b.sumExpenses), 0) || 0;
+  const sumEarnings = dashboardData?.balances.reduce((a, b) => a + Number(b.sumEarnings), 0) || 0;
+  const sumContributions = dashboardData?.balances.reduce((a, b) => a + Number(b.sumContributions), 0) || 0;
+  const sumWithdrawals = dashboardData?.balances.reduce((a, b) => a + Number(b.sumWithdrawals), 0) || 0;
+  const currentMonthNetBalance = (sumIncomes + sumEarnings) - (sumExpenses + sumWithdrawals);
 
-  const expenses = expensesPerCategory ? dashboardData?.expensesPerCategory : dashboardData?.expenses;
+  const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const currentYear = new Date().getFullYear();
 
-  const textColor = (currentMonthNetBalance ?? 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+  const years = [];
+  for (let year = 2010; year <= currentYear + 100; year++) {
+    years.push(year);
+  }
 
   return (
     <DashboardLayout>
@@ -103,36 +126,105 @@ export default function HomePage() {
               Bem-vindo(a) à Plataforma Financeira
             </h1>
           </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            <DashBoardCard 
-              title={`Balanço ${currentMonth}`} 
-              items={[
-                { label: 'Entradas', value: currentMonthIncomes || 0 },
-                { label: 'Resgates', value: currentMonthWithdrawals || 0 },
-                { label: 'Evolução da Carteira', value: currentMonthEarnings || 0 },
-                { label: 'Saídas', value: currentMonthExpenses || 0 },
-                { label: 'Aportes', value: currentMonthContributions || 0 },
-              ]} 
-              balance={currentMonthNetBalance || 0} 
-              textColor={textColor}
-              chart={
-                <MonthlyBalancePieChart 
-                  incomes={Math.max(currentMonthIncomes - currentMonthExpenses, 0) || 0} 
-                  expenses={currentMonthExpenses || 0} 
-                />
-              }
-            />
-
-            <DashBoardCard title={`Saídas`} total={expenses?.reduce((a, b) => a + b.total, 0)} items={(expenses ?? [])?.map(expense => ({ label: `${expense.category} ${expense.type ? ' - ' + expense.type : ''}`, value: expense.total }))}>
-              <div>
-                <p className='mb-2'>Exibir por:</p>
-                <input type="radio" id="byCategory" name="expenseView" value="byCategory" checked={expensesPerCategory} onChange={() => setExpensesPerCategory(true)} />
-                <label htmlFor="byCategory" className="ml-2 mr-4 text-sm">Categoria</label>
-                <input type="radio" id="byType" name="expenseView" value="byType" checked={!expensesPerCategory} onChange={() => setExpensesPerCategory(false)} />
-                <label htmlFor="byType" className="ml-2 text-sm">Sub-Categoria</label>
+          <div className='grid grid-cols-1 lg:flex lg:justify-between'>
+            <div className='flex gap-3 m-2'>
+              <StSelect
+                label="Visualizar Por"
+                htmlFor="expensesPer"
+                items={[
+                  { id: '1', description: 'Mensal' },
+                  { id: '2', description: 'Anual' },
+                  { id: '3', description: 'Específico' },
+                ]}
+                value={filterType}
+                onChange={(value) => { setFilterType(value); }}
+                loading={false}
+                searchable={false}
+              />
+              {filterType !== '3' && <StSelect
+                label="Período"
+                htmlFor="expensesPer"
+                items={filterType === '1' ? months.map((month, index) => ({ id: (index + 1).toString(), description: month + `/${currentYear}` })) : years.map(year => ({ id: year.toString(), description: year.toString() }))}
+                value={filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString()) : (selectedYear || currentYear.toString())}
+                onChange={(value) => { if(filterType === '1') setSelectedMonth(value); else setSelectedYear(value); handleFilters(value); }}
+                loading={false}
+                searchable={false}
+              />}
+              {filterType === '3' && (<><FormField
+                label="Data Inicial"
+                htmlFor="initialDate"
+                date
+                value={filters.initialDate || ''}
+                onChangeValue={(e) => setFilters({ ...filters, initialDate: `${e}` })}
+              />
+              <FormField
+                label="Data Final"
+                htmlFor="finalDate"
+                date
+                value={filters.finalDate || ''}
+                onChangeValue={(e) => setFilters({ ...filters, finalDate: `${e}` })}
+              /></>)}
+              <Button onClick={fetchDashboardData} className='self-end'>Aplicar Filtros</Button>
+            </div>
+            <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 sm:w-120'>
+              <StCard>
+                <div className='flex flex-col'>
+                  <span className='text-sm mb-1'><ArrowUpIcon className="inline-block w-4 h-4 text-green-500" /> Entradas:</span> 
+                  <span className='text-center text-[1.1rem] font-bold'>{formatCurrency(sumIncomes)}</span>
+                </div>
+              </StCard>
+              <StCard>
+                <div className='flex flex-col'>
+                  <span className='text-sm mb-1'><ArrowDownIcon className="inline-block w-4 h-4 text-red-500" /> Saídas:</span> 
+                  <span className='text-center text-[1.1rem] font-bold'>{formatCurrency(sumExpenses)}</span>
+                </div>
+              </StCard>
+              <StCard>
+                <div className='flex flex-col'>
+                  <span className='text-sm mb-1'><LineChartIcon className="inline-block w-4 h-4 text-blue-500" /> Saldo:</span> 
+                  <span className='text-center text-[1.1rem] font-bold'>{formatCurrency(sumIncomes - sumExpenses)}</span>
+                </div>
+              </StCard>
+            </div>
+          </div>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            <StCard className='p-10'>
+              <PageTitle title={<span><ArrowUpFromDotIcon className="inline-block w-9 h-9 text-green-500" /> Entradas</span>} />
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                <PieChartHome items={dashboardData?.balances.filter(balance => balance.sumIncomes !== 0).map(balance => ({ name: balance.category, value: balance.sumIncomes }))} />
+                <div className='flex flex-col justify-center'>
+                  {dashboardData?.balances.filter(balance => balance.sumIncomes !== 0).length === 0 && <span className='text-center'>Nenhuma entrada registrada neste período.</span>}
+                  {dashboardData?.balances.filter(balance => balance.sumIncomes !== 0).map((balance, index) => (
+                    <div key={index} className='flex justify-between my-2'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-4 h-4 rounded-sm' style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                        <span>{balance.type}</span>
+                      </div>
+                      <span>{formatCurrency(balance.sumIncomes)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </DashBoardCard>
-        </div>
+            </StCard>
+            <StCard className='p-10'>
+              <PageTitle title={<span><ArrowDownToDot className="inline-block w-9 h-9 text-red-500" /> Saídas</span>} />
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                <PieChartHome items={dashboardData?.expenses.map(expense => ({ name: expense.category, value: expense.total }))} />
+                <div className='flex flex-col justify-center'>
+                  {dashboardData?.expenses.filter(expense => expense.total !== 0).length === 0 && <span className='text-center'>Nenhuma saída registrada neste período.</span>}
+                  {dashboardData?.expenses.filter(expense => expense.total !== 0).map((expense, index) => (
+                    <div key={index} className='flex justify-between my-2'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-4 h-4 rounded-sm' style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                        <span>{expense.type}</span>
+                      </div>
+                      <span>{formatCurrency(expense.total)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </StCard>
+          </div>
       </div>
     </DashboardLayout>
   );

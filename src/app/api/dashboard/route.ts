@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const response = await fetch(`${backendUrl}/dashboard`, {
+    const response = await fetch(`${backendUrl}/dashboard?${request.nextUrl.searchParams.toString()}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

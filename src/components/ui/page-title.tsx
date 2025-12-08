@@ -1,4 +1,6 @@
-export function PageTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+import React from "react";
+
+export function PageTitle({ title, subtitle }: { title: string | React.ReactNode; subtitle?: string }) {
     return (
         <div>
             <h1 className="text-3xl font-bold text-[hsl(var(--foreground))]">{title}</h1>
