@@ -44,3 +44,19 @@ export const formatUrlParams = (params: object) => {
   });
   return urlParams;
 }
+
+export function groupSum(array, groupField, sumField, sumField2?) {
+  return Object.values(
+    array.reduce((acc, item) => {
+      const key = item[groupField];
+      if (!acc[key]) {
+        acc[key] = { [groupField]: key, [sumField]: 0, [sumField2]: 0 };
+      }
+      acc[key][sumField] += Number(item[sumField]) || 0;
+      if (sumField2) {
+        acc[key][sumField2] += Number(item[sumField2]) || 0;
+      }
+      return acc;
+    }, {})
+  );
+}

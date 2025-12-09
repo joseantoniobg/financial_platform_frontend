@@ -3,13 +3,13 @@
 import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { DashBoardCard } from '@/components/ui/dashboard-card';
 import { MonthlyBalancePieChart } from '@/components/MonthlyBalancePieChart';
 import { StCard } from '@/components/StCard';
-import { ArrowBigDown, ArrowBigUp, ArrowDownIcon, ArrowDownToDot, ArrowUpAZ, ArrowUpFromDotIcon, ArrowUpIcon, LineChartIcon } from 'lucide-react';
-import { formatCurrency, formatUrlParams } from '../../lib/utils';
+import { ArrowBigDown, ArrowBigUp, ArrowDownIcon, ArrowDownToDot, ArrowLeft, ArrowLeftIcon, ArrowRightIcon, ArrowUpAZ, ArrowUpFromDotIcon, ArrowUpIcon, LineChartIcon } from 'lucide-react';
+import { formatCurrency, formatUrlParams, groupSum } from '../../lib/utils';
 import { FormField } from '@/components/ui/form-field';
 import { Button } from '@/components/ui/button';
 import { StSelect } from '@/components/st-select';
@@ -17,6 +17,7 @@ import { set } from 'date-fns';
 import PieChartHome, { COLORS } from '@/components/pie-chart-home';
 import { Card } from '@/components/ui/card';
 import { PageTitle } from '@/components/ui/page-title';
+import IncomeExpenseChart from '@/components/incomes-expenses-chart';
 
 type DashboardData = {
   currentMonth: string;
@@ -28,12 +29,14 @@ type DashboardData = {
     sumWithdrawals: number;
     category: string;
     type: string;
+    paymentMonth: string;
   }],
   expenses: [
         {
             category: string,
             type: string,
-            total: number
+            total: number,
+            paymentMonth: string
         },
   ],
   expensesPerCategory: [
@@ -54,6 +57,11 @@ export default function HomePage() {
   const [filterType, setFilterType] = useState<string>('1');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedBottomYear, setSelectedBottomYear] = useState<number>(new Date().getFullYear());
+  const [yearlyComparisonData, setYearlyComparisonData] = useState<DashboardData | null>(null);
+
+  const initialYearDate = new Date(selectedBottomYear, 0, 1).toISOString().split('T')[0];
+  const finalYearDate = new Date(selectedBottomYear, 11, 31).toISOString().split('T')[0];
 
   const handleFilters = (value: string) => {
     if (filterType === '1') {
@@ -70,9 +78,31 @@ export default function HomePage() {
     }
   }
 
+  const fetchYearData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = formatUrlParams({ initialDate: initialYearDate, finalDate: finalYearDate });
+      const res = await fetch(`/api/dashboard?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setYearlyComparisonData(data);
+      } else {
+        toast.error('Erro ao carregar dados do dashboard');
+      }
+    } catch {
+      toast.error('Erro ao carregar dados do dashboard');
+    } finally {
+      setLoading(false);
+    }
+  }, [initialYearDate, finalYearDate]);
+
   useEffect(() => {
     handleFilters(filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString()) : (selectedYear || new Date().getFullYear().toString()));
   }, [filterType, selectedMonth, selectedYear]);
+
+  useEffect(() => {
+    fetchYearData();
+  }, [selectedBottomYear, fetchYearData]);
 
   const isAuthenticated = useRequireAuth();
 
@@ -96,6 +126,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchDashboardData();
+    fetchYearData();
   }, []);
 
   if (!isAuthenticated || !user) {
@@ -129,7 +160,7 @@ export default function HomePage() {
           <div className='grid grid-cols-1 lg:flex lg:justify-between'>
             <div className='flex gap-3 m-2'>
               <StSelect
-                label="Visualizar Por"
+                label="Período"
                 htmlFor="expensesPer"
                 items={[
                   { id: '1', description: 'Mensal' },
@@ -224,6 +255,32 @@ export default function HomePage() {
                 </div>
               </div>
             </StCard>
+          </div>
+          <div>
+            <Card>
+              <div className='m-4'>
+                <div className='flex justify-between'>
+                  <div className='flex gap-6 items-center'>
+                    <StSelect
+                      label="Ano"
+                      htmlFor="year"
+                      items={years.map(year => ({ id: year.toString(), description: year.toString() }))}
+                      value={selectedBottomYear.toString()}
+                      onChange={(value) => setSelectedBottomYear(parseInt(value))}
+                      loading={false}
+                      searchable={false}
+                      horizontal
+                    />
+                    <PageTitle title="Comparativo Anual de Entradas e Saídas" fontSize='text-lg' />
+                  </div>
+                  <div className='flex gap-2'>
+                    <Button size="sm" onClick={() => setSelectedBottomYear((curr) => curr - 1)}><ArrowLeftIcon className="w-5 h-5" /></Button>
+                    <Button size="sm" onClick={() => setSelectedBottomYear((curr) => curr + 1)}><ArrowRightIcon className="w-5 h-5" /></Button>
+                  </div>
+                </div>
+                <IncomeExpenseChart selectedYear={selectedBottomYear} months={groupSum(dashboardData?.balances || [], 'paymentMonth', 'sumIncomes', 'sumExpenses') as { paymentMonth: string, sumIncomes: number, sumExpenses: number }[]} />
+              </div>
+            </Card>
           </div>
       </div>
     </DashboardLayout>
