@@ -45,12 +45,17 @@ export const formatUrlParams = (params: object) => {
   return urlParams;
 }
 
-export function groupSum(array, groupField, sumField, sumField2?) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function groupSum(array: any[], groupField: string, sumField: string, sumField2?: string) {
   return Object.values(
     array.reduce((acc, item) => {
       const key = item[groupField];
       if (!acc[key]) {
-        acc[key] = { [groupField]: key, [sumField]: 0, [sumField2]: 0 };
+        if (sumField2) {
+          acc[key] = { [groupField]: key, [sumField]: 0, [sumField2]: 0 };
+        } else {
+          acc[key] = { [groupField]: key, [sumField]: 0 };
+        }
       }
       acc[key][sumField] += Number(item[sumField]) || 0;
       if (sumField2) {
