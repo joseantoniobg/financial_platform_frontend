@@ -9,7 +9,7 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
   ];
 
   const [isMobile, setIsMobile] = useState(false);
-  const [monthSet, setMonthSet] = useState(2);
+  const [monthSet, setMonthSet] = useState(3);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -28,7 +28,7 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
       sumIncomes: monthData ? monthData.sumIncomes : 0,
       sumExpenses: monthData ? monthData.sumExpenses : 0,
     };
-  }).slice(isMobile ? 4 * monthSet : 0, isMobile ? 4 * monthSet + 4 : 12);
+  }).slice(isMobile ? 3 * monthSet : 0, isMobile ? 3 * monthSet + 3 : 12);
 
   const formatMonth = (monthStr: string) => {
     const [month, year] = monthStr.split('/');
@@ -112,8 +112,8 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
           </Button>
           <Button
             variant={'outline'}
-            onClick={() => setMonthSet((prev) => Math.min(prev + 1, 2))}
-            disabled={monthSet === 2}
+            onClick={() => setMonthSet((prev) => Math.min(prev + 1, 3))}
+            disabled={monthSet === 3}
           >
             Próximo
           </Button>
