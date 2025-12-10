@@ -68,8 +68,9 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
             style={{ fontWeight: 'bold' }}
           />
           <YAxis 
-            tick={{ fontSize: 14 }}
+            tick={{ fontSize: 12 }}
             tickFormatter={(value) => formatCurrency(value).replace('R$ ', '').split(',')[0]}
+            width={45}
           />
           <Tooltip 
             formatter={(value) => formatCurrency(value as number)}
