@@ -1,11 +1,25 @@
 import { formatCurrency } from '@/lib/utils';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { Button } from './ui/button';
 
 const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth: string, sumIncomes: number, sumExpenses: number }[]; selectedYear?: number }) => {
   const currentMonths = [
     `01/${selectedYear}`, `02/${selectedYear}`, `03/${selectedYear}`, `04/${selectedYear}`, `05/${selectedYear}`, `06/${selectedYear}`, `07/${selectedYear}`, `08/${selectedYear}`, `09/${selectedYear}`, `10/${selectedYear}`, `11/${selectedYear}`, `12/${selectedYear}`
   ];
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [monthSet, setMonthSet] = useState(2);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const totalMonths = currentMonths.map(month => {
     const monthData = months?.find(m => m.paymentMonth === month);
@@ -14,7 +28,7 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
       sumIncomes: monthData ? monthData.sumIncomes : 0,
       sumExpenses: monthData ? monthData.sumExpenses : 0,
     };
-  });
+  }).slice(isMobile ? 4 * monthSet : 0, isMobile ? 4 * monthSet + 4 : 12);
 
   const formatMonth = (monthStr: string) => {
     const [month, year] = monthStr.split('/');
@@ -39,12 +53,11 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
   };
 
   return (
-    <div className="w-full h-[350px] bg-white p-8">      
-      <ResponsiveContainer width="100%" height="100%">
+    <div className={`w-full h-[350px] bg-white p-4`}>      
+      <ResponsiveContainer width="100%" height={isMobile ? "90%" : "100%"}>
         <BarChart
           data={totalMonths}
-          margin={{ top: 40, right: 30, left: 20, bottom: 20 }}
-          barGap={8}
+          barGap={4}
           layout='horizontal'
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -88,6 +101,24 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      {isMobile && (
+        <div className="flex justify-center mt-4 gap-4">
+          <Button
+            variant={'outline'}
+            onClick={() => setMonthSet((prev) => Math.max(prev - 1, 0))}
+            disabled={monthSet === 0}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant={'outline'}
+            onClick={() => setMonthSet((prev) => Math.min(prev + 1, 2))}
+            disabled={monthSet === 2}
+          >
+            Próximo
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
