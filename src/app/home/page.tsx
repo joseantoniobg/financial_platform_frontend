@@ -278,7 +278,7 @@ export default function HomePage() {
                     <Button size="sm" onClick={() => setSelectedBottomYear((curr) => curr + 1)}><ArrowRightIcon className="w-5 h-5" /></Button>
                   </div>
                 </div>
-                <IncomeExpenseChart selectedYear={selectedBottomYear} months={groupSum(dashboardData?.balances || [], 'paymentMonth', 'sumIncomes', 'sumExpenses') as { paymentMonth: string, sumIncomes: number, sumExpenses: number }[]} />
+                <IncomeExpenseChart selectedYear={selectedBottomYear} months={groupSum(yearlyComparisonData?.balances || [], 'paymentMonth', 'sumIncomes', 'sumExpenses') as { paymentMonth: string, sumIncomes: number, sumExpenses: number }[]} />
               </div>
             </Card>
           </div>
