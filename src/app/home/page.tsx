@@ -9,7 +9,7 @@ import { DashBoardCard } from '@/components/ui/dashboard-card';
 import { MonthlyBalancePieChart } from '@/components/MonthlyBalancePieChart';
 import { StCard } from '@/components/StCard';
 import { ArrowBigDown, ArrowBigUp, ArrowDownIcon, ArrowDownToDot, ArrowLeft, ArrowLeftIcon, ArrowRightIcon, ArrowUpAZ, ArrowUpFromDotIcon, ArrowUpIcon, LineChartIcon } from 'lucide-react';
-import { formatCurrency, formatUrlParams, groupSum } from '../../lib/utils';
+import { formatCurrency, formatUrlParams, groupSum, formatDate, formatDateWithTime } from '../../lib/utils';
 import { FormField } from '@/components/ui/form-field';
 import { Button } from '@/components/ui/button';
 import { StSelect } from '@/components/st-select';
@@ -18,6 +18,7 @@ import PieChartHome, { COLORS } from '@/components/pie-chart-home';
 import { Card } from '@/components/ui/card';
 import { PageTitle } from '@/components/ui/page-title';
 import IncomeExpenseChart from '@/components/incomes-expenses-chart';
+import { StTable } from '@/components/st-table';
 
 type DashboardData = {
   currentMonth: string;
@@ -49,16 +50,24 @@ type DashboardData = {
   roles: string[];
 }
 
+type ConsultantDashboardData = {
+  activeUsers: number;
+  monthMeetings: number;
+  futureSchedules: number;
+  alerts: {id: string, name: string, meeting_date: string, subject: string, type: string }[];
+}
+
 export default function HomePage() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [filters, setFilters] = useState<{ initialDate?: string; finalDate?: string }>({ initialDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], finalDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0] });
+  const [consultantData, setConsultantData] = useState<ConsultantDashboardData | null>(null);
+  const [filters, setFilters] = useState<{ initialDate?: string; finalDate?: string, selectedRole: number }>({ initialDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], finalDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0], selectedRole: user?.roles[0].id || 0 });
   const [filterType, setFilterType] = useState<string>('1');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedBottomYear, setSelectedBottomYear] = useState<number>(new Date().getFullYear());
-  const [yearlyComparisonData, setYearlyComparisonData] = useState<DashboardData | null>(null);
+  const [yearlyComparisonData, setYearlyComparisonData] = useState<DashboardData | null>(null); 
 
   const initialYearDate = new Date(selectedBottomYear, 0, 1).toISOString().split('T')[0];
   const finalYearDate = new Date(selectedBottomYear, 11, 31).toISOString().split('T')[0];
@@ -69,19 +78,20 @@ export default function HomePage() {
       const month = parseInt(value) - 1;
       const initialDate = new Date(year, month, 1).toISOString().split('T')[0];
       const finalDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
-      setFilters({ initialDate, finalDate });
+      setFilters(curr => ({ ...curr, initialDate, finalDate }));
     } else if (filterType === '2') {
       const year = parseInt(value);
       const initialDate = new Date(year, 0, 1).toISOString().split('T')[0];
       const finalDate = new Date(year, 11, 31).toISOString().split('T')[0];
-      setFilters({ initialDate, finalDate });
+      setFilters(curr => ({ ...curr, initialDate, finalDate }));
     }
   }
 
   const fetchYearData = useCallback(async () => {
+    if (filters.selectedRole !== 2) return;
     setLoading(true);
     try {
-      const params = formatUrlParams({ initialDate: initialYearDate, finalDate: finalYearDate });
+      const params = formatUrlParams({ selectedRole: filters.selectedRole, initialDate: initialYearDate, finalDate: finalYearDate });
       const res = await fetch(`/api/dashboard?${params}`);
       if (res.ok) {
         const data = await res.json();
@@ -107,13 +117,18 @@ export default function HomePage() {
   const isAuthenticated = useRequireAuth();
 
   const fetchDashboardData = async () => {
+    if (!filters.selectedRole) return;
     setLoading(true);
     try {
       const params = formatUrlParams(filters);
       const res = await fetch(`/api/dashboard?${params}`);
       if (res.ok) {
         const data = await res.json();
-        setDashboardData(data);
+        if (filters.selectedRole === 3) {
+          setConsultantData(data);
+        } else {
+          setDashboardData(data);
+        }
       } else {
         toast.error('Erro ao carregar dados do dashboard');
       }
@@ -127,19 +142,28 @@ export default function HomePage() {
   useEffect(() => {
     fetchDashboardData();
     fetchYearData();
-  }, []);
+  }, [filters]);
 
   if (!isAuthenticated || !user) {
     return null;
   }
 
  
-  const sumIncomes = dashboardData?.balances.reduce((a, b) => a + Number(b.sumIncomes), 0) || 0;
-  const sumExpenses = dashboardData?.balances.reduce((a, b) => a + Number(b.sumExpenses), 0) || 0;
-  const sumEarnings = dashboardData?.balances.reduce((a, b) => a + Number(b.sumEarnings), 0) || 0;
-  const sumContributions = dashboardData?.balances.reduce((a, b) => a + Number(b.sumContributions), 0) || 0;
-  const sumWithdrawals = dashboardData?.balances.reduce((a, b) => a + Number(b.sumWithdrawals), 0) || 0;
-  const currentMonthNetBalance = (sumIncomes + sumEarnings) - (sumExpenses + sumWithdrawals);
+  let sumIncomes = 0;
+  let sumExpenses = 0;
+  let sumEarnings = 0;
+  let sumContributions = 0;
+  let sumWithdrawals = 0;
+  let currentMonthNetBalance = 0;
+
+  if (filters.selectedRole === 2) {
+    sumIncomes = dashboardData?.balances.reduce((a, b) => a + Number(b.sumIncomes), 0) || 0;
+    sumExpenses = dashboardData?.balances.reduce((a, b) => a + Number(b.sumExpenses), 0) || 0;
+    sumEarnings = dashboardData?.balances.reduce((a, b) => a + Number(b.sumEarnings), 0) || 0;
+    sumContributions = dashboardData?.balances.reduce((a, b) => a + Number(b.sumContributions), 0) || 0;
+    sumWithdrawals = dashboardData?.balances.reduce((a, b) => a + Number(b.sumWithdrawals), 0) || 0;
+    currentMonthNetBalance = (sumIncomes + sumEarnings) - (sumExpenses + sumWithdrawals);
+  }
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const currentYear = new Date().getFullYear();
@@ -152,11 +176,61 @@ export default function HomePage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-          <div className="bg-[hsl(var(--card))] rounded-lg shadow-md pl-5 p-3 border border-gray-200 dark:border-gray-700">
+          <Card className='flex justify-between items-center p-4'>
             <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
               Bem-vindo(a) à Plataforma Financeira
             </h1>
+            {user?.roles.length > 1 && <StSelect
+              label="Visão"
+              htmlFor="roleSelect"
+              horizontal
+              items={user.roles.map(role => ({ id: `${role.id}`, description: role.name }))}
+              value={`${filters.selectedRole}`}
+              onChange={(value) => { setFilters(curr => ({ ...curr, selectedRole: parseInt(value) })); }}
+              loading={false}
+              searchable={false}
+            />}
+         </Card>
+    {filters.selectedRole === 3 && (<>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+            <StCard>
+              <div className='flex flex-col'>
+                <span className='text-sm mb-1'>Clientes Ativos</span> 
+                <span className='text-center text-[1.5rem] font-bold'>{consultantData?.activeUsers || 0}</span>
+              </div>
+            </StCard>
+            <StCard>
+              <div className='flex flex-col'>
+                <span className='text-sm mb-1'>Consultorias Realizadas no Mês</span> 
+                <span className='text-center text-[1.5rem] font-bold'>{consultantData?.monthMeetings || 0}</span>
+              </div>
+            </StCard>
+            <StCard>
+              <div className='flex flex-col'>
+                <span className='text-sm mb-1'>Reuniões Futuras</span> 
+                <span className='text-center text-[1.5rem] font-bold'>{consultantData?.futureSchedules || 0}</span>
+              </div>
+            </StCard>
           </div>
+          <div>
+            <StCard className='p-3'>
+              <PageTitle title="Alertas" fontSize='text-lg' className='ml-4' />
+              <div className='mt-2'>
+                {consultantData?.alerts.length === 0 && <span>Nenhum alerta pendente.</span>}
+                {consultantData?.alerts && consultantData?.alerts.length > 0 && <StTable 
+                  colunmNames={['Nome', 'Data', 'Assunto']}
+                  items={consultantData?.alerts.map((alert) => ({
+                    name: alert.name,
+                    date: alert.type === 'anniversary' ? formatDate(alert.meeting_date) : formatDateWithTime(alert.meeting_date),
+                    subject: alert.subject,
+                  }))}
+                />}
+              </div>
+            </StCard>
+          </div>
+        </>)}
+    {filters.selectedRole === 2 && (
+         <>
           <div className='grid grid-cols-1 lg:flex lg:justify-between'>
             <div className='flex gap-3 m-2'>
               <StSelect
@@ -282,6 +356,7 @@ export default function HomePage() {
               </div>
             </Card>
           </div>
+        </>)}
       </div>
     </DashboardLayout>
   );

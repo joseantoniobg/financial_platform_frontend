@@ -19,6 +19,7 @@ import { PatrimonySection } from '@/components/PatrimonySection';
 import { FinancialGoalsSection } from '@/components/FinancialGoalsSection';
 import { MonthlyBudgetsSection } from '@/components/MonthlyBudgetsSection';
 import { StLoading } from '@/components/StLoading';
+import Schedulings from '@/components/Schedulings';
 
 interface Role {
   id: string;
@@ -148,6 +149,21 @@ export interface MonthlyBudget {
   subcategory?: UserTransactionType;
 }
 
+interface Question {
+  id: string;
+  questionText: string;
+  options: Array<{ id: string; answerText: string; value: string }>;
+}
+
+interface Questionnaire {
+  id: string;
+  riskProfile: string;
+  completedAt: string;
+  totalWeight: number;
+  averageWeight: number;
+  responses: { id: string; question: string; answer: string; weight: number }[];
+}
+
 export default function EditClientPage({ searchParams }: { searchParams: Promise<{ module?: string | undefined }> }) {
   const { user } = useAuthStore();
   const isAuthenticated = useRequireAuth();
@@ -239,10 +255,10 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
   });
   
   // Investor Profile state
-  const [latestQuestionnaire, setLatestQuestionnaire] = useState<any>(null);
+  const [latestQuestionnaire, setLatestQuestionnaire] = useState<Questionnaire | null>(null);
   const [loadingQuestionnaire, setLoadingQuestionnaire] = useState(false);
   const [showNewQuestionnaire, setShowNewQuestionnaire] = useState(false);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Map<string, string>>(new Map());
 
@@ -750,7 +766,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
       const res = await fetch('/api/users?limit=1000&isConsultant=true');
       if (res.ok) {
         const data = await res.json();
-        setConsultants(data.users.map((u: any) => ({ id: u.id, name: u.name })));
+        setConsultants(data.users.map((u: { id: string; name: string }) => ({ id: u.id, name: u.name })));
       }
     } catch {
       console.error('Error fetching consultants');
@@ -1416,6 +1432,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
                   <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
                   <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
+                  <TabsTrigger value="agendamentos">Agendamentos</TabsTrigger>
                   <TabsTrigger value="planejamento">Objetivos & Planejamento Financeiro</TabsTrigger>
                 </TabsList>}
 
@@ -1435,6 +1452,10 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   onUpdateDependent={handleUpdateDependent}
                   onDeleteDependent={handleDeleteDependent}
                 />
+
+                <TabsContent value="agendamentos" className="space-y-6">
+                  <Schedulings client={client} />
+                </TabsContent>
 
                 {/* Tab: Patrimônio */}
                 <TabsContent value="patrimonio" className="space-y-6">
@@ -1575,7 +1596,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                                 setResponses(newResponses);
                               }}
                             >
-                              {questions[currentQuestionIndex]?.answers.map((answer: any) => (
+                              {questions[currentQuestionIndex]?.options.map((answer: { id: string; answerText: string; value: string }) => (
                                 <div key={answer.id} className="flex items-center space-x-2 mb-3">
                                   <RadioGroupItem value={answer.id} id={answer.id} />
                                   <Label
@@ -1679,7 +1700,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                             <h5 className="font-medium text-[hsl(var(--foreground))]">
                               Respostas do Questionário:
                             </h5>
-                            {latestQuestionnaire.responses.map((response: any, index: number) => (
+                            {latestQuestionnaire.responses.map((response: { id: string; question: string; answer: string; weight: number }, index: number) => (
                               <div
                                 key={response.id}
                                 className="bg-[hsl(var(--card-accent))] p-4 rounded-lg"

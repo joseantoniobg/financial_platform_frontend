@@ -7,21 +7,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, ArrowLeft, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { DateInput } from '@/components/ui/date-input';
-import { DocumentInput } from '@/components/ui/document-input';
-import { CurrencyInput } from '@/components/ui/currency-input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { TopAddButton } from '@/components/ui/top-add-button';
 import { PageTitle } from '@/components/ui/page-title';
-import { StSelect } from '@/components/st-select';
-import { SessionTitle } from '@/components/ui/session-title';
-import { FormField } from '@/components/ui/form-field';
 import { ClientBasicData } from '@/components/ClientBasicData';
 
 interface Role {
@@ -138,7 +127,7 @@ export default function NewClientPage() {
       const res = await fetch('/api/users?limit=1000&isConsultant=true');
       if (res.ok) {
         const data = await res.json();
-        setConsultants(data.users.map((u: any) => ({ id: u.id, name: u.name })));
+        setConsultants(data.users.map((u: { id: string; name: string }) => ({ id: u.id, name: u.name })));
       }
     } catch {
       console.error('Error fetching consultants');
@@ -425,8 +414,6 @@ export default function NewClientPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="dados-cadastrais">Dados Cadastrais</TabsTrigger>
-                <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
-                <TabsTrigger value="planejamento">Planejamento Financeiro</TabsTrigger>
               </TabsList>
 
               <ClientBasicData formData={formData} setFormData={setFormData} saving={saving} 
@@ -443,24 +430,6 @@ export default function NewClientPage() {
                 onDeleteDependent={async () => {}}
                 newClient
               />
-
-              {/* Tab: Patrimônio */}
-              <TabsContent value="patrimonio" className="space-y-4">
-                <div className="flex flex-col items-center justify-center py-12">
-                  <p className="text-slate-600 dark:text-gray-400 text-center">
-                    A funcionalidade de Patrimônio será implementada em breve.
-                  </p>
-                </div>
-              </TabsContent>
-
-              {/* Tab: Planejamento Financeiro */}
-              <TabsContent value="planejamento" className="space-y-4">
-                <div className="flex flex-col items-center justify-center py-12">
-                  <p className="text-slate-600 dark:text-gray-400 text-center">
-                    A funcionalidade de Planejamento Financeiro será implementada em breve.
-                  </p>
-                </div>
-              </TabsContent>
             </Tabs>
 
             <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">

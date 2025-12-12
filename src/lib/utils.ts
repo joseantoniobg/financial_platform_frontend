@@ -11,6 +11,11 @@ export const formatDate = (date: string | undefined) => {
   return `${dateStr.substring(8,10)}/${dateStr.substring(5,7)}/${dateStr.substring(0,4)}`;
 };
 
+export const formatDateWithTime = (date: string | undefined) => {
+  if (!date) return '';
+  return formatDate(date) + ' às ' + new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+};
+
 export const validateDateString = (date: string): boolean => {
   const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(19|20)\d\d$/;
   if (!regex.test(date)) return false;

@@ -24,7 +24,8 @@ import {
   User,
   UserCog2,
   CoinsIcon,
-  Target
+  Target,
+  Calendar,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -92,6 +93,7 @@ function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: I
     { icon: Briefcase, label: 'Serviços', href: '/services', roles: ['Administrador', 'Consultor'] },
     { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador', 'Consultor'] },
     { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador', 'Consultor'] },
+    { icon: Target, label: 'Motivos de Reunião', href: '/motivos-reuniao', roles: ['Administrador', 'Consultor'] },
   ];
 
   const clientExpandableMenus = [
