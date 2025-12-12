@@ -74,8 +74,7 @@ export function SchedulingFormDialog({
       if (scheduling) {
         setUserId(scheduling.userId);
         setMeetingReasonId(scheduling.meetingReasonId);
-        
-        // Split date and time
+
         const date = new Date(scheduling.meetingDate);
         setMeetingDate(date.toISOString().split('T')[0]);
         setMeetingTime(date.toTimeString().slice(0, 5));

@@ -14,7 +14,7 @@ export function StTable({ colunmNames, items, subTotals }: { colunmNames: string
                   <tbody className="divide-y divide-[hsl(var(--card))]">
                     {items.map((item) => 
                       <tr key={item.id}>
-                        {Object.keys(item).map((key) => (<td key={key} className={`px-6 py-4 text-sm font-medium text-[hsl(var(--foreground))] ${key === 'actions' ? 'text-right' : ''}`}>{item[key]}</td>))}
+                        {Object.keys(item).slice(0, colunmNames.length).map((key) => (<td key={key} className={`px-6 py-4 text-sm font-medium text-[hsl(var(--foreground))] ${key === 'actions' ? 'text-right' : ''}`}>{item[key]}</td>))}
                       </tr>
                     )}
                     {subTotals}

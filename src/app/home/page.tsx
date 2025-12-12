@@ -223,6 +223,7 @@ export default function HomePage() {
                     name: alert.name,
                     date: alert.type === 'anniversary' ? formatDate(alert.meeting_date) : formatDateWithTime(alert.meeting_date),
                     subject: alert.subject,
+                    id: alert.id,
                   }))}
                 />}
               </div>
