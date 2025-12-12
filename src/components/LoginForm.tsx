@@ -202,7 +202,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
                 </Button>
               </form>
               <div className="text-center pt-2">
-                <a href="/forgot-password" className="text-[hsl(var(--foreground-dark))] text-sm hover:underline">
+                <a href="/forgot-password" className="text-[hsl(var(--foreground))] text-sm hover:underline">
                   Esqueci minha senha
                 </a>
               </div>

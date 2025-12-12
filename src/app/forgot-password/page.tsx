@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -54,7 +56,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--background))] px-4">
-      <div className="bg-[hsl(var(--card))] p-8 rounded-lg shadow-xl w-full max-w-md">
+      <Card className='p-6'>
         <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] mb-2 text-center">
           Esqueceu sua senha?
         </h1>
@@ -76,24 +78,24 @@ export default function ForgotPasswordPage() {
               disabled={isLoading}
             />
           </div>
+          <div className='flex flex-col gap-4'>
+            <Button
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Enviando...' : 'Enviar link de redefinição'}
+            </Button>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 px-4 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))] font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Enviando...' : 'Enviar link de redefinição'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => router.push('/login')}
-            className="w-full py-3 px-4 bg-transparent hover:bg-[hsl(var(--primary-hover))] text-[hsl(var(--primary-foreground))] font-medium rounded-lg transition-colors border border-gray-600"
-          >
-            Voltar ao login
-          </button>
+            <Button
+              type="button"
+              onClick={() => router.push('/login')}
+              variant={"outline"}
+            >
+              Voltar ao login
+            </Button>
+          </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }
