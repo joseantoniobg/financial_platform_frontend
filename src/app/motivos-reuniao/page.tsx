@@ -187,8 +187,8 @@ export default function MeetingReasonsPage() {
                   >
                     <Trash2 className="h-4 w-" />
                   </Button>
-                </div>
-              ),
+                </div>),
+                id: reason.id,
             }))}
         />
       </div>

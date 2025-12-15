@@ -24,12 +24,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StCard } from './StCard';
 
 interface Scheduling {
   id: string;
   userId: string;
   meetingReasonId: string;
   meetingDate: string;
+  endDate: string;
   status: 'Pendente' | 'Realizado' | 'Cancelado';
   observations?: string;
   user?: {
@@ -183,7 +185,7 @@ export default function Schedulings({ client }: { client: Client | null }) {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {schedulings.map((scheduling) => (
-            <Card key={scheduling.id} className="relative">
+            <StCard key={scheduling.id} className='bg-[hsl(var(--card-accent))]'>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -203,9 +205,15 @@ export default function Schedulings({ client }: { client: Client | null }) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {formatDate(scheduling.meetingDate)}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                    <div className="flex items-center mr-2">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {formatDate(scheduling.meetingDate)}
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {formatDate(scheduling.endDate)}
+                    </div>
                   </div>
                   
                   {scheduling.observations && (
@@ -236,7 +244,7 @@ export default function Schedulings({ client }: { client: Client | null }) {
                   )}
                 </div>
               </CardContent>
-            </Card>
+            </StCard>
           ))}
         </div>
       )}
@@ -248,7 +256,6 @@ export default function Schedulings({ client }: { client: Client | null }) {
           onClose={() => setDialogOpen(false)}
           scheduling={editingScheduling}
           onSuccess={fetchSchedulings}
-          client={client}
         />
       )}
 

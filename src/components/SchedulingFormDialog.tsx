@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '@/store/authStore';
 import { StSelect } from './st-select';
 import { FormField } from './ui/form-field';
 
@@ -31,16 +32,12 @@ interface MeetingReason {
 interface Scheduling {
   id: string;
   userId: string;
+  clientId?: string;
   meetingReasonId: string;
   meetingDate: string;
-  status: 'Pendente' | 'Realizado' | 'Cancelado';
+  endDate: string;
+  status: 'Pendente' | 'Confirmado' | 'Realizado' | 'Cancelado' | 'Não Compareceu';
   observations?: string;
-}
-
-interface Client {
-    id: string;
-    name: string;
-    email: string;
 }
 
 interface SchedulingFormDialogProps {
@@ -48,7 +45,6 @@ interface SchedulingFormDialogProps {
   onClose: () => void;
   scheduling: Scheduling | null;
   onSuccess: () => void;
-  client: Client;
 }
 
 export function SchedulingFormDialog({
@@ -56,28 +52,44 @@ export function SchedulingFormDialog({
   onClose,
   scheduling,
   onSuccess,
-  client,
 }: SchedulingFormDialogProps) {
+  const { user } = useAuthStore();
+  const [clients, setClients] = useState<User[]>([]);
+  const [consultants, setConsultants] = useState<User[]>([]);
   const [meetingReasons, setMeetingReasons] = useState<MeetingReason[]>([]);
   const [userId, setUserId] = useState('');
+  const [clientId, setClientId] = useState('');
   const [meetingReasonId, setMeetingReasonId] = useState('');
   const [meetingDate, setMeetingDate] = useState('');
   const [meetingTime, setMeetingTime] = useState('');
-  const [status, setStatus] = useState<'Pendente' | 'Realizado' | 'Cancelado'>('Pendente');
+  const [endDate, setEndDate] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [status, setStatus] = useState<string>('Pendente');
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isAdmin = user?.roles.some(r => r.name === 'Administrador');
+  const isConsultantOrAdmin = user?.roles.some(r => r.name === 'Consultor' || r.name === 'Administrador');
 
   useEffect(() => {
     if (open) {
+      fetchClients();
+      fetchConsultants();
       fetchMeetingReasons();
       
       if (scheduling) {
         setUserId(scheduling.userId);
+        setClientId(scheduling.clientId || 'None');
         setMeetingReasonId(scheduling.meetingReasonId);
-
-        const date = new Date(scheduling.meetingDate);
-        setMeetingDate(date.toISOString().split('T')[0]);
-        setMeetingTime(date.toTimeString().slice(0, 5));
+        
+        // Split date and time for start
+        const startDate = new Date(scheduling.meetingDate);
+        setMeetingDate(startDate.toISOString().split('T')[0]);
+        setMeetingTime(startDate.toTimeString().slice(0, 5));
+        
+        // Split date and time for end
+        const finishDate = new Date(scheduling.endDate);
+        setEndDate(finishDate.toISOString().split('T')[0]);
+        setEndTime(finishDate.toTimeString().slice(0, 5));
         
         setStatus(scheduling.status);
         setObservations(scheduling.observations || '');
@@ -88,12 +100,42 @@ export function SchedulingFormDialog({
   }, [open, scheduling]);
 
   const reset = () => {
-    setUserId('');
+    setUserId(user?.sub || '');
+    setClientId('');
     setMeetingReasonId('');
     setMeetingDate('');
     setMeetingTime('');
+    setEndDate('');
+    setEndTime('');
     setStatus('Pendente');
     setObservations('');
+  };
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch('/api/clients');
+      if (response.ok) {
+        const data = await response.json();
+        setClients(data.users);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  const fetchConsultants = async () => {
+    try {
+      const response = await fetch('/api/users');
+      if (response.ok) {
+        const data = await response.json();
+        const filtered = data.users.filter((u: User & { roles?: Array<{ name: string }> }) => 
+          u.roles?.some(r => r.name === 'Consultor' || r.name === 'Administrador')
+        );
+        setConsultants(filtered);
+      }
+    } catch (error) {
+      console.error('Error fetching consultants:', error);
+    }
   };
 
   const fetchMeetingReasons = async () => {
@@ -103,14 +145,13 @@ export function SchedulingFormDialog({
         const data = await response.json();
         setMeetingReasons(data);
       }
-      setUserId(client.id);
     } catch (error) {
       console.error('Error fetching meeting reasons:', error);
     }
   };
 
   const handleSubmit = async () => {
-    if (!userId || !meetingReasonId || !meetingDate || !meetingTime) {
+    if (!userId || !meetingReasonId || !meetingDate || !meetingTime || !endDate || !endTime) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -119,12 +160,21 @@ export function SchedulingFormDialog({
       setIsSubmitting(true);
 
       // Combine date and time
-      const dateTime = new Date(`${meetingDate}T${meetingTime}`).toISOString();
+      const startDateTime = new Date(`${meetingDate}T${meetingTime}`).toISOString();
+      const endDateTime = new Date(`${endDate}T${endTime}`).toISOString();
+
+      if (new Date(endDateTime) <= new Date(startDateTime)) {
+        toast.error('Data de término deve ser posterior à data de início');
+        setIsSubmitting(false);
+        return;
+      }
 
       const payload = {
         userId,
+        clientId: clientId !== 'None' ? clientId : undefined,
         meetingReasonId,
-        meetingDate: dateTime,
+        meetingDate: startDateTime,
+        endDate: endDateTime,
         status,
         observations: observations.trim() || undefined,
       };
@@ -141,7 +191,10 @@ export function SchedulingFormDialog({
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error('Erro ao salvar agendamento');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao salvar agendamento');
+      }
 
       toast.success(
         scheduling
@@ -151,8 +204,39 @@ export function SchedulingFormDialog({
 
       onSuccess();
       onClose();
-    } catch (error) {
-      toast.error('Erro ao salvar agendamento');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar agendamento');
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleQuickStatusUpdate = async (newStatus: 'Confirmado' | 'Cancelado') => {
+    if (!scheduling) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch(`/api/schedulings/${scheduling.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...scheduling,
+          status: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao atualizar status');
+      }
+
+      toast.success(`Agendamento ${newStatus.toLowerCase()} com sucesso`);
+      onSuccess();
+      onClose();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao atualizar status');
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -161,82 +245,109 @@ export function SchedulingFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {scheduling ? 'Editar Agendamento' : 'Novo Agendamento'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <StSelect 
-                label='Cliente'
-                required
-                htmlFor='userId'
-                items={[{
-                    id: client.id,
-                    description: `${client.name} (${client.email})`,
-                }]}
-                value={userId}
-                onChange={(val) => setUserId(val as string)}
-                loading={false}
-                searchable={false}
-            />
-          </div>
+          {isAdmin && <StSelect 
+            label="Consultor/Administrador"
+            required
+            value={isConsultantOrAdmin ? user?.sub || '' : userId}
+            onChange={setUserId}
+            loading={!!scheduling}
+            items={consultants.map(c => ({
+              id: c.id,
+              description: `${c.name} (${c.email})`
+            }))}
+            htmlFor='consultant-select'
+          />}
 
-          <div className="space-y-2">
-            <StSelect
-                label='Motivo da Reunião'
-                required
-                htmlFor='meetingReasonId'
-                items={meetingReasons.map((reason) => ({
-                    id: reason.id,
-                    description: reason.name,
-                }))}
-                value={meetingReasonId}
-                onChange={(val) => setMeetingReasonId(val as string)}
-                loading={false}
-                searchable={false}
-             />
-          </div>
+          <StSelect
+            label="Cliente"
+            required={false}
+            value={clientId}
+            onChange={setClientId}
+            loading={false}
+            items={[{ id: 'None', description: 'Nenhum' }, ...clients.map(c => ({
+              id: c.id,
+              description: `${c.name} (${c.email})`
+            }))]}
+            htmlFor='client-select'
+          />
+
+          <StSelect
+            label="Motivo da Reunião"
+            required
+            value={meetingReasonId}
+            onChange={setMeetingReasonId}
+            loading={false}
+            items={meetingReasons.map(r => ({
+              id: r.id,
+              description: r.name
+            }))}
+            htmlFor='reason-select'
+          />
 
           <div className="grid grid-cols-2 gap-4">
+            <FormField
+              label='Data de Início'
+              htmlFor='date'
+              date
+              value={meetingDate}
+              onChangeValue={(v) => setMeetingDate(`${v}`)}
+              required
+            />
             <div className="space-y-2">
-              <FormField
-                label='Data da Reunião'
-                required
-                value={meetingDate}
-                onChangeValue={(e) => setMeetingDate(`${e}`)}
-                date
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="time">Horário *</Label>
+              <Label htmlFor="time">Horário de Início *</Label>
               <Input
                 id="time"
                 type="time"
+                
                 value={meetingTime}
                 onChange={(e) => setMeetingTime(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <StSelect 
-                label='Status'
-                htmlFor='status'
-                items={[
-                    { id: 'Pendente', description: 'Pendente' },
-                    { id: 'Realizado', description: 'Realizado' },
-                    { id: 'Cancelado', description: 'Cancelado' },
-                ]}
-                value={status}
-                onChange={(val) => setStatus(val as 'Pendente' | 'Realizado' | 'Cancelado')}
-                loading={false}
-                searchable={false}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              label='Data de Término'
+              htmlFor='end-date'
+              date
+              value={endDate}
+              onChangeValue={(v) => setEndDate(`${v}`)}
+              required
             />
+            <div className="space-y-2">
+              <Label htmlFor="endTime">Horário de Término *</Label>
+              <Input
+                id="endTime"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </div>
           </div>
 
+          <StSelect
+            label="Status"
+            required
+            value={status}
+            onChange={setStatus}
+            loading={false}
+            items={[
+              { id: 'Pendente', description: 'Pendente' },
+              { id: 'Confirmado', description: 'Confirmado' },
+              { id: 'Realizado', description: 'Realizado' },
+              { id: 'Cancelado', description: 'Cancelado' },
+              { id: 'Não Compareceu', description: 'Não Compareceu' },
+            ]}
+            htmlFor='status-select'
+          />
+          
           <div className="space-y-2">
             <Label htmlFor="observations">Observações</Label>
             <Textarea
@@ -248,13 +359,37 @@ export function SchedulingFormDialog({
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Salvando...' : 'Salvar'}
-          </Button>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          {scheduling && scheduling.status !== 'Confirmado' && scheduling.status !== 'Cancelado' && (
+            <div className="flex gap-2 w-full sm:w-auto sm:mr-auto">
+              <Button
+                type="button"
+                variant="default"
+                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
+                onClick={() => handleQuickStatusUpdate('Confirmado')}
+                disabled={isSubmitting}
+              >
+                Confirmar
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                className="flex-1 sm:flex-none"
+                onClick={() => handleQuickStatusUpdate('Cancelado')}
+                disabled={isSubmitting}
+              >
+                Cancelar Reunião
+              </Button>
+            </div>
+          )}
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1 sm:flex-none">
+              Fechar
+            </Button>
+            <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1 sm:flex-none">
+              {isSubmitting ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

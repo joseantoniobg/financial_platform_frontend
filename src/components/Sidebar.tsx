@@ -94,6 +94,7 @@ function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: I
     { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador', 'Consultor'] },
     { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador', 'Consultor'] },
     { icon: Target, label: 'Motivos de Reunião', href: '/motivos-reuniao', roles: ['Administrador', 'Consultor'] },
+    { icon: Calendar, label: 'Agendamentos', href: '/agendamentos', roles: ['Administrador', 'Consultor'] },
   ];
 
   const clientExpandableMenus = [

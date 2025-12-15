@@ -5,7 +5,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:300
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
     const session = await getSession();
@@ -16,19 +16,9 @@ export async function GET(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const { userId } = await params;
-    const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const { clientId } = await params;
 
-    let url = `${BACKEND_URL}/schedulings/user/${userId}`;
-    
-    // If period parameters are provided, use period endpoint
-    if (startDate && endDate) {
-      url = `${BACKEND_URL}/schedulings/period/${userId}?startDate=${startDate}&endDate=${endDate}`;
-    }
-
-    const response = await fetch(url, {
+    const response = await fetch(`${BACKEND_URL}/schedulings/client/${clientId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
