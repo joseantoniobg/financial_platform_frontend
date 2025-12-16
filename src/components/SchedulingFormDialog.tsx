@@ -61,14 +61,20 @@ export function SchedulingFormDialog({
   const [clientId, setClientId] = useState('');
   const [meetingReasonId, setMeetingReasonId] = useState('');
   const [meetingDate, setMeetingDate] = useState('');
-  const [meetingTime, setMeetingTime] = useState('');
+  const [startHour, setStartHour] = useState('09');
+  const [startMinute, setStartMinute] = useState('00');
   const [endDate, setEndDate] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [endHour, setEndHour] = useState('10');
+  const [endMinute, setEndMinute] = useState('00');
   const [status, setStatus] = useState<string>('Pendente');
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isAdmin = user?.roles.some(r => r.name === 'Administrador');
   const isConsultantOrAdmin = user?.roles.some(r => r.name === 'Consultor' || r.name === 'Administrador');
+
+  // Generate hours (00-23) and minutes (00, 15, 30, 45)
+  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+  const minutes = ['00', '15', '30', '45'];
 
   useEffect(() => {
     if (open) {
@@ -84,12 +90,14 @@ export function SchedulingFormDialog({
         // Split date and time for start
         const startDate = new Date(scheduling.meetingDate);
         setMeetingDate(startDate.toISOString().split('T')[0]);
-        setMeetingTime(startDate.toTimeString().slice(0, 5));
+        setStartHour(startDate.getHours().toString().padStart(2, '0'));
+        setStartMinute(startDate.getMinutes().toString().padStart(2, '0'));
         
         // Split date and time for end
         const finishDate = new Date(scheduling.endDate);
         setEndDate(finishDate.toISOString().split('T')[0]);
-        setEndTime(finishDate.toTimeString().slice(0, 5));
+        setEndHour(finishDate.getHours().toString().padStart(2, '0'));
+        setEndMinute(finishDate.getMinutes().toString().padStart(2, '0'));
         
         setStatus(scheduling.status);
         setObservations(scheduling.observations || '');
@@ -104,11 +112,49 @@ export function SchedulingFormDialog({
     setClientId('');
     setMeetingReasonId('');
     setMeetingDate('');
-    setMeetingTime('');
+    setStartHour('09');
+    setStartMinute('00');
     setEndDate('');
-    setEndTime('');
+    setEndHour('10');
+    setEndMinute('00');
     setStatus('Pendente');
     setObservations('');
+  };
+
+  // Automatically set end time to 1 hour after start time
+  const handleStartTimeChange = (hour?: string, minute?: string) => {
+    const newHour = hour || startHour;
+    const newMinute = minute || startMinute;
+    
+    if (hour !== undefined) setStartHour(hour);
+    if (minute !== undefined) setStartMinute(minute);
+
+    // Calculate end time (1 hour later)
+    const startTotalMinutes = parseInt(newHour) * 60 + parseInt(newMinute);
+    const endTotalMinutes = startTotalMinutes + 60;
+    
+    const calculatedEndHour = Math.floor(endTotalMinutes / 60) % 24;
+    const calculatedEndMinute = endTotalMinutes % 60;
+    
+    setEndHour(calculatedEndHour.toString().padStart(2, '0'));
+    setEndMinute(calculatedEndMinute.toString().padStart(2, '0'));
+    
+    // If end time goes to next day, update end date
+    if (meetingDate && endTotalMinutes >= 24 * 60) {
+      const startDate = new Date(meetingDate);
+      startDate.setDate(startDate.getDate() + 1);
+      setEndDate(startDate.toISOString().split('T')[0]);
+    } else if (meetingDate && !endDate) {
+      setEndDate(meetingDate);
+    }
+  };
+
+  // Update end date when start date changes
+  const handleStartDateChange = (date: string) => {
+    setMeetingDate(date);
+    if (!endDate) {
+      setEndDate(date);
+    }
   };
 
   const fetchClients = async () => {
@@ -151,7 +197,7 @@ export function SchedulingFormDialog({
   };
 
   const handleSubmit = async () => {
-    if (!userId || !meetingReasonId || !meetingDate || !meetingTime || !endDate || !endTime) {
+    if (!userId || !meetingReasonId || !meetingDate || !startHour || !startMinute || !endDate || !endHour || !endMinute) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -160,8 +206,8 @@ export function SchedulingFormDialog({
       setIsSubmitting(true);
 
       // Combine date and time
-      const startDateTime = new Date(`${meetingDate}T${meetingTime}`).toISOString();
-      const endDateTime = new Date(`${endDate}T${endTime}`).toISOString();
+      const startDateTime = new Date(`${meetingDate}T${startHour}:${startMinute}`).toISOString();
+      const endDateTime = new Date(`${endDate}T${endHour}:${endMinute}`).toISOString();
 
       if (new Date(endDateTime) <= new Date(startDateTime)) {
         toast.error('Data de término deve ser posterior à data de início');
@@ -298,18 +344,31 @@ export function SchedulingFormDialog({
               htmlFor='date'
               date
               value={meetingDate}
-              onChangeValue={(v) => setMeetingDate(`${v}`)}
+              onChangeValue={(v) => handleStartDateChange(`${v}`)}
               required
             />
             <div className="space-y-2">
-              <Label htmlFor="time">Horário de Início *</Label>
-              <Input
-                id="time"
-                type="time"
-                
-                value={meetingTime}
-                onChange={(e) => setMeetingTime(e.target.value)}
-              />
+              <Label>Horário de Início</Label>
+              <div className="flex gap-2">
+                <StSelect 
+                  label=""
+                  value={startHour}
+                  onChange={(v) => handleStartTimeChange(v, undefined)}
+                  loading={false}
+                  searchable={false}
+                  items={hours.map(h => ({ id: h, description: `${h}h` }))}
+                  htmlFor='start-hour-select'
+                />
+                <StSelect 
+                  label=""
+                  value={startMinute}
+                  onChange={(v) => handleStartTimeChange(undefined, v)}
+                  loading={false}
+                  searchable={false}
+                  items={minutes.map(m => ({ id: m, description: `${m}m` }))}
+                  htmlFor='start-minute-select'
+                />
+              </div>
             </div>
           </div>
 
@@ -323,13 +382,27 @@ export function SchedulingFormDialog({
               required
             />
             <div className="space-y-2">
-              <Label htmlFor="endTime">Horário de Término *</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
+              <Label>Horário de Término</Label>
+              <div className="flex gap-2">
+                <StSelect 
+                  label=""
+                  value={endHour}
+                  onChange={setEndHour}
+                  loading={false}
+                  searchable={false}
+                  items={hours.map(h => ({ id: h, description: `${h}h` }))}
+                  htmlFor='start-hour-select'
+                />
+                <StSelect 
+                  label=""
+                  value={endMinute}
+                  onChange={setEndMinute}
+                  loading={false}
+                  searchable={false}
+                  items={minutes.map(m => ({ id: m, description: `${m}m` }))}
+                  htmlFor='start-minute-select'
+                />
+              </div>
             </div>
           </div>
 
