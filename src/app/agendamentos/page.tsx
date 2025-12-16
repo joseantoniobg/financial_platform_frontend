@@ -285,7 +285,7 @@ export default function AgendamentosPage() {
       <Card className="p-4 my-3">
         <div className="flex items-center justify-between gap-4">
           {/* Consultant Filter (Admin only) */}
-          {isAdmin && (
+          {isAdmin ? (
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Consultor:</label>
               <Select value={selectedConsultant} onValueChange={setSelectedConsultant}>
@@ -301,7 +301,7 @@ export default function AgendamentosPage() {
                 </SelectContent>
               </Select>
             </div>
-          )}
+          ) : (<div></div>)}
 
           {/* View Mode Selector */}
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>

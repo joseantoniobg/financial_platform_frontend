@@ -289,6 +289,7 @@ export function SchedulingFormDialog({
               description: r.name
             }))}
             htmlFor='reason-select'
+            searchable={false}
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -338,6 +339,7 @@ export function SchedulingFormDialog({
             value={status}
             onChange={setStatus}
             loading={false}
+            searchable={false}
             items={[
               { id: 'Pendente', description: 'Pendente' },
               { id: 'Confirmado', description: 'Confirmado' },
