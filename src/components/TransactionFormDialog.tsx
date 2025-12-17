@@ -29,6 +29,13 @@ interface Wallet {
   description?: string;
 }
 
+interface FinancialGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  targetDate: string;
+}
+
 interface TransactionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -57,6 +64,8 @@ export function TransactionFormDialog({
   const [loading, setLoading] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [walletId, setWalletId] = useState('');
+  const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>([]);
+  const [financialGoalId, setFinancialGoalId] = useState('');
 
   // Check if selected type is Investimento
   const selectedType = transactionTypes.find((t) => t.id === typeId);
@@ -101,15 +110,21 @@ export function TransactionFormDialog({
             const walletsData = await walletsRes.json();
             setWallets(walletsData);
           }
+
+          const goalsRes = await fetch(`/api/financial-goals/user/${user?.sub}`);
+          if (goalsRes.ok) {
+            const goalsData = await goalsRes.json();
+            setFinancialGoals(goalsData);
+          }
       } catch (error) {
-        console.error('Error fetching user or wallets:', error);
+        console.error('Error fetching user data:', error);
       }
     };
 
-    if (open) {
+    if (open && user?.sub) {
       fetchUserAndWallets();
     }
-  }, [open]);
+  }, [open, user?.sub]);
 
   useEffect(() => {
     if (!open) {
@@ -125,6 +140,7 @@ export function TransactionFormDialog({
       setIsEarnings(false);
       setIsResgate(false);
       setWalletId('');
+      setFinancialGoalId('');
     } else {
       // Set today's date as default
       const today = new Date().toISOString().split('T')[0];
@@ -151,6 +167,7 @@ export function TransactionFormDialog({
         isAporte: showInvestimentoOptions ? isAporte : undefined,
         isResgate: showInvestimentoOptions ? isResgate : undefined,
         walletId: walletId || undefined,
+        financialGoalId: financialGoalId || undefined,
       };
 
       const res = await fetch('/api/transactions', {
@@ -208,6 +225,25 @@ export function TransactionFormDialog({
             />
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
               Organize suas transações em diferentes carteiras
+            </p>
+          </div>
+
+          <div>
+            <StSelect
+              label='Meta Financeira'
+              loading={false}
+              value={financialGoalId}
+              onChange={(e) => setFinancialGoalId(e)}
+              required={false}
+              htmlFor='financial-goal-select'
+              items={financialGoals.map((g) => ({ 
+                id: g.id, 
+                description: `${g.title} (Meta: R$ ${g.targetAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})` 
+              }))}
+              searchable={false}
+            />
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              Vincule esta transação a uma meta financeira específica
             </p>
           </div>
 

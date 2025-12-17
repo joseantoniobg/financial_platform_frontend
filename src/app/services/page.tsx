@@ -141,7 +141,7 @@ export default function ServicesPage() {
       <StLoading loading={loading}>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <PageTitle title='Serviços' subtitle='Gerencie os serviços, precificação e atribuições' />
+            <PageTitle title='Serviços' subtitle='Gerencie os serviços e precificação' />
             <TopAddButton id="topAddButtonNewService" label='Novo Serviço' onClick={handleCreate} />
           </div>
 
@@ -224,16 +224,6 @@ export default function ServicesPage() {
                               title="Gerenciar Preços"
                             >
                               <DollarSign className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setCurrentService(service);
-                                setAssignDialogOpen(true);
-                              }}
-                              className="p-2 text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
-                              title="Atribuir a Cliente"
-                            >
-                              <UserPlus className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleToggleStatus(service)}

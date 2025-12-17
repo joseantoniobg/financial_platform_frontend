@@ -7,6 +7,7 @@ import { CurrencyInput } from '@/components/ui/currency-input';
 import { DateInput } from '@/components/ui/date-input';
 import { Loader2, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Button } from './ui/button';
 
 interface Service {
   id: string;
@@ -135,9 +136,9 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] bg-white dark:bg-[#0D2744] border-gray-200 dark:border-gray-700 max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] bg-[hsl(var(--card))] border-gray-200 dark:border-gray-700 max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-slate-800 dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))]">
             Gerenciar Precificação - {service?.service}
           </DialogTitle>
           <DialogDescription className="text-slate-600 dark:text-gray-400">
@@ -148,13 +149,13 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
         <div className="space-y-4">
           {/* Add New Pricing Button */}
           {!showForm && (
-            <button
+            <Button
               onClick={() => setShowForm(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#B4F481] text-[#0A1929] rounded-lg hover:bg-[#9FD96F] transition-colors font-medium"
+              className="w-full flex items-center justify-center"
             >
               <Plus className="h-5 w-5" />
               Adicionar Nova Precificação
-            </button>
+            </Button>
           )}
 
           {/* Add Pricing Form */}
@@ -164,7 +165,7 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price" className="text-slate-700 dark:text-gray-300">
+                  <Label htmlFor="price" className="text-[hsl(var(--foreground))]">
                     Preço <span className="text-red-500">*</span>
                   </Label>
                   <CurrencyInput
@@ -177,7 +178,7 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="initialDate" className="text-slate-700 dark:text-gray-300">
+                  <Label htmlFor="initialDate" className="text-[hsl(var(--foreground))]">
                     Data Inicial <span className="text-red-500">*</span>
                   </Label>
                   <DateInput
@@ -189,7 +190,7 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="finalDate" className="text-slate-700 dark:text-gray-300">
+                  <Label htmlFor="finalDate" className="text-[hsl(var(--foreground))]">
                     Data Final
                     <span className="text-xs text-gray-500 ml-1">(opcional)</span>
                   </Label>
@@ -217,7 +218,7 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                     setShowForm(false);
                     setFormData({ price: '', initialDate: '', finalDate: '' });
                   }}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   disabled={submitting}
                 >
                   Cancelar
@@ -236,14 +237,14 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
 
           {/* Pricing History */}
           <div className="space-y-2">
-            <h3 className="font-medium text-slate-800 dark:text-white">Histórico de Preços</h3>
+            <h3 className="font-medium text-[hsl(var(--foreground))]">Histórico de Preços</h3>
             
             {loading ? (
               <div className="flex justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-[#B4F481]" />
+                <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--foreground))]" />
               </div>
             ) : pricings.length === 0 ? (
-              <div className="text-center p-8 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 rounded-lg">
+              <div className="text-center p-8 text-[hsl(var(--foreground))] rounded-lg">
                 Nenhuma precificação cadastrada
               </div>
             ) : (
@@ -260,16 +261,16 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl font-bold text-slate-800 dark:text-white">
+                          <span className="text-2xl font-bold text-[hsl(var(--foreground))]">
                             {formatPrice(pricing.price)}
                           </span>
                           {isCurrentPrice(pricing) && (
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
+                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-[hsl(var(--foreground))] border border-green-300">
                               Preço Atual
                             </span>
                           )}
                         </div>
-                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="mt-2 text-sm text-[hsl(var(--foreground))]">
                           <span className="font-medium">Vigência:</span> {formatDate(pricing.initialDate)}
                           {pricing.finalDate ? ` até ${formatDate(pricing.finalDate)}` : ' (sem data final)'}
                         </div>
@@ -283,12 +284,12 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
         </div>
 
         <DialogFooter>
-          <button
+          <Button
             onClick={() => onOpenChange(false)}
-            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            variant={"outline"}
           >
             Fechar
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -38,6 +38,11 @@ interface TransactionWallet {
   title: string;
 }
 
+interface TransactionFinancialGoal {
+  id: string;
+  title: string;
+}
+
 interface Transaction {
   id: string;
   ticket: number;
@@ -54,6 +59,7 @@ interface Transaction {
   verb: string;
   action: string;
   wallet?: TransactionWallet;
+  financialGoal?: TransactionFinancialGoal;
 }
 
 export default function TransactionsPage() {
@@ -303,6 +309,10 @@ export default function TransactionsPage() {
                             <span className="p-0.5 pl-2 pr-2 text-xs rounded bg-[hsl(var(--cyan))] text-[hsl(var(--foreground))] font-medium">
                               {first.wallet.title}
                             </span>}
+                        {first.financialGoal && 
+                            <span className="p-0.5 pl-2 pr-2 text-xs rounded bg-purple-500/80 text-white font-medium">
+                              🎯 {first.financialGoal.title}
+                            </span>}
                         <h3 className="font-semibold text-base text-[hsl(var(--foreground))]">
                           {first.type.type}
                         </h3>
@@ -360,7 +370,7 @@ export default function TransactionsPage() {
                               💰 Rendimento
                             </span>
                           )}
-                          <span className="text-sm font-semibold text-[hsl(var(--foreground))] dark:text-white ml-auto">
+                          <span className="text-sm font-semibold text-[hsl(var(--foreground))] ml-auto">
                             {formatCurrency(transaction.amount)}
                           </span>
                         </div>
