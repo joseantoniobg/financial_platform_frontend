@@ -160,8 +160,8 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
 
           {/* Add Pricing Form */}
           {showForm && (
-            <form onSubmit={handleSubmit} className="space-y-4 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-[#0A1929]">
-              <h3 className="font-medium text-slate-800 dark:text-white">Nova Precificação</h3>
+            <form onSubmit={handleSubmit} className="space-y-4 p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))]">
+              <h3 className="font-medium text-[hsl(var(--foreground))]">Nova Precificação</h3>
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
@@ -204,33 +204,31 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                 </div>
               </div>
 
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-3">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="bg-blue-700/50 rounded p-3">
+                <p className="text-sm text-[hsl(var(--foreground))]">
                   💡 Deixe a data final em branco para definir um preço sem data de término.
                   Ao adicionar uma nova precificação, o preço anterior será automaticamente finalizado.
                 </p>
               </div>
 
               <div className="flex gap-2">
-                <button
-                  type="button"
+                <Button
                   onClick={() => {
                     setShowForm(false);
                     setFormData({ price: '', initialDate: '', finalDate: '' });
                   }}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  variant={"outline"}
                   disabled={submitting}
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="flex-1 px-4 py-2 text-sm font-medium bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F] rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   disabled={submitting}
                 >
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   Adicionar Precificação
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -255,7 +253,7 @@ export function PricingDialog({ open, onOpenChange, service, onSuccess }: Pricin
                     className={`p-4 rounded-lg border ${
                       isCurrentPrice(pricing)
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
-                        : 'bg-white dark:bg-[#0A1929] border-gray-200 dark:border-gray-600'
+                        :  'bg-[hsl(var(--destructive))]/30 border-[hsl(var(--border))]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
