@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Loader2, ArrowLeft, Save, TrendingUp, Calendar, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, TrendingUp, Calendar, ChevronLeft, ChevronRight, AlertCircle, Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,8 @@ import { FinancialGoalsSection } from '@/components/FinancialGoalsSection';
 import { MonthlyBudgetsSection } from '@/components/MonthlyBudgetsSection';
 import { StLoading } from '@/components/StLoading';
 import Schedulings from '@/components/Schedulings';
+import { StSelect } from '@/components/st-select';
+import { FormField } from '@/components/ui/form-field';
 
 interface Role {
   id: string;
@@ -164,6 +166,27 @@ interface Questionnaire {
   responses: { id: string; question: string; answer: string; weight: number }[];
 }
 
+interface Service {
+  id: string;
+  service: string;
+  isActive: boolean;
+  pricings: Array<{ price: number; }>;
+}
+
+interface ClientSubscription {
+  id: string;
+  clientId: string;
+  serviceId: string;
+  service: Service;
+  recurrenceType: 'Único' | 'Mensal';
+  dueDay: number;
+  amount?: number;
+  isActive: boolean;
+  notes?: string;
+  createdAt: string;
+  canceledAt?: string;
+}
+
 export default function EditClientPage({ searchParams }: { searchParams: Promise<{ module?: string | undefined }> }) {
   const { user } = useAuthStore();
   const isAuthenticated = useRequireAuth();
@@ -261,6 +284,20 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Map<string, string>>(new Map());
+
+  // Client Subscriptions state
+  const [subscriptions, setSubscriptions] = useState<ClientSubscription[]>([]);
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
+  const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
+  const [editingSubscriptionId, setEditingSubscriptionId] = useState<string | null>(null);
+  const [subscriptionForm, setSubscriptionForm] = useState({
+    serviceId: '',
+    recurrenceType: 'Mensal' as 'Único' | 'Mensal',
+    dueDay: '1',
+    amount: '',
+    notes: ''
+  });
+  const [services, setServices] = useState<Service[]>([]);
 
   const [categories, setCategories] = useState<ClientCategory[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
@@ -747,6 +784,38 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
   const handleCancelValuableAssetForm = () => {
     setShowValuableAssetForm(false);
     setEditingValuableAssetId(null);
+  };
+
+  const handleAddSubscription = () => {
+    setEditingSubscriptionId(null);
+    setSubscriptionForm({
+      serviceId: '',
+      recurrenceType: 'Mensal',
+      dueDay: '1',
+      amount: '',
+      notes: ''
+    });
+    setShowSubscriptionForm(true);
+  };
+
+  const handleCancelSubscription = async (id: string) => {
+    if (!confirm('Tem certeza que deseja cancelar esta assinatura?')) return;
+
+    try {
+      const res = await fetch(`/api/client-subscriptions/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        toast.success('Assinatura cancelada!');
+        await fetchSubscriptions();
+      } else {
+        toast.error('Erro ao cancelar assinatura');
+      }
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      toast.error('Erro ao cancelar assinatura');
+    }
   };
 
   const fetchCategories = async () => {
@@ -1349,6 +1418,122 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
     }
   };
 
+  // Client Subscriptions functions
+  const fetchSubscriptions = useCallback(async () => {
+    if (!clientId) return;
+    
+    setLoadingSubscriptions(true);
+    try {
+      const res = await fetch(`/api/client-subscriptions/client/${clientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSubscriptions(data);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+    } finally {
+      setLoadingSubscriptions(false);
+    }
+  }, [clientId]);
+
+  const fetchServices = async () => {
+    try {
+      const res = await fetch('/api/services');
+      if (res.ok) {
+        const data = await res.json();
+        setServices(data.data.filter((s: Service) => s.isActive));
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
+
+  const handleEditSubscription = (subscription: ClientSubscription) => {
+    setEditingSubscriptionId(subscription.id);
+    setSubscriptionForm({
+      serviceId: subscription.serviceId,
+      recurrenceType: subscription.recurrenceType,
+      dueDay: subscription.dueDay.toString(),
+      amount: subscription.amount?.toString() || '',
+      notes: subscription.notes || ''
+    });
+    setShowSubscriptionForm(true);
+  };
+
+  const handleSaveSubscription = async () => {
+    if (!subscriptionForm.serviceId || !subscriptionForm.dueDay) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const payload = {
+        clientId,
+        serviceId: subscriptionForm.serviceId,
+        recurrenceType: subscriptionForm.recurrenceType,
+        dueDay: parseInt(subscriptionForm.dueDay),
+        amount: subscriptionForm.amount ? parseFloat(subscriptionForm.amount) : undefined,
+        notes: subscriptionForm.notes || undefined
+      };
+
+      const url = editingSubscriptionId
+        ? `/api/client-subscriptions/${editingSubscriptionId}`
+        : '/api/client-subscriptions';
+      
+      const method = editingSubscriptionId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingSubscriptionId ? { ...payload, clientId: undefined } : payload)
+      });
+
+      if (res.ok) {
+        toast.success(editingSubscriptionId ? 'Assinatura atualizada!' : 'Assinatura criada!');
+        setShowSubscriptionForm(false);
+        await fetchSubscriptions();
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao salvar assinatura');
+      }
+    } catch (error) {
+      console.error('Error saving subscription:', error);
+      toast.error('Erro ao salvar assinatura');
+    }
+  };
+
+  const handleDeleteSubscription = async (id: string) => {
+    if (!confirm('Tem certeza que deseja remover esta assinatura?')) return;
+
+    try {
+      const res = await fetch(`/api/client-subscriptions/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        toast.success('Assinatura removida!');
+        await fetchSubscriptions();
+      } else {
+        toast.error('Erro ao remover assinatura');
+      }
+    } catch (error) {
+      console.error('Error deleting subscription:', error);
+      toast.error('Erro ao remover assinatura');
+    }
+  };
+
+  const handleCancelSubscriptionForm = () => {
+    setShowSubscriptionForm(false);
+    setEditingSubscriptionId(null);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'assinaturas' && clientId) {
+      fetchSubscriptions();
+      fetchServices();
+    }
+  }, [activeTab, clientId, fetchSubscriptions]);
+
   const getRiskProfileColor = (profile: string) => {
     switch (profile) {
       case 'Conservador':
@@ -1433,6 +1618,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   <TabsTrigger value="perfil-investidor">Perfil & Suitability</TabsTrigger>
                   <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
                   <TabsTrigger value="agendamentos">Agendamentos</TabsTrigger>
+                  <TabsTrigger value="assinaturas">Assinaturas & Pagamentos</TabsTrigger>
                   <TabsTrigger value="planejamento">Objetivos & Planejamento Financeiro</TabsTrigger>
                 </TabsList>}
 
@@ -1455,6 +1641,220 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
 
                 <TabsContent value="agendamentos" className="space-y-6">
                   <Schedulings client={client} />
+                </TabsContent>
+
+                {/* Tab: Assinaturas & Pagamentos */}
+                <TabsContent value="assinaturas" className="space-y-6">
+                  {loadingSubscriptions ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--nav-background))]" />
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+                            Serviços Assinados
+                          </h3>
+                          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+                            Gerencie os serviços contratados e configure os pagamentos
+                          </p>
+                        </div>
+                        <Button onClick={handleAddSubscription} className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" />
+                          Nova Assinatura
+                        </Button>
+                      </div>
+
+                      {/* Subscriptions List */}
+                      {subscriptions.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--app-border))]/10">
+                          <Calendar className="h-12 w-12 text-[hsl(var(--muted-foreground))] mb-4" />
+                          <p className="text-[hsl(var(--muted-foreground))]">
+                            Nenhuma assinatura cadastrada
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {subscriptions.map((subscription) => (
+                            <div
+                              key={subscription.id}
+                              className="bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]/10 p-6 space-y-4"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                                    {subscription.service.service}
+                                  </h4>
+                                  <div className="mt-2 space-y-1">
+                                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                                      <span className="font-medium">Recorrência:</span>{' '}
+                                      {subscription.recurrenceType}
+                                    </p>
+                                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                                      <span className="font-medium">Dia do Vencimento:</span>{' '}
+                                      {subscription.dueDay}
+                                    </p>
+                                    {subscription.amount && (
+                                      <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                                        <span className="font-medium">Valor:</span>{' '}
+                                        {new Intl.NumberFormat('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL'
+                                        }).format(subscription.amount)}
+                                      </p>
+                                    )}
+                                    {subscription.notes && (
+                                      <p className="text-sm text-[hsl(var(--muted-foreground))] italic mt-2">
+                                        {subscription.notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                {subscription.isActive && (
+                                  <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => handleEditSubscription(subscription)}
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleDeleteSubscription(subscription.id)}
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8 text-red-500 hover:text-red-600"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>)}
+                              </div>
+                              <div className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                                subscription.isActive 
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                                  : 'bg-red-600/60 text-red-100'
+                              }`}>
+                                {subscription.isActive ? 'Ativa' : 'Cancelada'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Subscription Form Modal */}
+                      {showSubscriptionForm && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                          <div className="bg-[hsl(var(--card))] rounded-lg max-w-md w-full p-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                                {editingSubscriptionId ? 'Editar Assinatura' : 'Nova Assinatura'}
+                              </h3>
+                              <Button
+                                onClick={handleCancelSubscriptionForm}
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+
+                            <div className="space-y-4">
+                              <StSelect 
+                                label="Serviço"
+                                required
+                                value={subscriptionForm.serviceId}
+                                onChange={(e) =>
+                                  setSubscriptionForm({ ...subscriptionForm, serviceId: `${e}`, amount: `${services.find(service => service.id === e)?.pricings[0]?.price || ''}` })
+                                }
+                                items={services.map((service) => ({
+                                  id: service.id,
+                                  description: service.service
+                                }))}
+                                htmlFor='service'
+                                loading={false}
+                                searchable={false}
+                              />
+                              
+
+                              <div>
+                                <StSelect
+                                  label="Recorrência"
+                                  required
+                                  value={subscriptionForm.recurrenceType}
+                                  onChange={(e) =>
+                                    setSubscriptionForm({ 
+                                      ...subscriptionForm, 
+                                      recurrenceType: e as 'Único' | 'Mensal' 
+                                    })
+                                  }
+                                  items={[
+                                    { id: 'Mensal', description: 'Mensal' },
+                                    { id: 'Único', description: 'Único' }
+                                  ]}
+                                  htmlFor='recurrenceType'
+                                  loading={false}
+                                  searchable={false}
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="dueDay">Dia do Vencimento* (1-31)</Label>
+                                <Input
+                                  id="dueDay"
+                                  type="number"
+                                  min="1"
+                                  max="31"
+                                  value={subscriptionForm.dueDay}
+                                  onChange={(e) =>
+                                    setSubscriptionForm({ ...subscriptionForm, dueDay: e.target.value })
+                                  }
+                                  required
+                                />
+                              </div>
+
+                                <FormField
+                                  label="Valor"
+                                  htmlFor="amount"
+                                  currency
+                                  onChangeValue={(value) =>
+                                    setSubscriptionForm({ ...subscriptionForm, amount: `${value}` })
+                                  }
+                                  value={subscriptionForm.amount || ''}
+                                  placeholder="0,00"
+                                />
+
+                                <FormField
+                                  label="Observações"
+                                  htmlFor="notes"
+                                  textArea
+                                  value={subscriptionForm.notes}
+                                  onChangeTextArea={(e) =>
+                                    setSubscriptionForm({ ...subscriptionForm, notes: e.target.value })
+                                  }
+                                  placeholder="Informações adicionais..."
+                                />
+                            </div>
+
+                            <div className="flex gap-2 justify-end pt-4">
+                              <Button
+                                onClick={handleCancelSubscriptionForm}
+                                variant="outline"
+                              >
+                                Cancelar
+                              </Button>
+                              <Button onClick={handleSaveSubscription}>
+                                {editingSubscriptionId ? 'Atualizar' : 'Criar'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </TabsContent>
 
                 {/* Tab: Patrimônio */}

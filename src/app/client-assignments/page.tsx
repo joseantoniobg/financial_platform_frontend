@@ -347,41 +347,18 @@ export default function ClientAssignmentsPage() {
               </DialogHeader>
 
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="serviceId" className="text-slate-700 dark:text-gray-300">
-                    Serviço <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={formData.serviceId}
-                    onValueChange={(value) => setFormData({ ...formData, serviceId: value })}
-                    disabled={submitting || loadingServices}
-                  >
-                    <SelectTrigger className="bg-white dark:bg-[#0A1929] border-gray-300 dark:border-gray-600 text-slate-800 dark:text-white">
-                      <SelectValue placeholder="Selecione um serviço" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#0D2744] border-gray-300 dark:border-gray-600">
-                      {loadingServices ? (
-                        <div className="p-2 text-center text-gray-500">
-                          <Loader2 className="h-4 w-4 animate-spin inline" />
-                        </div>
-                      ) : services.length === 0 ? (
-                        <div className="p-2 text-center text-gray-500 dark:text-gray-400 text-sm">
-                          Nenhum serviço ativo encontrado
-                        </div>
-                      ) : (
-                        services.map((service) => (
-                          <SelectItem
-                            key={service.id}
-                            value={service.id}
-                            className="text-slate-800 dark:text-white"
-                          >
-                            {service.service}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <StSelect
+                  label="Serviço"
+                  required
+                  value={formData.serviceId}
+                  onChange={(value) => setFormData({ ...formData, serviceId: value })}
+                  items={services.map((service) => ({
+                    id: service.id,
+                    description: service.service,
+                  }))}
+                  loading={loadingServices}
+                  htmlFor='serviceId'
+                />
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
