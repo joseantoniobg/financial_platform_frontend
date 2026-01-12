@@ -22,6 +22,7 @@ import { StLoading } from '@/components/StLoading';
 import Schedulings from '@/components/Schedulings';
 import { StSelect } from '@/components/st-select';
 import { FormField } from '@/components/ui/form-field';
+import { HomeInfo } from '@/components/HomeInfo';
 
 interface Role {
   id: string;
@@ -1745,6 +1746,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   <TabsTrigger value="agendamentos">Agendamentos</TabsTrigger>
                   <TabsTrigger value="assinaturas">Assinaturas & Pagamentos</TabsTrigger>
                   <TabsTrigger value="planejamento">Objetivos & Planejamento Financeiro</TabsTrigger>
+                  <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                 </TabsList>}
 
                 {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
@@ -1766,6 +1768,10 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
 
                 <TabsContent value="agendamentos" className="space-y-6">
                   <Schedulings client={client} />
+                </TabsContent>
+
+                <TabsContent value="dashboard" className="space-y-6">
+                  <HomeInfo user={{ sub: clientId || '', username: '', name: '', roles: [{ id: 2, name: 'Cliente' }] }} showWelcomeMessage={false} />
                 </TabsContent>
 
                 {/* Tab: Assinaturas & Pagamentos */}
