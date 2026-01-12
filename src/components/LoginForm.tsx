@@ -76,7 +76,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
         if (mustChangePassword) {
           toast.success(`Bem-vindo, ${user.name}! Por favor, altere sua senha.`);
           setTimeout(() => {
-            router.push('/change-password');
+            router.replace('/change-password');
           }, 500);
           return;
         }
@@ -84,7 +84,7 @@ export function LoginForm({ stocks }: LoginFormProps) {
         toast.success(`Bem-vindo, ${user.name}!`);
         
         setTimeout(() => {
-          router.push('/home');
+          router.replace('/home');
         }, 500);
       }
     } catch (err) {
