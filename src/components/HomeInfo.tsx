@@ -76,16 +76,16 @@ export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
 
     const handleFilters = (value: string) => {
         if (filterType === '1') {
-        const year = new Date().getFullYear();
-        const month = parseInt(value) - 1;
-        const initialDate = new Date(year, month, 1).toISOString().split('T')[0];
-        const finalDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
+          const year = parseInt(value.substring(value.length - 4));
+          const month = parseInt(value.substring(0, value.length - 4)) - 1;
+          const initialDate = new Date(year, month, 1).toISOString().split('T')[0];
+          const finalDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
         setFilters(curr => ({ ...curr, initialDate, finalDate }));
         } else if (filterType === '2') {
-        const year = parseInt(value);
-        const initialDate = new Date(year, 0, 1).toISOString().split('T')[0];
-        const finalDate = new Date(year, 11, 31).toISOString().split('T')[0];
-        setFilters(curr => ({ ...curr, initialDate, finalDate }));
+          const year = parseInt(value);
+          const initialDate = new Date(year, 0, 1).toISOString().split('T')[0];
+          const finalDate = new Date(year, 11, 31).toISOString().split('T')[0];
+          setFilters(curr => ({ ...curr, initialDate, finalDate }));
         }
     }
 
@@ -109,7 +109,7 @@ export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
     }, [initialYearDate, finalYearDate]);
 
     useEffect(() => {
-        handleFilters(filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString()) : (selectedYear || new Date().getFullYear().toString()));
+        handleFilters(filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString() + `${new Date().getFullYear()}`) : (selectedYear || new Date().getFullYear().toString()));
     }, [filterType, selectedMonth, selectedYear]);
 
     useEffect(() => {
@@ -167,8 +167,13 @@ export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
     }
 
     const years = [];
+    const monthsFilter: { id: string; description: string }[] = [];
+
     for (let year = 2010; year <= currentYear + 100; year++) {
         years.push(year);
+        if (year <= currentYear + 5) {
+            monthsFilter.push(...months.map((month, index) => ({ id: (index + 1).toString() + `${year}`, description: month + `/${year}` })));
+        }
     }
 
     return (<div className="space-y-6">
@@ -246,8 +251,8 @@ export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
               {filterType !== '3' && <StSelect
                 label="Período"
                 htmlFor="expensesPer"
-                items={filterType === '1' ? months.map((month, index) => ({ id: (index + 1).toString(), description: month + `/${currentYear}` })) : years.map(year => ({ id: year.toString(), description: year.toString() }))}
-                value={filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString()) : (selectedYear || currentYear.toString())}
+                items={filterType === '1' ? monthsFilter : years.map(year => ({ id: year.toString(), description: year.toString() }))}
+                value={filterType === '1' ? (selectedMonth || (new Date().getMonth() + 1).toString() + `${currentYear}`) : (selectedYear || currentYear.toString())}
                 onChange={(value) => { if(filterType === '1') setSelectedMonth(value); else setSelectedYear(value); handleFilters(value); }}
                 loading={false}
                 searchable={false}
