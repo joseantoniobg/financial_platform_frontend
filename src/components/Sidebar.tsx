@@ -26,6 +26,7 @@ import {
   CoinsIcon,
   Target,
   Calendar,
+  LineChart
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -96,17 +97,21 @@ function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: I
     { icon: Target, label: 'Motivos de Reunião', href: '/motivos-reuniao', roles: ['Administrador', 'Consultor'] },
     { icon: Calendar, label: 'Agendamentos', href: '/agendamentos', roles: ['Administrador', 'Consultor'] },
     { icon: Calendar, label: 'Agenda', href: '/agendar-reuniao', roles: ['Cliente'] },
+    { icon: Target, label: 'Meus Objetivos', roles: ['Cliente'], href: `/clientes/${user?.sub}?module=planejamento` },
   ];
 
   const clientExpandableMenus = [
+    { id: 'investimentos',
+      icon: LineChart, 
+      label: 'Investimentos', 
+      roles: ['Cliente'], 
+      items: [{ icon: Wallet, label: 'Carteira', href: '/carteiras' }] },
     {
       id: 'lancamentos',
       icon: FileText,
       label: 'Lançamentos',
       roles: ['Cliente'],
       items: [
-        { icon: Target, label: 'Meus Objetivos', href: `/clientes/${user?.sub}?module=planejamento` },
-        { icon: Wallet, label: 'Carteiras', href: '/carteiras' },
         { icon: Tag, label: 'Categorias', href: '/transaction-categories' },
         { icon: Receipt, label: 'Transações', href: '/transactions' },
       ],
@@ -120,7 +125,7 @@ function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: I
         { icon: UserCog2, label: 'Meus Dados', href: `/clientes/${user?.sub}?module=dados-cadastrais` },
         { icon: CoinsIcon, label: 'Meu Patrimônio', href: `/clientes/${user?.sub}?module=patrimonio` },
         { icon: TrendingUp, label: 'Perfil de Investidor', href: '/perfil-investidor' },
-        { icon: ShieldCheck, label: 'Conformidade (PLD/CPFT + PEP)', href: '/conformidade' },
+        { icon: ShieldCheck, label: 'Compliance', href: '/conformidade' },
       ],
     },
   ];

@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useRequireAuth } from '@/hooks/useAuth';
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Loader2, ArrowLeft, Save, TrendingUp, Calendar, ChevronLeft, ChevronRight, AlertCircle, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, TrendingUp, Calendar, ChevronLeft, ChevronRight, AlertCircle, Plus, Pencil, Trash2, DollarSign, History } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
@@ -187,6 +187,28 @@ interface ClientSubscription {
   canceledAt?: string;
 }
 
+interface PaymentMethod {
+  id: string;
+  paymentType: 'Dinheiro' | 'Pix' | 'Cartão de Crédito / Débito';
+  name: string;
+  isActive: boolean;
+}
+
+interface SubscriptionCharge {
+  id: string;
+  subscriptionId: string;
+  paymentMethodId?: string;
+  paymentMethod?: PaymentMethod;
+  amount: number;
+  dueDate: string;
+  paymentDate?: string;
+  status: 'Pendente' | 'Pago' | 'Vencido' | 'Cancelado';
+  notes?: string;
+  chargedByUserId?: string;
+  chargedBy?: { id: string; name: string };
+  createdAt: string;
+}
+
 export default function EditClientPage({ searchParams }: { searchParams: Promise<{ module?: string | undefined }> }) {
   const { user } = useAuthStore();
   const isAuthenticated = useRequireAuth();
@@ -298,6 +320,21 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
     notes: ''
   });
   const [services, setServices] = useState<Service[]>([]);
+
+  // Subscription Charges state
+  const [selectedSubscriptionForCharges, setSelectedSubscriptionForCharges] = useState<string | null>(null);
+  const [charges, setCharges] = useState<SubscriptionCharge[]>([]);
+  const [loadingCharges, setLoadingCharges] = useState(false);
+  const [showChargeForm, setShowChargeForm] = useState(false);
+  const [chargeForm, setChargeForm] = useState({
+    paymentMethodId: '',
+    amount: '',
+    dueDate: '',
+    paymentDate: '',
+    status: 'Pago' as 'Pendente' | 'Pago' | 'Vencido' | 'Cancelado',
+    notes: ''
+  });
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
   const [categories, setCategories] = useState<ClientCategory[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
@@ -816,6 +853,94 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
       console.error('Error canceling subscription:', error);
       toast.error('Erro ao cancelar assinatura');
     }
+  };
+
+  // Subscription Charges handlers
+  const fetchPaymentMethods = async () => {
+    try {
+      const res = await fetch('/api/payment-methods');
+      if (res.ok) {
+        const data = await res.json();
+        setPaymentMethods(data);
+      }
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+    }
+  };
+
+  const fetchCharges = useCallback(async (subscriptionId: string) => {
+    setLoadingCharges(true);
+    try {
+      const res = await fetch(`/api/subscription-charges/subscription/${subscriptionId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCharges(data);
+      }
+    } catch (error) {
+      console.error('Error fetching charges:', error);
+    } finally {
+      setLoadingCharges(false);
+    }
+  }, []);
+
+  const handleChargeSubscription = (subscriptionId: string, subscription: ClientSubscription) => {
+    setSelectedSubscriptionForCharges(subscriptionId);
+    fetchCharges(subscriptionId);
+    fetchPaymentMethods();
+    setChargeForm({
+      paymentMethodId: '',
+      amount: subscription.amount?.toString() || '',
+      dueDate: '',
+      paymentDate: new Date().toISOString().split('T')[0],
+      status: 'Pago',
+      notes: ''
+    });
+    setShowChargeForm(true);
+  };
+
+  const handleSaveCharge = async () => {
+    if (!selectedSubscriptionForCharges || !chargeForm.paymentMethodId || !chargeForm.amount || !chargeForm.dueDate) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const payload = {
+        subscriptionId: selectedSubscriptionForCharges,
+        paymentMethodId: chargeForm.paymentMethodId,
+        amount: parseFloat(chargeForm.amount),
+        dueDate: chargeForm.dueDate,
+        paymentDate: chargeForm.paymentDate || undefined,
+        status: chargeForm.status,
+        notes: chargeForm.notes || undefined,
+        chargedByUserId: user?.sub
+      };
+
+      const res = await fetch('/api/subscription-charges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        toast.success('Cobrança registrada!');
+        setShowChargeForm(false);
+        if (selectedSubscriptionForCharges) {
+          await fetchCharges(selectedSubscriptionForCharges);
+        }
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Erro ao registrar cobrança');
+      }
+    } catch (error) {
+      console.error('Error saving charge:', error);
+      toast.error('Erro ao registrar cobrança');
+    }
+  };
+
+  const handleCancelChargeForm = () => {
+    setShowChargeForm(false);
+    setSelectedSubscriptionForCharges(null);
   };
 
   const fetchCategories = async () => {
@@ -1739,8 +1864,245 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                               }`}>
                                 {subscription.isActive ? 'Ativa' : 'Cancelada'}
                               </div>
+
+                              {/* Charge Actions */}
+                              {subscription.isActive && (
+                                <div className="flex gap-2 pt-2">
+                                  <Button
+                                    onClick={() => handleChargeSubscription(subscription.id, subscription)}
+                                    variant="default"
+                                    size="sm"
+                                    className="flex-1"
+                                  >
+                                    <DollarSign className="h-4 w-4 mr-2" />
+                                    Registrar Cobrança
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      setSelectedSubscriptionForCharges(subscription.id);
+                                      fetchCharges(subscription.id);
+                                    }}
+                                    variant="outline"
+                                    size="sm"
+                                  >
+                                    <History className="h-4 w-4 mr-2" />
+                                    Histórico
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           ))}
+                        </div>
+                      )}
+
+                      {/* Charge History Modal */}
+                      {selectedSubscriptionForCharges && !showChargeForm && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                          <div className="bg-[hsl(var(--card))] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto p-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                                Histórico de Cobranças
+                              </h3>
+                              <Button
+                                onClick={() => {
+                                  setSelectedSubscriptionForCharges(null);
+                                  setCharges([]);
+                                }}
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+
+                            {loadingCharges ? (
+                              <div className="flex items-center justify-center py-12">
+                                <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--foreground))]" />
+                              </div>
+                            ) : charges.length === 0 ? (
+                              <div className="text-center py-12">
+                                <History className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                                <p className="text-[hsl(var(--muted-foreground))]">
+                                  Nenhuma cobrança registrada
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {charges.map((charge) => (
+                                  <div
+                                    key={charge.id}
+                                    className="bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]/10 p-4"
+                                  >
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1 space-y-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                                            charge.status === 'Pago'
+                                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                              : charge.status === 'Pendente'
+                                              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                                              : charge.status === 'Vencido'
+                                              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                              : 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400'
+                                          }`}>
+                                            {charge.status}
+                                          </span>
+                                          <span className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                                            {new Intl.NumberFormat('pt-BR', {
+                                              style: 'currency',
+                                              currency: 'BRL'
+                                            }).format(charge.amount)}
+                                          </span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 text-sm text-[hsl(var(--muted-foreground))]">
+                                          <div>
+                                            <span className="font-medium">Vencimento:</span>{' '}
+                                            {new Date(charge.dueDate).toLocaleDateString('pt-BR')}
+                                          </div>
+                                          {charge.paymentDate && (
+                                            <div>
+                                              <span className="font-medium">Pagamento:</span>{' '}
+                                              {new Date(charge.paymentDate).toLocaleDateString('pt-BR')}
+                                            </div>
+                                          )}
+                                          {charge.paymentMethod && (
+                                            <div>
+                                              <span className="font-medium">Forma:</span>{' '}
+                                              {charge.paymentMethod.paymentType}
+                                            </div>
+                                          )}
+                                          {charge.chargedBy && (
+                                            <div>
+                                              <span className="font-medium">Registrado por:</span>{' '}
+                                              {charge.chargedBy.name}
+                                            </div>
+                                          )}
+                                        </div>
+                                        {charge.notes && (
+                                          <p className="text-sm text-[hsl(var(--muted-foreground))] italic">
+                                            {charge.notes}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Charge Form Modal */}
+                      {showChargeForm && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                          <div className="bg-[hsl(var(--card))] rounded-lg max-w-md w-full p-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                                Registrar Cobrança
+                              </h3>
+                              <Button
+                                onClick={handleCancelChargeForm}
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+
+                            <div className="space-y-4">
+                              <StSelect 
+                                label="Forma de Pagamento"
+                                htmlFor="paymentMethod"
+                                required
+                                loading={false}
+                                value={chargeForm.paymentMethodId}
+                                onChange={(e) =>
+                                  setChargeForm({ ...chargeForm, paymentMethodId: `${e}` })
+                                }
+                                items={paymentMethods.map((method) => ({
+                                  id: method.id,
+                                  description: method.paymentType
+                                }))}
+                              />
+
+                              <FormField
+                                label="Valor"
+                                htmlFor="amount"
+                                required
+                                type="number"
+                                step="0.01"
+                                value={chargeForm.amount}
+                                onChange={(e) =>
+                                  setChargeForm({ ...chargeForm, amount: e.target.value })
+                                }
+                                placeholder="0.00"
+                              />
+
+                              <FormField
+                                label="Data de Vencimento"
+                                htmlFor="dueDate"
+                                required
+                                type="date"
+                                value={chargeForm.dueDate}
+                                onChange={(e) =>
+                                  setChargeForm({ ...chargeForm, dueDate: e.target.value })
+                                }
+                              />
+
+                              <FormField
+                                label="Data de Pagamento"
+                                htmlFor="paymentDate"
+                                type="date"
+                                value={chargeForm.paymentDate}
+                                onChange={(e) =>
+                                  setChargeForm({ ...chargeForm, paymentDate: e.target.value })
+                                }
+                              />
+
+                              <StSelect 
+                                label="Status"
+                                htmlFor="status"
+                                required
+                                loading={false}
+                                value={chargeForm.status}
+                                onChange={(e) =>
+                                  setChargeForm({ ...chargeForm, status: e as 'Pendente' | 'Pago' | 'Vencido' | 'Cancelado' })
+                                }
+                                items={[
+                                  { id: 'Pendente', description: 'Pendente' },
+                                  { id: 'Pago', description: 'Pago' },
+                                  { id: 'Vencido', description: 'Vencido' },
+                                  { id: 'Cancelado', description: 'Cancelado' },
+                                ]}
+                              />
+
+                              <FormField
+                                label="Observações"
+                                htmlFor="notes"
+                                textArea
+                                value={chargeForm.notes}
+                                onChangeTextArea={(e) =>
+                                  setChargeForm({ ...chargeForm, notes: e.target.value })
+                                }
+                                placeholder="Informações adicionais..."
+                              />
+                            </div>
+
+                            <div className="flex gap-2 justify-end pt-4">
+                              <Button
+                                onClick={handleCancelChargeForm}
+                                variant="outline"
+                              >
+                                Cancelar
+                              </Button>
+                              <Button onClick={handleSaveCharge}>
+                                Registrar
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       )}
 
@@ -2136,7 +2498,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                       {/* Conformidade Section */}
                       <div className="mt-6 p-6 bg-[hsl(var(--card-accent))] rounded-lg border border-[hsl(var(--app-border))]">
                         <div className="pb-2 border-b border-gray-100 dark:border-gray-800 mb-4">
-                          <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">Conformidade (PLD/CPFT + PEP)</h4>
+                          <h4 className="text-lg font-semibold text-[hsl(var(--foreground))]">Compliance</h4>
                           <p className="text-sm text-[hsl(var(--muted-foreground))]">Informações de conformidade e PEP</p>
                         </div>
 
