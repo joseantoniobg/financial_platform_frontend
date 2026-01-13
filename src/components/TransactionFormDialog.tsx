@@ -10,7 +10,7 @@ import { DatePickerInput } from '@/components/ui/date-picker-input';
 import toast from 'react-hot-toast';
 import { StSelect } from './st-select';
 import { FormField } from './ui/form-field';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, User } from '@/store/authStore';
 
 interface TransactionType {
   id: string;
@@ -41,6 +41,7 @@ interface TransactionFormDialogProps {
   onOpenChange: (open: boolean) => void;
   transactionTypes: TransactionType[];
   onSuccess: () => void;
+  user: User;
 }
 
 export function TransactionFormDialog({
@@ -48,8 +49,8 @@ export function TransactionFormDialog({
   onOpenChange,
   transactionTypes,
   onSuccess,
+  user,
 }: TransactionFormDialogProps) {
-  const { user } = useAuthStore();
 
   const [typeId, setTypeId] = useState('');
   const [amount, setAmount] = useState<number>(0);
@@ -67,11 +68,9 @@ export function TransactionFormDialog({
   const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>([]);
   const [financialGoalId, setFinancialGoalId] = useState('');
 
-  // Check if selected type is Investimento
   const selectedType = transactionTypes.find((t) => t.id === typeId);
   const showInvestimentoOptions = selectedType?.direction === 'Investimento';
 
-  // Calculate next future date with specific day
   const getNextDateWithDay = (day: number): string => {
     const today = new Date();
     const currentDay = today.getDate();
@@ -150,12 +149,12 @@ export function TransactionFormDialog({
     }
   }, [open]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
 
     try {
       const payload = {
+        userId: user.sub,
         typeId,
         amount,
         transactionDate,
@@ -198,7 +197,7 @@ export function TransactionFormDialog({
         <DialogHeader>
           <DialogTitle className="text-[hsl(var(--foreground))]">Nova Transação</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4">
           <div>
             <Label htmlFor="typeId">Sub-categoria*</Label>
             <StSelect
@@ -380,7 +379,7 @@ export function TransactionFormDialog({
               Cancelar
             </Button>
             <Button 
-              type="submit" 
+              onClick={handleSubmit}
               disabled={loading}
             >
               {loading ? 'Salvando...' : 'Salvar'}

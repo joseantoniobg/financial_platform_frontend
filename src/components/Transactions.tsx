@@ -104,7 +104,8 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
 
   const fetchTransactionTypes = async () => {
     try {
-      const res = await fetch('/api/user-transaction-types');
+      const params = !showSubTitle ? `?userId=${user.sub}` : '';
+      const res = await fetch('/api/user-transaction-types' + params);
       if (res.ok) {
         const data = await res.json();
         const visibleTypes = data.filter((type: { direction?: string }) => 
@@ -283,7 +284,7 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
 
         <MainLoadableContent isLoading={loading} noItems={groupedTransactions.length === 0 ? "Nenhuma transação cadastrada" : ""}>
           <div className="bg-[hsl(var(--card))] rounded-lg shadow-md border border-[hsl(var(--app-border))]/50 divide-y divide-[hsl(var(--app-border))] mb-[-15px]">
-            {groupedTransactions.map((group) => {
+            {groupedTransactions.sort((a, b) => b[0].date.localeCompare(a[0].date)).map((group) => {
               const first = group[0];
               const total = group.reduce((sum, t) => sum + (t.calculation !== 3 ? parseFloat(t.amount.toString()) : 0), 0);
               const isExpanded = expandedTickets.has(first.ticket);
@@ -328,13 +329,13 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
                       </div>
                     </div>
                     {group.length > 1 && (
-                      <button
+                      <Button
                         onClick={() => handleDeleteByTicket(first.ticket)}
-                        className="flex items-center gap-1.5 px-2 py-1 text-xs text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                        className="bg-red-200 flex items-center px-2 m-2 text-xs text-red-500 hover:bg-red-500/10 rounded transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Excluir Grupo
-                      </button>
+                      </Button>
                     )}
                   </div>
 
@@ -367,7 +368,8 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <button
+                          <Button
+                            variant={"ghost"}
                             onClick={() => handleSetPaymentDate(transaction)}
                             className={`p-1.5 m-1 ml-4 rounded ${
                               transaction.paymentDate ?
@@ -384,14 +386,14 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
                               )}
                               {transaction.paymentDate ? transaction.verb + '!' : transaction.action}
                             </div>
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => handleDelete(transaction.id)}
-                            className="p-1.5 text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                            className="bg-red-200 p-1.5 text-red-500 hover:bg-red-500/10 rounded transition-colors"
                             title="Excluir"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -414,6 +416,7 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
           onOpenChange={setDialogOpen}
           transactionTypes={transactionTypes}
           onSuccess={fetchTransactions}
+          user={user}
         />
 
         <PaymentDateDialog
@@ -422,6 +425,7 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
           transactionId={selectedTransaction?.id || ''}
           currentPaymentDate={selectedTransaction?.paymentDate}
           onSuccess={fetchTransactions}
+          user={user}
         />
       </div>);
 }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { DatePickerInput } from '@/components/ui/date-picker-input';
 import toast from 'react-hot-toast';
+import { User } from '@/store/authStore';
 
 interface PaymentDateDialogProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface PaymentDateDialogProps {
   transactionId: string;
   currentPaymentDate?: string;
   onSuccess: () => void;
+  user: User;
 }
 
 export function PaymentDateDialog({
@@ -21,6 +23,7 @@ export function PaymentDateDialog({
   transactionId,
   currentPaymentDate,
   onSuccess,
+  user,
 }: PaymentDateDialogProps) {
   const [paymentDate, setPaymentDate] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,22 +33,20 @@ export function PaymentDateDialog({
       if (currentPaymentDate) {
         setPaymentDate(currentPaymentDate);
       } else {
-        // Default to today's date
         const today = new Date().toISOString().split('T')[0];
         setPaymentDate(today);
       }
     }
   }, [open, currentPaymentDate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
 
     try {
       const res = await fetch(`/api/transactions/${transactionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentDate }),
+        body: JSON.stringify({ paymentDate, userId: user.sub }),
       });
 
       if (!res.ok) {
@@ -71,7 +72,7 @@ export function PaymentDateDialog({
       const res = await fetch(`/api/transactions/${transactionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentDate: null }),
+        body: JSON.stringify({ paymentDate: null, userId: user.sub }),
       });
 
       if (!res.ok) {
@@ -92,13 +93,13 @@ export function PaymentDateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#0D2744]">
+      <DialogContent className="sm:max-w-[425px] bg-[hsl(var(--background))]">
         <DialogHeader>
-          <DialogTitle className="text-[#0A1929] dark:text-white">
+          <DialogTitle className="text-[hsl(var(--foreground))]">
             {currentPaymentDate ? 'Atualizar Data de Pagamento' : 'Registrar Pagamento'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4">
           <div>
             <Label htmlFor="paymentDate">Data do Pagamento*</Label>
             <DatePickerInput
@@ -131,14 +132,12 @@ export function PaymentDateDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
-              className="border-gray-300 dark:border-gray-600 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-800 dark:text-white"
             >
               Cancelar
             </Button>
             <Button
-              type="submit"
+              onClick={handleSubmit}
               disabled={loading}
-              className="bg-[#B4F481] text-[#0A1929] hover:bg-[#9FD96F] cursor-pointer border-0 dark:text-[#0A1929]"
             >
               {loading ? 'Salvando...' : 'Salvar'}
             </Button>

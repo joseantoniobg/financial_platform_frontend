@@ -23,6 +23,7 @@ import Schedulings from '@/components/Schedulings';
 import { StSelect } from '@/components/st-select';
 import { FormField } from '@/components/ui/form-field';
 import { HomeInfo } from '@/components/HomeInfo';
+import { Transactions } from '@/components/Transactions';
 
 interface Role {
   id: string;
@@ -1326,9 +1327,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!formData.login || !formData.name || !formData.email) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
@@ -1736,7 +1735,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
             <PageTitle title={isClient ? module === 'planejamento' ? "Meus Objetivos" : module === 'dados-cadastrais' ? "Meus Dados" : "Meu Patrimônio" : "Editar Cliente"} />
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form>
             <div className="bg-[hsl(var(--card))] rounded-lg shadow-lg border border-[hsl(var(--app-border))]/10 p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 {!isClient && <TabsList className="w-full justify-start mb-6">
@@ -1747,6 +1746,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   <TabsTrigger value="assinaturas">Assinaturas & Pagamentos</TabsTrigger>
                   <TabsTrigger value="planejamento">Objetivos & Planejamento Financeiro</TabsTrigger>
                   <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                  <TabsTrigger value="transacoes">Transações</TabsTrigger>
                 </TabsList>}
 
                 {/* Tab: Dados Cadastrais - Contains all 4 sectors */}
@@ -1772,6 +1772,10 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
 
                 <TabsContent value="dashboard" className="space-y-6">
                   <HomeInfo user={{ sub: clientId || '', username: '', name: '', roles: [{ id: 2, name: 'Cliente' }] }} showWelcomeMessage={false} />
+                </TabsContent>
+
+                <TabsContent value="transacoes" className="space-y-6">
+                  <Transactions user={{ sub: clientId || '', username: '', name: '', roles: [{ id: 2, name: 'Cliente' }] }} showSubTitle={false} />
                 </TabsContent>
 
                 {/* Tab: Assinaturas & Pagamentos */}
@@ -2699,7 +2703,7 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                   Cancelar
                 </Button>
                 <Button
-                  type="submit"
+                  onClick={handleSubmit}
                   disabled={saving}
                 >
                   {saving && <Loader2 className="h-4 w-4 animate-spin" />}
