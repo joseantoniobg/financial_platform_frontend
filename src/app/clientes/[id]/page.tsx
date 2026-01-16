@@ -24,6 +24,7 @@ import { StSelect } from '@/components/st-select';
 import { FormField } from '@/components/ui/form-field';
 import { HomeInfo } from '@/components/HomeInfo';
 import { Transactions } from '@/components/Transactions';
+import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface Role {
   id: string;
@@ -1959,27 +1960,24 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                                             {charge.status}
                                           </span>
                                           <span className="text-lg font-semibold text-[hsl(var(--foreground))]">
-                                            {new Intl.NumberFormat('pt-BR', {
-                                              style: 'currency',
-                                              currency: 'BRL'
-                                            }).format(charge.amount)}
+                                            {formatCurrency(charge.amount)}
                                           </span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 text-sm text-[hsl(var(--muted-foreground))]">
                                           <div>
                                             <span className="font-medium">Vencimento:</span>{' '}
-                                            {new Date(charge.dueDate).toLocaleDateString('pt-BR')}
+                                            {formatDate(charge.dueDate)}
                                           </div>
                                           {charge.paymentDate && (
                                             <div>
                                               <span className="font-medium">Pagamento:</span>{' '}
-                                              {new Date(charge.paymentDate).toLocaleDateString('pt-BR')}
+                                              {formatDate(charge.paymentDate)}
                                             </div>
                                           )}
                                           {charge.paymentMethod && (
                                             <div>
                                               <span className="font-medium">Forma:</span>{' '}
-                                              {charge.paymentMethod.paymentType}
+                                              {charge.paymentMethod.name}
                                             </div>
                                           )}
                                           {charge.chargedBy && (
@@ -2028,13 +2026,14 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                                 htmlFor="paymentMethod"
                                 required
                                 loading={false}
+                                searchable={false}
                                 value={chargeForm.paymentMethodId}
                                 onChange={(e) =>
                                   setChargeForm({ ...chargeForm, paymentMethodId: `${e}` })
                                 }
                                 items={paymentMethods.map((method) => ({
                                   id: method.id,
-                                  description: method.paymentType
+                                  description: method.name
                                 }))}
                               />
 
@@ -2042,33 +2041,31 @@ export default function EditClientPage({ searchParams }: { searchParams: Promise
                                 label="Valor"
                                 htmlFor="amount"
                                 required
-                                type="number"
-                                step="0.01"
+                                currency
                                 value={chargeForm.amount}
-                                onChange={(e) =>
-                                  setChargeForm({ ...chargeForm, amount: e.target.value })
+                                onChangeValue={(val) =>
+                                  setChargeForm({ ...chargeForm, amount: `${val}` })
                                 }
-                                placeholder="0.00"
                               />
 
                               <FormField
                                 label="Data de Vencimento"
                                 htmlFor="dueDate"
                                 required
-                                type="date"
+                                date
                                 value={chargeForm.dueDate}
-                                onChange={(e) =>
-                                  setChargeForm({ ...chargeForm, dueDate: e.target.value })
+                                onChangeValue={(val) =>
+                                  setChargeForm({ ...chargeForm, dueDate: `${val}` })
                                 }
                               />
 
                               <FormField
                                 label="Data de Pagamento"
                                 htmlFor="paymentDate"
-                                type="date"
+                                date
                                 value={chargeForm.paymentDate}
-                                onChange={(e) =>
-                                  setChargeForm({ ...chargeForm, paymentDate: e.target.value })
+                                onChangeValue={(val) =>
+                                  setChargeForm({ ...chargeForm, paymentDate: `${val}` })
                                 }
                               />
 

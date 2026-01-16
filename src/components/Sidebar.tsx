@@ -26,7 +26,8 @@ import {
   CoinsIcon,
   Target,
   Calendar,
-  LineChart
+  LineChart,
+  CreditCard
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from './ThemeToggle';
@@ -92,6 +93,7 @@ function SidebarComponent({ userName, isCollapsed, setIsCollapsed, children }: I
     { icon: Users, label: 'Usuários', href: '/users', roles: ['Administrador'] },
     { icon: UserCheck, label: 'Clientes', href: '/clientes', roles: ['Administrador', 'Consultor'] },
     { icon: Briefcase, label: 'Serviços', href: '/services', roles: ['Administrador', 'Consultor'] },
+    { icon: CreditCard, label: 'Métodos de Pagamento', href: '/payment-methods', roles: ['Administrador'] },
     { icon: UserCog, label: 'Atribuições', href: '/client-assignments', roles: ['Administrador', 'Consultor'] },
     { icon: MapPin, label: 'Localidades', href: '/locations', roles: ['Administrador', 'Consultor'] },
     { icon: Target, label: 'Motivos de Reunião', href: '/motivos-reuniao', roles: ['Administrador', 'Consultor'] },
