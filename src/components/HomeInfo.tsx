@@ -13,6 +13,8 @@ import { FormField } from "./ui/form-field";
 import IncomeExpenseChart from "./incomes-expenses-chart";
 import { useCallback, useEffect, useState } from "react";
 import { useRequireAuth } from "@/hooks/useAuth";
+import { ConsultantFollowUp, FollowUpItem } from "./ConsultantFollowUp";
+import { ClientTasksCard } from "./ClientTasksCard";
 
 interface HomeInfoProps {
     showWelcomeMessage?: boolean;
@@ -48,6 +50,7 @@ type DashboardData = {
         },
   ],
   roles: string[];
+  pendingTasks?: number;
 }
 
 type ConsultantDashboardData = {
@@ -55,6 +58,7 @@ type ConsultantDashboardData = {
   monthMeetings: number;
   futureSchedules: number;
   alerts: {id: string, name: string, meeting_date: string, subject: string, type: string }[];
+  followUps?: FollowUpItem[];
 }
 
 export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
@@ -230,9 +234,16 @@ export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
               </div>
             </StCard>
           </div>
+          <div>
+            <ConsultantFollowUp
+              followUps={consultantData?.followUps || []}
+              onRefresh={fetchDashboardData}
+            />
+          </div>
         </>)}
     {filters.selectedRole === 2 && (
          <>
+          <ClientTasksCard />
           <div className='grid grid-cols-1 lg:flex lg:justify-between'>
             <div className='flex gap-3 m-2'>
               <StSelect

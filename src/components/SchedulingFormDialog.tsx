@@ -45,6 +45,7 @@ interface SchedulingFormDialogProps {
   onClose: () => void;
   scheduling: Scheduling | null;
   onSuccess: () => void;
+  defaultClientId?: string;
 }
 
 export function SchedulingFormDialog({
@@ -52,6 +53,7 @@ export function SchedulingFormDialog({
   onClose,
   scheduling,
   onSuccess,
+  defaultClientId,
 }: SchedulingFormDialogProps) {
   const { user } = useAuthStore();
   const [clients, setClients] = useState<User[]>([]);
@@ -105,11 +107,11 @@ export function SchedulingFormDialog({
         reset();
       }
     }
-  }, [open, scheduling]);
+  }, [open, scheduling, defaultClientId]);
 
   const reset = () => {
     setUserId(user?.sub || '');
-    setClientId('');
+    setClientId(defaultClientId || '');
     setMeetingReasonId('');
     setMeetingDate('');
     setStartHour('09');
