@@ -247,7 +247,7 @@ export function ConsultantFollowUp({ followUps, onRefresh }: ConsultantFollowUpP
                       onClick={() =>
                         updateNotesState(item.id, () => ({
                           draft: '',
-                          value: noteState.value,
+                          value: '',
                           focused: true,
                           saving: false,
                         }))
