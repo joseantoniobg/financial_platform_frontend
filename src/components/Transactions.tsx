@@ -121,13 +121,15 @@ export function Transactions({ user, showSubTitle }: { user: User, showSubTitle?
   const categories = useMemo(() => {
     const uniqueCategories: { [key: string]: string } = {};
     transactionTypes.forEach((type) => {
-      uniqueCategories[type.category.id] = type.category.category;
+      if (type.category && !uniqueCategories[type.category.id]) {
+        uniqueCategories[type.category.id] = type.category.category;
+      }
     });
     return Object.entries(uniqueCategories).map(([id, category]) => ({ id, category }));
   }, [transactionTypes]);
 
   const selectedTransactionTypes = useMemo(() => {
-    return transactionTypes.filter((type) => filters.categoryIds.includes(type.category.id));
+    return transactionTypes.filter((type) => filters.categoryIds.includes(type?.category?.id));
   }, [filters.categoryIds, transactionTypes]);
 
   const fetchWallets = async () => {

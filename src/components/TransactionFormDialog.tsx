@@ -207,7 +207,7 @@ export function TransactionFormDialog({
               onChange={(e) => setTypeId(e)}
               required
               htmlFor='transaction-type'
-              items={transactionTypes.map((tt) => ({ id: tt.id, description: `${tt.type} (${tt.category.category})` }))}
+              items={transactionTypes.map((tt) => ({ id: tt.id, description: `${tt.type} (${tt.category ? tt.category.category : ''})` }))}
             />
           </div>
 
