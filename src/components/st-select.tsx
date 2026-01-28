@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
-export function StSelect({ items, value, onChange, loading, htmlFor, label, searchable = true, required, horizontal }: { label: string; htmlFor: string; items: { id: string; description: string }[]; value: string; onChange: (value: string) => void; loading: boolean; searchable?: boolean; required?: boolean; horizontal?: boolean }) {
+export function StSelect({ items, value, onChange, loading, htmlFor, label, searchable = true, required, horizontal, query, setQuery }: { label: string; htmlFor: string; items: { id: string; description: string }[]; value: string; onChange: (value: string) => void; loading: boolean; searchable?: boolean; required?: boolean; horizontal?: boolean; query?: string; setQuery?: (query: string) => void }) {
     return (<div className={`flex align-middle ${horizontal ? 'flex-row items-center gap-2' : 'flex-col'}`}>
               <Label htmlFor={htmlFor} className="text-[hsl(var(--foreground))] mb-1 block">
                 {label} {required && <span className="text-red-500">*</span>}
@@ -14,7 +14,7 @@ export function StSelect({ items, value, onChange, loading, htmlFor, label, sear
                 <SelectTrigger className="bg-[hsl(var(--card-accent))] border-[hsl(var(--app-border))] text-[hsl(var(--foreground))]">
                   <SelectValue placeholder={loading ? "Carregando..." : "Selecione..."} />
                 </SelectTrigger>
-                <SelectContent searchable={searchable} className="bg-[hsl(var(--card-accent))] border-[hsl(var(--border))]">
+                <SelectContent searchable={searchable} className="bg-[hsl(var(--card-accent))] border-[hsl(var(--border))]" query={query} setQuery={setQuery}>
                   {items.map((item) => (
                     <SelectItem key={item.id} value={item.id} className="text-[hsl(var(--foreground))]">
                       {item.description}

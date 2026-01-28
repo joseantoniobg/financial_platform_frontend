@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -73,6 +73,8 @@ export function SchedulingFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isAdmin = user?.roles.some(r => r.name === 'Administrador');
   const isConsultantOrAdmin = user?.roles.some(r => r.name === 'Consultor' || r.name === 'Administrador');
+  const [query, setQuery] = useState('');
+  const [loadingClients, setLoadingClients] = useState(false);
 
   // Generate hours (00-23) and minutes (00, 15, 30, 45)
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
@@ -108,6 +110,25 @@ export function SchedulingFormDialog({
       }
     }
   }, [open, scheduling, defaultClientId]);
+
+  const fetchClients = useMemo(() => async () => {
+    try {
+      setLoadingClients(true);
+      const response = await fetch(`/api/clients?search=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setClients(data.users);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    } finally {
+      setLoadingClients(false);
+    }
+  }, [query]);
+
+  useEffect(() => {
+    fetchClients();
+  }, [query]);
 
   const reset = () => {
     setUserId(user?.sub || '');
@@ -156,18 +177,6 @@ export function SchedulingFormDialog({
     setMeetingDate(date);
     if (!endDate) {
       setEndDate(date);
-    }
-  };
-
-  const fetchClients = async () => {
-    try {
-      const response = await fetch('/api/clients');
-      if (response.ok) {
-        const data = await response.json();
-        setClients(data.users);
-      }
-    } catch (error) {
-      console.error('Error fetching clients:', error);
     }
   };
 
@@ -318,7 +327,9 @@ export function SchedulingFormDialog({
             required={false}
             value={clientId}
             onChange={setClientId}
-            loading={false}
+            query={query}
+            setQuery={setQuery}
+            loading={loadingClients}
             items={[{ id: 'None', description: 'Nenhum' }, ...clients.map(c => ({
               id: c.id,
               description: `${c.name} (${c.email})`

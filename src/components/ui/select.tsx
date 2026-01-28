@@ -72,14 +72,19 @@ type SelectContentProps = React.ComponentPropsWithoutRef<
   typeof SelectPrimitive.Content
 > & {
   searchable?: boolean
-  searchPlaceholder?: string
+  searchPlaceholder?: string,
+  query?: string,
+  setQuery?: (query: string) => void
 }
 
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   SelectContentProps
->(({ className, children, position = 'popper', searchable = false, searchPlaceholder = 'Buscar...', ...props }, ref) => {
-  const [query, setQuery] = React.useState('')
+>(({ className, children, position = 'popper', searchable = false, searchPlaceholder = 'Buscar...', query, setQuery, ...props }, ref) => {
+  const [internalQuery, setInternalQuery] = React.useState('')
+  // Use internal state if external state is not provided
+  const currentQuery = query !== undefined ? query : internalQuery
+  const setCurrentQuery = setQuery !== undefined ? setQuery : setInternalQuery
 
   // Filter children (SelectItem) by text content when searchable
   const filteredChildren = React.useMemo(() => {
@@ -141,8 +146,8 @@ const SelectContent = React.forwardRef<
                   <div className="px-2 pb-1">
                     <input
                       type="text"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
+                      value={currentQuery}
+                      onChange={(e) => setCurrentQuery(e.target.value)}
                       placeholder={searchPlaceholder}
                               // prevent Radix keyboard handlers from stealing focus and ensure theme-safe text color
                               onKeyDown={(e) => e.stopPropagation()}
