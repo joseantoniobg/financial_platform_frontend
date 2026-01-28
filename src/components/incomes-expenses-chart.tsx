@@ -59,7 +59,7 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
           data={totalMonths}
           barGap={4}
           layout='horizontal'
-          margin={{ top: 20 }}
+          margin={{ top: 20, left: 10 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis 
