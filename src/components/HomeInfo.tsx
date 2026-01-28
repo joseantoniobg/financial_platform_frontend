@@ -327,14 +327,14 @@ export function HomeInfo({ showWelcomeMessage, user }: HomeInfoProps) {
             <StCard className='p-10'>
               <PageTitle title={<span><ArrowDownToDot className="inline-block w-9 h-9 text-red-500" /> Saídas</span>} />
               <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                <PieChartHome items={dashboardData?.expenses.map(expense => ({ name: expense.category, value: expense.total }))} />
+                <PieChartHome items={dashboardData?.expensesPerCategory.map(expense => ({ name: expense.category, value: expense.total }))} />
                 <div className='flex flex-col justify-center'>
-                  {dashboardData?.expenses.filter(expense => expense.total !== 0).length === 0 && <span className='text-center'>Nenhuma saída registrada neste período.</span>}
-                  {dashboardData?.expenses.filter(expense => expense.total !== 0).map((expense, index) => (
+                  {dashboardData?.expensesPerCategory.filter(expense => expense.total !== 0).length === 0 && <span className='text-center'>Nenhuma saída registrada neste período.</span>}
+                  {dashboardData?.expensesPerCategory.filter(expense => expense.total !== 0).map((expense, index) => (
                     <div key={index} className='flex justify-between my-2'>
                       <div className='flex items-center gap-2'>
                         <div className='w-4 h-4 rounded-sm' style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                        <span>{expense.type}</span>
+                        <span>{expense.category}</span>
                       </div>
                       <span>{formatCurrency(expense.total)}</span>
                     </div>

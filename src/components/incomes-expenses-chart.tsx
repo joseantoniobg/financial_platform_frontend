@@ -59,6 +59,7 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
           data={totalMonths}
           barGap={4}
           layout='horizontal'
+          margin={{ top: 20 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis 
@@ -70,7 +71,7 @@ const IncomeExpenseChart = ({ months, selectedYear }: { months?: { paymentMonth:
           <YAxis 
             tick={{ fontSize: 12 }}
             tickFormatter={(value) => formatCurrency(value).replace('R$ ', '').split(',')[0]}
-            width={45}
+            width={35}
           />
           <Tooltip 
             formatter={(value) => formatCurrency(value as number)}
